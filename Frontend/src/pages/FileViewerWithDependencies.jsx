@@ -342,6 +342,140 @@ const DependencySnippet = ({ file, snippet, selectedText }) => {
     );
 };
 
+const FileConnectionsSection = React.memo(({
+    fileRelations,
+    relationsLoading,
+    relationsError,
+}) => {
+    const incomingFileDeps = fileRelations?.incoming || [];
+    const outgoingFileDeps = fileRelations?.outgoing || [];
+    const staticIncoming = fileRelations?.staticIncoming || [];
+    const staticOutgoing = fileRelations?.staticOutgoing || [];
+    const runtimeIncoming = fileRelations?.runtimeIncoming || [];
+    const runtimeOutgoing = fileRelations?.runtimeOutgoing || [];
+    const hasLiveFileData = Boolean(fileRelations?.hasLiveData);
+
+    return (
+        <div
+            style={{
+                border: '1px solid var(--border)',
+                borderRadius: '0.5rem',
+                padding: '0.75rem',
+                marginBottom: '1rem',
+                background: 'var(--bg-muted)',
+            }}
+        >
+            <div className="flex items-center gap-2" style={{ marginBottom: '0.6rem' }}>
+                <Link2 size={14} style={{ color: '#3b82f6' }} />
+                <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: '#3b82f6' }}>
+                    This file connects to
+                </span>
+                {relationsLoading && <Loader2 size={12} className="animate-spin" style={{ color: 'var(--text-muted)' }} />}
+            </div>
+
+            {!hasLiveFileData && (
+                <p className="text-xs" style={{ color: 'var(--text-muted)', margin: 0 }}>
+                    File connections appear here once a scan is available.
+                </p>
+            )}
+
+            {relationsError && (
+                <p className="text-xs" style={{ color: '#ef4444', margin: '0 0 0.5rem 0' }}>
+                    Could not load file-level relationships.
+                </p>
+            )}
+
+            {hasLiveFileData && !relationsLoading && (
+                <div style={{ display: 'grid', gap: '0.65rem' }}>
+                    <div>
+                        <div className="text-xs" style={{ color: '#f97316', fontWeight: 600, marginBottom: '0.35rem' }}>
+                            Used by ({incomingFileDeps.length})
+                        </div>
+                        {incomingFileDeps.length === 0 ? (
+                            <div className="text-xs" style={{ color: 'var(--text-muted)' }}>No incoming dependencies.</div>
+                        ) : (
+                            <div style={{ display: 'grid', gap: '0.25rem', maxHeight: '120px', overflowY: 'auto' }}>
+                                {incomingFileDeps.slice(0, 40).map((item) => (
+                                    <div key={`in-${item}`} className="flex items-start gap-1" style={{ color: 'var(--text)', fontSize: '0.72rem' }}>
+                                        <ArrowRight size={11} style={{ marginTop: '2px', color: '#f97316', flexShrink: 0 }} />
+                                        <span style={{ wordBreak: 'break-word' }}>{item}</span>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+
+                    <div>
+                        <div className="text-xs" style={{ color: 'var(--text)', fontWeight: 600, marginBottom: '0.35rem' }}>
+                            Static links ({staticIncoming.length + staticOutgoing.length})
+                        </div>
+                        {staticIncoming.length === 0 && staticOutgoing.length === 0 ? (
+                            <div className="text-xs" style={{ color: 'var(--text-muted)' }}>No static relationships.</div>
+                        ) : (
+                            <div style={{ display: 'grid', gap: '0.25rem', maxHeight: '120px', overflowY: 'auto' }}>
+                                {staticIncoming.slice(0, 20).map((item) => (
+                                    <div key={`static-in-${item}`} className="flex items-start gap-1" style={{ color: 'var(--text)', fontSize: '0.72rem' }}>
+                                        <ArrowRight size={11} style={{ marginTop: '2px', color: '#f97316', flexShrink: 0 }} />
+                                        <span style={{ wordBreak: 'break-word' }}>{item}</span>
+                                    </div>
+                                ))}
+                                {staticOutgoing.slice(0, 20).map((item) => (
+                                    <div key={`static-out-${item}`} className="flex items-start gap-1" style={{ color: 'var(--text)', fontSize: '0.72rem' }}>
+                                        <ArrowRight size={11} style={{ marginTop: '2px', color: '#3b82f6', flexShrink: 0 }} />
+                                        <span style={{ wordBreak: 'break-word' }}>{item}</span>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+
+                    <div>
+                        <div className="text-xs" style={{ color: 'var(--text)', fontWeight: 600, marginBottom: '0.35rem' }}>
+                            Runtime links ({runtimeIncoming.length + runtimeOutgoing.length})
+                        </div>
+                        {runtimeIncoming.length === 0 && runtimeOutgoing.length === 0 ? (
+                            <div className="text-xs" style={{ color: 'var(--text-muted)' }}>No runtime relationships.</div>
+                        ) : (
+                            <div style={{ display: 'grid', gap: '0.25rem', maxHeight: '120px', overflowY: 'auto' }}>
+                                {runtimeIncoming.slice(0, 20).map((item) => (
+                                    <div key={`runtime-in-${item}`} className="flex items-start gap-1" style={{ color: 'var(--text)', fontSize: '0.72rem' }}>
+                                        <ArrowRight size={11} style={{ marginTop: '2px', color: '#22c55e', flexShrink: 0 }} />
+                                        <span style={{ wordBreak: 'break-word' }}>{item}</span>
+                                    </div>
+                                ))}
+                                {runtimeOutgoing.slice(0, 20).map((item) => (
+                                    <div key={`runtime-out-${item}`} className="flex items-start gap-1" style={{ color: 'var(--text)', fontSize: '0.72rem' }}>
+                                        <ArrowRight size={11} style={{ marginTop: '2px', color: '#22c55e', flexShrink: 0 }} />
+                                        <span style={{ wordBreak: 'break-word' }}>{item}</span>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+
+                    <div>
+                        <div className="text-xs" style={{ color: '#3b82f6', fontWeight: 600, marginBottom: '0.35rem' }}>
+                            Uses ({outgoingFileDeps.length})
+                        </div>
+                        {outgoingFileDeps.length === 0 ? (
+                            <div className="text-xs" style={{ color: 'var(--text-muted)' }}>No outgoing dependencies.</div>
+                        ) : (
+                            <div style={{ display: 'grid', gap: '0.25rem', maxHeight: '120px', overflowY: 'auto' }}>
+                                {outgoingFileDeps.slice(0, 40).map((item) => (
+                                    <div key={`out-${item}`} className="flex items-start gap-1" style={{ color: 'var(--text)', fontSize: '0.72rem' }}>
+                                        <ArrowRight size={11} style={{ marginTop: '2px', color: '#3b82f6', flexShrink: 0 }} />
+                                        <span style={{ wordBreak: 'break-word' }}>{item}</span>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+                </div>
+            )}
+        </div>
+    );
+});
+
 // ─── DependencyPanel ───────────────────────────────────────────────────────────
 
 const DependencyPanel = ({
@@ -360,13 +494,6 @@ const DependencyPanel = ({
     onClear,
 }) => {
     const impactedFiles = Array.isArray(dependencies) ? dependencies : [];
-    const incomingFileDeps = fileRelations?.incoming || [];
-    const outgoingFileDeps = fileRelations?.outgoing || [];
-    const staticIncoming = fileRelations?.staticIncoming || [];
-    const staticOutgoing = fileRelations?.staticOutgoing || [];
-    const runtimeIncoming = fileRelations?.runtimeIncoming || [];
-    const runtimeOutgoing = fileRelations?.runtimeOutgoing || [];
-    const hasLiveFileData = Boolean(fileRelations?.hasLiveData);
     const detailedPlan = agentPreview?.llmDetailedImpact?.plan || null;
     const renameCandidates = Array.isArray(detailedPlan?.renameCandidates) ? detailedPlan.renameCandidates : [];
     const detailedFileEdits = Array.isArray(detailedPlan?.fileEdits) ? detailedPlan.fileEdits : [];
@@ -420,123 +547,11 @@ const DependencyPanel = ({
 
             {/* Content */}
             <div className="flex-1 overflow-auto px-4 py-3" style={{ color: 'var(--text)' }}>
-                <div
-                    style={{
-                        border: '1px solid var(--border)',
-                        borderRadius: '0.5rem',
-                        padding: '0.75rem',
-                        marginBottom: '1rem',
-                        background: 'var(--bg-muted)',
-                    }}
-                >
-                    <div className="flex items-center gap-2" style={{ marginBottom: '0.6rem' }}>
-                        <Link2 size={14} style={{ color: '#3b82f6' }} />
-                        <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: '#3b82f6' }}>
-                            This file connects to
-                        </span>
-                        {relationsLoading && <Loader2 size={12} className="animate-spin" style={{ color: 'var(--text-muted)' }} />}
-                    </div>
-
-                    {!hasLiveFileData && (
-                        <p className="text-xs" style={{ color: 'var(--text-muted)', margin: 0 }}>
-                            File connections appear here once a scan is available.
-                        </p>
-                    )}
-
-                    {relationsError && (
-                        <p className="text-xs" style={{ color: '#ef4444', margin: '0 0 0.5rem 0' }}>
-                            Could not load file-level relationships.
-                        </p>
-                    )}
-
-                    {hasLiveFileData && !relationsLoading && (
-                        <div style={{ display: 'grid', gap: '0.65rem' }}>
-                            <div>
-                                <div className="text-xs" style={{ color: '#f97316', fontWeight: 600, marginBottom: '0.35rem' }}>
-                                    Used by ({incomingFileDeps.length})
-                                </div>
-                                {incomingFileDeps.length === 0 ? (
-                                    <div className="text-xs" style={{ color: 'var(--text-muted)' }}>No incoming dependencies.</div>
-                                ) : (
-                                    <div style={{ display: 'grid', gap: '0.25rem', maxHeight: '120px', overflowY: 'auto' }}>
-                                        {incomingFileDeps.slice(0, 40).map((item) => (
-                                            <div key={`in-${item}`} className="flex items-start gap-1" style={{ color: 'var(--text)', fontSize: '0.72rem' }}>
-                                                <ArrowRight size={11} style={{ marginTop: '2px', color: '#f97316', flexShrink: 0 }} />
-                                                <span style={{ wordBreak: 'break-word' }}>{item}</span>
-                                            </div>
-                                        ))}
-                                    </div>
-                                )}
-                            </div>
-
-                            <div>
-                                <div className="text-xs" style={{ color: 'var(--text)', fontWeight: 600, marginBottom: '0.35rem' }}>
-                                    Static links ({staticIncoming.length + staticOutgoing.length})
-                                </div>
-                                {staticIncoming.length === 0 && staticOutgoing.length === 0 ? (
-                                    <div className="text-xs" style={{ color: 'var(--text-muted)' }}>No static relationships.</div>
-                                ) : (
-                                    <div style={{ display: 'grid', gap: '0.25rem', maxHeight: '120px', overflowY: 'auto' }}>
-                                        {staticIncoming.slice(0, 20).map((item) => (
-                                            <div key={`static-in-${item}`} className="flex items-start gap-1" style={{ color: 'var(--text)', fontSize: '0.72rem' }}>
-                                                <ArrowRight size={11} style={{ marginTop: '2px', color: '#f97316', flexShrink: 0 }} />
-                                                <span style={{ wordBreak: 'break-word' }}>{item}</span>
-                                            </div>
-                                        ))}
-                                        {staticOutgoing.slice(0, 20).map((item) => (
-                                            <div key={`static-out-${item}`} className="flex items-start gap-1" style={{ color: 'var(--text)', fontSize: '0.72rem' }}>
-                                                <ArrowRight size={11} style={{ marginTop: '2px', color: '#3b82f6', flexShrink: 0 }} />
-                                                <span style={{ wordBreak: 'break-word' }}>{item}</span>
-                                            </div>
-                                        ))}
-                                    </div>
-                                )}
-                            </div>
-
-                            <div>
-                                <div className="text-xs" style={{ color: 'var(--text)', fontWeight: 600, marginBottom: '0.35rem' }}>
-                                    Runtime links ({runtimeIncoming.length + runtimeOutgoing.length})
-                                </div>
-                                {runtimeIncoming.length === 0 && runtimeOutgoing.length === 0 ? (
-                                    <div className="text-xs" style={{ color: 'var(--text-muted)' }}>No runtime relationships.</div>
-                                ) : (
-                                    <div style={{ display: 'grid', gap: '0.25rem', maxHeight: '120px', overflowY: 'auto' }}>
-                                        {runtimeIncoming.slice(0, 20).map((item) => (
-                                            <div key={`runtime-in-${item}`} className="flex items-start gap-1" style={{ color: 'var(--text)', fontSize: '0.72rem' }}>
-                                                <ArrowRight size={11} style={{ marginTop: '2px', color: '#22c55e', flexShrink: 0 }} />
-                                                <span style={{ wordBreak: 'break-word' }}>{item}</span>
-                                            </div>
-                                        ))}
-                                        {runtimeOutgoing.slice(0, 20).map((item) => (
-                                            <div key={`runtime-out-${item}`} className="flex items-start gap-1" style={{ color: 'var(--text)', fontSize: '0.72rem' }}>
-                                                <ArrowRight size={11} style={{ marginTop: '2px', color: '#22c55e', flexShrink: 0 }} />
-                                                <span style={{ wordBreak: 'break-word' }}>{item}</span>
-                                            </div>
-                                        ))}
-                                    </div>
-                                )}
-                            </div>
-
-                            <div>
-                                <div className="text-xs" style={{ color: '#3b82f6', fontWeight: 600, marginBottom: '0.35rem' }}>
-                                    Uses ({outgoingFileDeps.length})
-                                </div>
-                                {outgoingFileDeps.length === 0 ? (
-                                    <div className="text-xs" style={{ color: 'var(--text-muted)' }}>No outgoing dependencies.</div>
-                                ) : (
-                                    <div style={{ display: 'grid', gap: '0.25rem', maxHeight: '120px', overflowY: 'auto' }}>
-                                        {outgoingFileDeps.slice(0, 40).map((item) => (
-                                            <div key={`out-${item}`} className="flex items-start gap-1" style={{ color: 'var(--text)', fontSize: '0.72rem' }}>
-                                                <ArrowRight size={11} style={{ marginTop: '2px', color: '#3b82f6', flexShrink: 0 }} />
-                                                <span style={{ wordBreak: 'break-word' }}>{item}</span>
-                                            </div>
-                                        ))}
-                                    </div>
-                                )}
-                            </div>
-                        </div>
-                    )}
-                </div>
+                <FileConnectionsSection
+                    fileRelations={fileRelations}
+                    relationsLoading={relationsLoading}
+                    relationsError={relationsError}
+                />
 
                 <div
                     style={{
@@ -805,9 +820,8 @@ const FileViewerWithDependencies = () => {
         { scanId: currentScanId, filePath },
         {
             skip: !currentScanId || !filePath,
-            pollingInterval: 5000,
-            refetchOnFocus: true,
-            refetchOnReconnect: true,
+            refetchOnFocus: false,
+            refetchOnReconnect: false,
         }
     );
 
