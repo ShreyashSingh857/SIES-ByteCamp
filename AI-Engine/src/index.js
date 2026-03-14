@@ -1,11 +1,16 @@
 const fs = require('fs');
 const path = require('path');
+const dotenv = require('dotenv');
 const { runStaticAnalysis } = require('./pipeline/runStaticAnalysis');
+
+dotenv.config();
 
 function parseArguments(argv) {
   const args = {
     repo: null,
     out: null,
+    withLlm: false,
+    model: null,
   };
 
   for (let index = 0; index < argv.length; index += 1) {
@@ -22,6 +27,17 @@ function parseArguments(argv) {
       index += 1;
       continue;
     }
+
+    if (token === '--with-llm') {
+      args.withLlm = true;
+      continue;
+    }
+
+    if (token === '--model') {
+      args.model = argv[index + 1] ?? null;
+      index += 1;
+      continue;
+    }
   }
 
   return args;
@@ -33,14 +49,17 @@ function ensureDirectoryForFile(filePath) {
 }
 
 async function main() {
-  const { repo, out } = parseArguments(process.argv.slice(2));
+  const { repo, out, withLlm, model } = parseArguments(process.argv.slice(2));
 
   if (!repo) {
-    console.error('Usage: node src/index.js --repo <repositoryPath> [--out <outputJsonPath>]');
+    console.error('Usage: node src/index.js --repo <repositoryPath> [--out <outputJsonPath>] [--with-llm] [--model <openai-model>]');
     process.exit(1);
   }
 
-  const result = await runStaticAnalysis(repo);
+  const result = await runStaticAnalysis(repo, {
+    withLlm,
+    model,
+  });
   const output = JSON.stringify(result, null, 2);
 
   if (out) {
