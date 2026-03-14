@@ -16,11 +16,8 @@ const Logo = ({ className = '', collapsed = false }) => {
       </div>
       {!collapsed && (
         <div className="flex flex-col leading-none">
-          <span className="font-display font-bold text-sm" style={{ color: 'var(--text)' }}>
-            PolyglotDep
-          </span>
-          <span className="font-mono text-[10px]" style={{ color: 'var(--text-muted)' }}>
-            Map
+          <span className="font-display font-black text-lg tracking-tight text-white">
+            Polyglot
           </span>
         </div>
       )}
