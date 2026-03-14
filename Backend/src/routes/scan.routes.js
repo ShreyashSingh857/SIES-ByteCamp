@@ -29,7 +29,17 @@ router.post("/db/seed/graph/:repoId", seedGraphToDb);
 // GET /api/metrics/:scanId → graph metrics for dashboard
 router.get("/metrics/:scanId", getMetrics);
 
+// DELETE /api/graph/:repoId → delete stored graph
+router.delete("/graph/:repoId", deleteGraph);
+
 // GET  /api/impact → get impact analysis
 router.get("/impact", getImpact);
+
+// DB Seeding Routes
+router.post("/db/seed/schema", seedSchema);
+router.post("/db/seed/graph/:repoId", seedGraphToDb);
+
+// Metrics Routes
+router.get("/metrics/:scanId", getMetrics);
 
 export default router;
