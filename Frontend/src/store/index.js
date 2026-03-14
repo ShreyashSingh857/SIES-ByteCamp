@@ -10,6 +10,8 @@ import {
   updateRepoStatus,
   setFilterLangs,
   setFilterTypes,
+  setGraphData,
+  setCurrentRepoInfo,
 } from "./slices/graphSlice.js";
 
 export {
@@ -24,5 +26,7 @@ export {
   updateRepoStatus,
   setFilterLangs,
   setFilterTypes,
+  setGraphData,
+  setCurrentRepoInfo,
 };
 export { default as store } from "./store.js";
