@@ -7,6 +7,7 @@ import { promisify } from "util";
 import { randomUUID } from "crypto";
 import {
   getImpactedNodesByNode,
+  getRelatedFilesByPath,
   getGraphMetrics,
   setupDatabaseSchema,
   seedParsedGraph,
@@ -57,6 +58,35 @@ function buildSeedPayloadFromParser(repoId, parserResult, scanId) {
 
   const fileNodes = (parserResult?.nodes || []).filter((n) => n.type === "FILE");
   const functionNodes = (parserResult?.nodes || []).filter((n) => n.type === "FUNCTION");
+  const filePathToRawId = new Map(fileNodes.map((n) => [n.name, n.id]));
+
+  const resolveImportedFileRawId = (sourceRawFileId, moduleSpecifier) => {
+    if (!sourceRawFileId || !moduleSpecifier || !moduleSpecifier.startsWith(".")) return null;
+
+    const sourcePath = sourceRawFileId.replace(/^file:/, "");
+    const sourceDir = path.posix.dirname(sourcePath);
+    const baseResolved = path.posix.normalize(path.posix.join(sourceDir, moduleSpecifier));
+
+    const candidates = [];
+    const hasExt = Boolean(path.posix.extname(baseResolved));
+
+    if (hasExt) {
+      candidates.push(baseResolved);
+    } else {
+      const exts = [".js", ".jsx", ".ts", ".tsx", ".mjs", ".cjs", ".json"];
+      for (const ext of exts) {
+        candidates.push(`${baseResolved}${ext}`);
+        candidates.push(path.posix.join(baseResolved, `index${ext}`));
+      }
+    }
+
+    for (const candidate of candidates) {
+      const matchedRawId = filePathToRawId.get(candidate);
+      if (matchedRawId) return matchedRawId;
+    }
+
+    return null;
+  };
 
   const files = fileNodes.map((n) => {
     const id = `file:${scanId}:${n.id}`;
@@ -102,7 +132,31 @@ function buildSeedPayloadFromParser(repoId, parserResult, scanId) {
 
   const dependencyEdges = (parserResult?.edges || [])
     .filter((e) => ["IMPORTS", "CALLS"].includes(e.type))
-    .map((e) => ({ fromId: idMap.get(e.from), toId: idMap.get(e.to), type: e.type }))
+    .map((e) => {
+      let fromRawId = e.from;
+      let toRawId = e.to;
+
+      if (
+        e.type === "IMPORTS" &&
+        typeof e.from === "string" &&
+        e.from.startsWith("file:") &&
+        typeof e.to === "string" &&
+        e.to.startsWith("module:")
+      ) {
+        const moduleSpecifier = e.to.slice("module:".length);
+        const resolvedRawFileId = resolveImportedFileRawId(e.from, moduleSpecifier);
+        if (resolvedRawFileId) {
+          toRawId = resolvedRawFileId;
+          fromRawId = e.from;
+        }
+      }
+
+      return {
+        fromId: idMap.get(fromRawId),
+        toId: idMap.get(toRawId),
+        type: e.type,
+      };
+    })
     .filter((e) => e.fromId && e.toId);
 
   return {
@@ -398,6 +452,49 @@ export const getImpact = async (_req, res, next) => {
         scanId,
         count: impactedNodes.length,
         impactedNodes,
+      },
+    });
+  } catch (error) {
+    if (error?.message?.includes("Neo4j is not configured")) {
+      return res.status(503).json({ success: false, message: error.message });
+    }
+    next(error);
+  }
+};
+
+/**
+ * @desc    Return related files for a file path from Neo4j (live)
+ * @route   GET /api/impact/files?scanId=...&filePath=...
+ * @access  Public
+ */
+export const getFileRelations = async (req, res, next) => {
+  try {
+    const scanId = req.query.scanId;
+    const filePath = req.query.filePath;
+
+    if (!scanId || typeof scanId !== "string") {
+      return res.status(400).json({
+        success: false,
+        message: "Query param 'scanId' is required",
+      });
+    }
+
+    if (!filePath || typeof filePath !== "string") {
+      return res.status(400).json({
+        success: false,
+        message: "Query param 'filePath' is required",
+      });
+    }
+
+    const result = await getRelatedFilesByPath(scanId, filePath);
+
+    res.status(200).json({
+      success: true,
+      data: {
+        scanId,
+        filePath,
+        incoming: result.incoming,
+        outgoing: result.outgoing,
       },
     });
   } catch (error) {

@@ -77,6 +77,13 @@ export const apiSlice = createApi({
       transformResponse: (response) => response.data,
     }),
 
+    // GET /api/impact/files?scanId={scanId}&filePath={filePath} — live related files from Neo4j
+    getFileRelations: builder.query({
+      query: ({ scanId, filePath }) =>
+        `/impact/files?scanId=${encodeURIComponent(scanId)}&filePath=${encodeURIComponent(filePath)}`,
+      transformResponse: (response) => response.data,
+    }),
+
     // GET /api/health — Liveness check
     getHealth: builder.query({
       query: () => '/health',
@@ -110,6 +117,7 @@ export const {
   useSeedGraphMutation,
   useGetMetricsQuery,
   useGetImpactAnalysisQuery,
+  useGetFileRelationsQuery,
   useGetHealthQuery,
   useGetHelpTopicsQuery,
   useSearchHelpQuery,

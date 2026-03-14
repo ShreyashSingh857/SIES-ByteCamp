@@ -302,6 +302,61 @@ export async function getImpactedNodesByNode(node, scanId) {
   }
 }
 
+export async function getRelatedFilesByPath(scanId, filePath) {
+  const session = getSession();
+  try {
+    const incomingImportsResult = await session.run(
+      `MATCH (src:File {scanId: $scanId})-[:IMPORTS]->(target:File {scanId: $scanId, path: $filePath})
+       RETURN DISTINCT src.path AS path`,
+      { scanId, filePath }
+    );
+
+    const outgoingImportsResult = await session.run(
+      `MATCH (src:File {scanId: $scanId, path: $filePath})-[:IMPORTS]->(target:File {scanId: $scanId})
+       RETURN DISTINCT target.path AS path`,
+      { scanId, filePath }
+    );
+
+    const incomingCallsResult = await session.run(
+      `MATCH (targetFile:File {scanId: $scanId, path: $filePath})-[:CONTAINS]->(targetFn:Function {scanId: $scanId})
+       MATCH (callerFn:Function {scanId: $scanId})-[:CALLS]->(targetFn)
+       MATCH (callerFile:File {scanId: $scanId})-[:CONTAINS]->(callerFn)
+       WHERE callerFile.id <> targetFile.id
+       RETURN DISTINCT callerFile.path AS path`,
+      { scanId, filePath }
+    );
+
+    const outgoingCallsResult = await session.run(
+      `MATCH (sourceFile:File {scanId: $scanId, path: $filePath})-[:CONTAINS]->(sourceFn:Function {scanId: $scanId})
+       MATCH (sourceFn)-[:CALLS]->(calleeFn:Function {scanId: $scanId})
+       MATCH (calleeFile:File {scanId: $scanId})-[:CONTAINS]->(calleeFn)
+       WHERE calleeFile.id <> sourceFile.id
+       RETURN DISTINCT calleeFile.path AS path`,
+      { scanId, filePath }
+    );
+
+    const incoming = new Set([
+      ...incomingImportsResult.records.map((r) => r.get('path')).filter(Boolean),
+      ...incomingCallsResult.records.map((r) => r.get('path')).filter(Boolean),
+    ]);
+
+    const outgoing = new Set([
+      ...outgoingImportsResult.records.map((r) => r.get('path')).filter(Boolean),
+      ...outgoingCallsResult.records.map((r) => r.get('path')).filter(Boolean),
+    ]);
+
+    incoming.delete(filePath);
+    outgoing.delete(filePath);
+
+    return {
+      incoming: [...incoming].sort((a, b) => a.localeCompare(b)),
+      outgoing: [...outgoing].sort((a, b) => a.localeCompare(b)),
+    };
+  } finally {
+    await session.close();
+  }
+}
+
 export async function getGraphMetrics(scanId) {
   const session = getSession();
   try {

@@ -4,6 +4,7 @@ import {
 	getGraph,
 	deleteGraph,
 	getImpact,
+	getFileRelations,
 	getMetrics,
 	seedSchema,
 	seedGraphToDb,
@@ -31,5 +32,8 @@ router.get("/metrics/:scanId", getMetrics);
 
 // GET  /api/impact → get impact analysis
 router.get("/impact", getImpact);
+
+// GET /api/impact/files?scanId=...&filePath=... → related files for a file path
+router.get("/impact/files", getFileRelations);
 
 export default router;

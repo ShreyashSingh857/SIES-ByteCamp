@@ -3,6 +3,7 @@ import { useSelector } from 'react-redux';
 import { useNavigate, useParams } from 'react-router-dom';
 import SyntaxHighlighter from 'react-syntax-highlighter';
 import { atomOneDark, atomOneLight } from 'react-syntax-highlighter/dist/esm/styles/hljs';
+import { useGetFileRelationsQuery, useSeedGraphMutation } from '../store/slices/apiSlice';
 import {
   ArrowLeft,
   Github,
@@ -12,6 +13,8 @@ import {
   AlertCircle,
   FileCode2,
   ExternalLink,
+  Link2,
+  ArrowRight,
 } from 'lucide-react';
 
 // ─── helpers ────────────────────────────────────────────────────────────────
@@ -83,7 +86,12 @@ const FileViewer = () => {
 
   const currentRepoUrl    = useSelector((s) => s.graph.currentRepoUrl);
   const currentRepoBranch = useSelector((s) => s.graph.currentRepoBranch || 'main');
+  const currentRepoId     = useSelector((s) => s.graph.currentRepoId);
+  const currentScanId     = useSelector((s) => s.graph.currentScanId);
   const isDark            = useSelector((s) => s.theme?.isDark ?? true);
+
+  const [seedGraph, { isLoading: reseedLoading }] = useSeedGraphMutation();
+  const [reseedAttempted, setReseedAttempted] = useState(false);
 
   const [code, setCode]     = useState('');
   const [loading, setLoading] = useState(true);
@@ -99,6 +107,74 @@ const FileViewer = () => {
     if (!currentRepoUrl || !filePath) return null;
     return `${currentRepoUrl}/blob/${currentRepoBranch}/${filePath}`;
   }, [currentRepoUrl, currentRepoBranch, filePath]);
+
+  const {
+    data: fileRelationsData,
+    isFetching: relationsLoading,
+    error: relationsError,
+    refetch: refetchRelations,
+  } = useGetFileRelationsQuery(
+    { scanId: currentScanId, filePath },
+    {
+      skip: !currentScanId || !filePath,
+      pollingInterval: 5000,
+      refetchOnFocus: true,
+      refetchOnReconnect: true,
+    }
+  );
+
+  const dependencyInfo = useMemo(() => {
+    const incoming = fileRelationsData?.incoming || [];
+    const outgoing = fileRelationsData?.outgoing || [];
+    return {
+      incoming,
+      outgoing,
+      hasLiveData: Boolean(currentScanId),
+    };
+  }, [fileRelationsData, currentScanId]);
+
+  useEffect(() => {
+    setReseedAttempted(false);
+  }, [currentRepoId, currentScanId, filePath]);
+
+  useEffect(() => {
+    if (!currentRepoId || !currentScanId || !filePath || reseedAttempted || relationsError) return;
+    if (!fileRelationsData) return;
+
+    const incomingCount = fileRelationsData?.incoming?.length || 0;
+    const outgoingCount = fileRelationsData?.outgoing?.length || 0;
+    const noRelations = incomingCount === 0 && outgoingCount === 0;
+
+    if (!noRelations) return;
+
+    let cancelled = false;
+    setReseedAttempted(true);
+
+    seedGraph({
+      repoId: currentRepoId,
+      scanId: currentScanId,
+      repoUrl: currentRepoUrl || undefined,
+    })
+      .unwrap()
+      .then(() => {
+        if (!cancelled) refetchRelations();
+      })
+      .catch(() => {});
+
+    return () => {
+      cancelled = true;
+    };
+  }, [
+    currentRepoId,
+    currentRepoUrl,
+    currentScanId,
+    filePath,
+    reseedAttempted,
+    relationsError,
+    fileRelationsData,
+    seedGraph,
+    refetchRelations,
+  ]);
 
   useEffect(() => {
     if (!rawUrl) {
@@ -224,10 +300,11 @@ const FileViewer = () => {
       </div>
 
       {/* Content area */}
-      <div
-        className="card"
-        style={{ padding: 0, overflow: 'hidden' }}
-      >
+      <div className="grid gap-4 lg:grid-cols-3">
+        <div
+          className="card lg:col-span-2"
+          style={{ padding: 0, overflow: 'hidden' }}
+        >
         {/* Language badge bar */}
         <div
           className="flex items-center justify-between px-4 py-2"
@@ -305,6 +382,100 @@ const FileViewer = () => {
             </SyntaxHighlighter>
           </div>
         )}
+        </div>
+
+        <div className="card h-fit space-y-4">
+          <div className="flex items-center gap-2">
+            <Link2 size={15} style={{ color: '#3b82f6' }} />
+            <h3 className="font-display font-semibold text-sm" style={{ color: 'var(--text)' }}>
+              Related Files
+            </h3>
+            {relationsLoading && <Loader2 size={13} className="animate-spin" style={{ color: 'var(--text-muted)' }} />}
+            {reseedLoading && <Loader2 size={13} className="animate-spin" style={{ color: '#3b82f6' }} />}
+          </div>
+
+          {!dependencyInfo.hasLiveData && (
+            <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
+              Live Neo4j relations unavailable. Scan the repo and seed Neo4j first.
+            </p>
+          )}
+
+          {relationsError && (
+            <p className="text-xs" style={{ color: '#ef4444' }}>
+              Failed to load live relations from Neo4j.
+            </p>
+          )}
+
+          {dependencyInfo.hasLiveData && (
+            <>
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-wider mb-2" style={{ color: '#f97316' }}>
+                  Files dependent on this file ({dependencyInfo.incoming.length})
+                </p>
+                {dependencyInfo.incoming.length === 0 ? (
+                  <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
+                    No dependent files found.
+                  </p>
+                ) : (
+                  <div className="space-y-1 max-h-56 overflow-y-auto custom-scrollbar pr-1">
+                    {dependencyInfo.incoming.map((dependentPath) => (
+                      <button
+                        key={dependentPath}
+                        onClick={() => navigate(`/analyze/dir/${encodeURIComponent(dependentPath.split('/')[0])}/file/${dependentPath}`)}
+                        className="w-full flex items-start gap-1.5 px-2 py-1.5 rounded text-left transition-all"
+                        style={{ color: 'var(--text-muted)', background: 'transparent' }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.background = 'var(--bg-muted)';
+                          e.currentTarget.style.color = 'var(--text)';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.background = 'transparent';
+                          e.currentTarget.style.color = 'var(--text-muted)';
+                        }}
+                      >
+                        <ArrowRight size={12} style={{ marginTop: '2px', flexShrink: 0 }} />
+                        <span className="text-xs code-text break-all">{dependentPath}</span>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-wider mb-2" style={{ color: '#3b82f6' }}>
+                  Files this file depends on ({dependencyInfo.outgoing.length})
+                </p>
+                {dependencyInfo.outgoing.length === 0 ? (
+                  <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
+                    No outgoing dependencies found.
+                  </p>
+                ) : (
+                  <div className="space-y-1 max-h-56 overflow-y-auto custom-scrollbar pr-1">
+                    {dependencyInfo.outgoing.map((dependencyPath) => (
+                      <button
+                        key={dependencyPath}
+                        onClick={() => navigate(`/analyze/dir/${encodeURIComponent(dependencyPath.split('/')[0])}/file/${dependencyPath}`)}
+                        className="w-full flex items-start gap-1.5 px-2 py-1.5 rounded text-left transition-all"
+                        style={{ color: 'var(--text-muted)', background: 'transparent' }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.background = 'var(--bg-muted)';
+                          e.currentTarget.style.color = 'var(--text)';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.background = 'transparent';
+                          e.currentTarget.style.color = 'var(--text-muted)';
+                        }}
+                      >
+                        <ArrowRight size={12} style={{ marginTop: '2px', flexShrink: 0 }} />
+                        <span className="text-xs code-text break-all">{dependencyPath}</span>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </>
+          )}
+        </div>
       </div>
     </div>
   );
