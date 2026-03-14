@@ -1,9 +1,6 @@
 import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
-import dotenv from "dotenv";
-
-dotenv.config();
 
 // Neo4j verification
 import { isNeo4jConfigured, verifyNeo4jConnectivity } from './src/config/neo4j.js';
