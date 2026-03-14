@@ -10,21 +10,21 @@ import { NODE_TYPE_CONFIG, EDGE_TYPE_CONFIG } from '../assets/mockdata';
 const NODE_TYPES  = Object.keys(NODE_TYPE_CONFIG);
 const EDGE_TYPES  = Object.keys(EDGE_TYPE_CONFIG);
 
-const buildCyElements = (graphData, filterLangs, filterTypes) => {
-  let nodes = graphData.nodes;
+const buildCyElements = (graphData, filterTypes) => {
+  let nodes = graphData.nodes ?? [];
   if (filterTypes.length > 0) nodes = nodes.filter((n) => filterTypes.includes(n.type));
 
   const validIds = new Set(nodes.map((n) => n.id));
-  const edges = graphData.edges.filter(
+  const edges = (graphData.edges ?? []).filter(
     (e) => validIds.has(e.source) && validIds.has(e.target)
   );
 
   return [
     ...nodes.map((n) => ({
-      data: { id: n.id, label: n.label, type: n.type, lang: n.lang, path: n.path, description: n.description },
+      data: { id: n.id, label: n.name || n.label || n.id, type: n.type, lang: n.language || n.lang, path: n.path || n.name },
     })),
-    ...edges.map((e) => ({
-      data: { id: e.id, source: e.source, target: e.target, edgeType: e.type, label: e.label },
+    ...edges.map((e, i) => ({
+      data: { id: e.id || `edge-${i}`, source: e.source, target: e.target, edgeType: e.type },
     })),
   ];
 };
@@ -43,16 +43,18 @@ const buildCyStyle = () => [
       'width': '36px',
       'height': '36px',
       'border-width': '2px',
+      'background-color': '#334155',
+      'border-color': '#475569',
     },
   },
   ...NODE_TYPES.map((type) => {
-    const cfg = NODE_TYPE_CONFIG[type];
+    const cfg = NODE_TYPE_CONFIG[type] || {};
     return {
       selector: `node[type = "${type}"]`,
       style: {
-        'background-color': cfg.color,
-        'border-color': cfg.border,
-        'shape': cfg.shape,
+        'background-color': cfg.color || '#334155',
+        'border-color': cfg.border || '#475569',
+        'shape': cfg.shape || 'ellipse',
       },
     };
   }),
@@ -60,90 +62,60 @@ const buildCyStyle = () => [
     selector: 'edge',
     style: {
       'width': 1.5,
+      'line-color': '#334155',
+      'target-arrow-color': '#334155',
       'target-arrow-shape': 'triangle',
-      'target-arrow-size': '6px',
       'curve-style': 'bezier',
       'font-size': '9px',
       'font-family': "'JetBrains Mono', monospace",
       'color': '#64748b',
       'text-rotation': 'autorotate',
-      'text-margin-y': '-6px',
     },
   },
   ...EDGE_TYPES.map((type) => {
-    const cfg = EDGE_TYPE_CONFIG[type];
+    const cfg = EDGE_TYPE_CONFIG[type] || {};
     return {
       selector: `edge[edgeType = "${type}"]`,
       style: {
-        'line-color': cfg.color,
-        'target-arrow-color': cfg.color,
-        'line-style': cfg.style,
+        'line-color': cfg.color || '#334155',
+        'target-arrow-color': cfg.color || '#334155',
+        'line-style': cfg.style || 'solid',
       },
     };
   }),
-  {
-    selector: 'node.selected',
-    style: {
-      'border-width': '3px',
-      'border-color': '#ef4444',
-      'overlay-color': '#ef4444',
-      'overlay-opacity': 0.08,
-    },
-  },
-  {
-    selector: 'node.direct-impact',
-    style: {
-      'border-width': '3px',
-      'border-color': '#f97316',
-      'overlay-color': '#f97316',
-      'overlay-opacity': 0.08,
-    },
-  },
-  {
-    selector: 'node.transitive-impact',
-    style: {
-      'border-width': '2px',
-      'border-color': '#eab308',
-      'overlay-color': '#eab308',
-      'overlay-opacity': 0.06,
-    },
-  },
-  {
-    selector: 'node.dimmed',
-    style: { 'opacity': 0.25 },
-  },
-  {
-    selector: 'edge.dimmed',
-    style: { 'opacity': 0.1 },
-  },
+  { selector: 'node.selected',         style: { 'border-width': '3px', 'border-color': '#ef4444', 'overlay-color': '#ef4444', 'overlay-opacity': 0.08 } },
+  { selector: 'node.direct-impact',    style: { 'border-width': '3px', 'border-color': '#f97316', 'overlay-color': '#f97316', 'overlay-opacity': 0.08 } },
+  { selector: 'node.transitive-impact',style: { 'border-width': '2px', 'border-color': '#eab308', 'overlay-color': '#eab308', 'overlay-opacity': 0.06 } },
+  { selector: 'node.dimmed',           style: { 'opacity': 0.25 } },
+  { selector: 'edge.dimmed',           style: { 'opacity': 0.1  } },
 ];
 
 const GraphView = () => {
-  const dispatch   = useDispatch();
-  const navigate   = useNavigate();
-  const cyRef      = useRef(null);
+  const dispatch     = useDispatch();
+  const navigate     = useNavigate();
+  const cyRef        = useRef(null);
   const containerRef = useRef(null);
 
   const selectedNode   = useSelector((s) => s.graph.selectedNode);
-  const directImpact   = useSelector((s) => s.graph.directImpact);
-  const transitiveImpact = useSelector((s) => s.graph.transitiveImpact);
   const filterTypes    = useSelector((s) => s.graph.filterTypes);
   const filterLangs    = useSelector((s) => s.graph.filterLangs);
+  const currentRepoId  = useSelector((s) => s.graph.currentRepoId);
 
-  const { data: fetchedGraphData, isLoading } = useGetGraphQuery();
-  
-  // Use fetched data if available, otherwise fallback to empty arrays
+  // Fetch graph using the repoId from scan result
+  const { data: fetchedGraphData, isLoading } = useGetGraphQuery(currentRepoId, {
+    skip: !currentRepoId,
+  });
   const graphData = fetchedGraphData || { nodes: [], edges: [] };
 
   const [showLegend, setShowLegend]   = useState(false);
   const [showFilters, setShowFilters] = useState(false);
   const [activeTypes, setActiveTypes] = useState([]);
+  const [impactedIds, setImpactedIds] = useState(new Set());
 
-  // Initialise Cytoscape
   useEffect(() => {
     if (!containerRef.current) return;
 
-    const elements = buildCyElements(graphData, filterLangs, filterTypes);
+    const elements = buildCyElements(graphData, filterTypes);
 
     const cy = cytoscape({
       container: containerRef.current,
@@ -171,7 +143,7 @@ const GraphView = () => {
       if (id === selectedNode) {
         dispatch(clearSelection());
       } else {
-        dispatch(setSelectedNode({ id, graphData: elements.length ? { nodes: elements.filter(e => e.data.type || e.data.lang).map(e => ({...e.data})), edges: elements.filter(e => e.data.source).map(e => ({...e.data})) } : graphData }));
+        dispatch(setSelectedNode({ id }));
       }
     });
 
@@ -185,7 +157,6 @@ const GraphView = () => {
     };
   }, [graphData, filterTypes, filterLangs]);
 
-  // Apply highlight classes whenever selection changes
   useEffect(() => {
     const cy = cyRef.current;
     if (!cy) return;
@@ -195,16 +166,12 @@ const GraphView = () => {
 
     if (!selectedNode) return;
 
-    const allImpacted = new Set([selectedNode, ...directImpact, ...transitiveImpact]);
-
     cy.nodes().forEach((node) => {
       const id = node.id();
       if (id === selectedNode) {
         node.addClass('selected');
-      } else if (directImpact.includes(id)) {
+      } else if (impactedIds.has(id)) {
         node.addClass('direct-impact');
-      } else if (transitiveImpact.includes(id)) {
-        node.addClass('transitive-impact');
       } else {
         node.addClass('dimmed');
       }
@@ -213,11 +180,11 @@ const GraphView = () => {
     cy.edges().forEach((edge) => {
       const s = edge.data('source');
       const t = edge.data('target');
-      if (!allImpacted.has(s) || !allImpacted.has(t)) {
+      if (s !== selectedNode && t !== selectedNode && !impactedIds.has(s) && !impactedIds.has(t)) {
         edge.addClass('dimmed');
       }
     });
-  }, [selectedNode, directImpact, transitiveImpact]);
+  }, [selectedNode, impactedIds]);
 
   const handleZoomIn  = () => cyRef.current?.zoom(cyRef.current.zoom() * 1.25);
   const handleZoomOut = () => cyRef.current?.zoom(cyRef.current.zoom() * 0.8);
@@ -235,23 +202,25 @@ const GraphView = () => {
           Loading graph data...
         </div>
       )}
+      {!currentRepoId && !isLoading && (
+        <div className="absolute top-4 right-4 z-50 px-4 py-2 rounded-lg" style={{ background: '#475569', color: '#fff' }}>
+          No repository scanned. <button onClick={() => navigate('/upload')} style={{ textDecoration: 'underline' }}>Scan a repo →</button>
+        </div>
+      )}
+
       {/* Toolbar */}
       <div className="flex items-center gap-2 flex-wrap">
         <div className="flex items-center gap-1 rounded-lg p-1" style={{ background: 'var(--card)', border: '1px solid var(--border)' }}>
-          <button onClick={handleZoomIn}  className="p-1.5 rounded-md transition-colors hover:bg-slate-100 dark:hover:bg-slate-800" title="Zoom in"><ZoomIn  size={15} /></button>
-          <button onClick={handleZoomOut} className="p-1.5 rounded-md transition-colors hover:bg-slate-100 dark:hover:bg-slate-800" title="Zoom out"><ZoomOut size={15} /></button>
-          <button onClick={handleFit}     className="p-1.5 rounded-md transition-colors hover:bg-slate-100 dark:hover:bg-slate-800" title="Fit"><Maximize2 size={15} /></button>
-          <button onClick={handleReset}   className="p-1.5 rounded-md transition-colors hover:bg-slate-100 dark:hover:bg-slate-800" title="Reset"><RefreshCw size={15} /></button>
+          <button onClick={handleZoomIn}  className="p-1.5 rounded-md transition-colors" title="Zoom in"><ZoomIn  size={15} /></button>
+          <button onClick={handleZoomOut} className="p-1.5 rounded-md transition-colors" title="Zoom out"><ZoomOut size={15} /></button>
+          <button onClick={handleFit}     className="p-1.5 rounded-md transition-colors" title="Fit"><Maximize2 size={15} /></button>
+          <button onClick={handleReset}   className="p-1.5 rounded-md transition-colors" title="Reset"><RefreshCw size={15} /></button>
         </div>
 
         <button
           onClick={() => setShowFilters((v) => !v)}
           className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all"
-          style={{
-            background: showFilters ? 'rgba(59,130,246,0.12)' : 'var(--card)',
-            color: showFilters ? '#3b82f6' : 'var(--text-muted)',
-            border: '1px solid var(--border)',
-          }}
+          style={{ background: showFilters ? 'rgba(59,130,246,0.12)' : 'var(--card)', color: showFilters ? '#3b82f6' : 'var(--text-muted)', border: '1px solid var(--border)' }}
         >
           <Filter size={13} /> Filters
         </button>
@@ -259,11 +228,7 @@ const GraphView = () => {
         <button
           onClick={() => setShowLegend((v) => !v)}
           className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all"
-          style={{
-            background: showLegend ? 'rgba(59,130,246,0.12)' : 'var(--card)',
-            color: showLegend ? '#3b82f6' : 'var(--text-muted)',
-            border: '1px solid var(--border)',
-          }}
+          style={{ background: showLegend ? 'rgba(59,130,246,0.12)' : 'var(--card)', color: showLegend ? '#3b82f6' : 'var(--text-muted)', border: '1px solid var(--border)' }}
         >
           <Info size={13} /> Legend
         </button>
@@ -271,48 +236,29 @@ const GraphView = () => {
         <div className="ml-auto flex items-center gap-3 text-xs" style={{ color: 'var(--text-muted)' }}>
           <span>{graphData.nodes.length} nodes</span>
           <span>{graphData.edges.length} edges</span>
-          {selectedNode && (
-            <span className="font-medium" style={{ color: '#ef4444' }}>
-              {directImpact.length + transitiveImpact.length} impacted
-            </span>
-          )}
         </div>
       </div>
 
       {/* Filter panel */}
       {showFilters && (
         <div className="card flex flex-wrap items-center gap-2 py-3">
-          <span className="text-xs font-medium" style={{ color: 'var(--text-muted)' }}>
-            Node type:
-          </span>
+          <span className="text-xs font-medium" style={{ color: 'var(--text-muted)' }}>Node type:</span>
           {NODE_TYPES.map((type) => {
-            const cfg = NODE_TYPE_CONFIG[type];
+            const cfg = NODE_TYPE_CONFIG[type] || {};
             const active = activeTypes.length === 0 || activeTypes.includes(type);
             return (
               <button
                 key={type}
-                onClick={() =>
-                  setActiveTypes((prev) =>
-                    prev.includes(type) ? prev.filter((t) => t !== type) : [...prev, type]
-                  )
-                }
+                onClick={() => setActiveTypes((prev) => prev.includes(type) ? prev.filter((t) => t !== type) : [...prev, type])}
                 className="text-xs px-2.5 py-1 rounded-full font-medium transition-all"
-                style={{
-                  background: active ? `${cfg.border}20` : 'var(--bg-muted)',
-                  color:      active ? cfg.border        : 'var(--text-muted)',
-                  border:     `1px solid ${active ? cfg.border + '50' : 'var(--border)'}`,
-                }}
+                style={{ background: active ? `${cfg.border || '#3b82f6'}20` : 'var(--bg-muted)', color: active ? cfg.border || '#3b82f6' : 'var(--text-muted)', border: `1px solid ${active ? (cfg.border || '#3b82f6') + '50' : 'var(--border)'}` }}
               >
-                {cfg.label}
+                {cfg.label || type}
               </button>
             );
           })}
           {activeTypes.length > 0 && (
-            <button
-              onClick={() => setActiveTypes([])}
-              className="text-xs px-2 py-1 rounded-full transition-all"
-              style={{ color: 'var(--text-muted)', border: '1px solid var(--border)' }}
-            >
+            <button onClick={() => setActiveTypes([])} className="text-xs px-2 py-1 rounded-full transition-all" style={{ color: 'var(--text-muted)', border: '1px solid var(--border)' }}>
               Clear
             </button>
           )}
@@ -324,36 +270,30 @@ const GraphView = () => {
         <div className="card flex flex-wrap gap-x-5 gap-y-2 py-3">
           <div className="flex flex-wrap gap-3">
             {NODE_TYPES.map((type) => {
-              const cfg = NODE_TYPE_CONFIG[type];
+              const cfg = NODE_TYPE_CONFIG[type] || {};
               return (
                 <div key={type} className="flex items-center gap-1.5 text-xs" style={{ color: 'var(--text-muted)' }}>
-                  <span className="w-3 h-3 rounded-sm inline-block" style={{ background: cfg.color, border: `1.5px solid ${cfg.border}` }} />
-                  {cfg.label}
+                  <span className="w-3 h-3 rounded-sm inline-block" style={{ background: cfg.color || '#334155', border: `1.5px solid ${cfg.border || '#475569'}` }} />
+                  {cfg.label || type}
                 </div>
               );
             })}
           </div>
           <div className="flex flex-wrap gap-3">
             {EDGE_TYPES.map((type) => {
-              const cfg = EDGE_TYPE_CONFIG[type];
+              const cfg = EDGE_TYPE_CONFIG[type] || {};
               return (
                 <div key={type} className="flex items-center gap-1.5 text-xs" style={{ color: 'var(--text-muted)' }}>
-                  <span className="inline-block w-5" style={{ borderTop: `2px ${cfg.style} ${cfg.color}` }} />
-                  {cfg.label}
+                  <span className="inline-block w-5" style={{ borderTop: `2px ${cfg.style || 'solid'} ${cfg.color || '#475569'}` }} />
+                  {cfg.label || type}
                 </div>
               );
             })}
           </div>
           <div className="flex flex-wrap gap-3">
-            <div className="flex items-center gap-1.5 text-xs" style={{ color: 'var(--text-muted)' }}>
-              <span className="w-3 h-3 rounded-sm border-2 inline-block" style={{ borderColor: '#ef4444' }} /> Selected
-            </div>
-            <div className="flex items-center gap-1.5 text-xs" style={{ color: 'var(--text-muted)' }}>
-              <span className="w-3 h-3 rounded-sm border-2 inline-block" style={{ borderColor: '#f97316' }} /> Direct Impact
-            </div>
-            <div className="flex items-center gap-1.5 text-xs" style={{ color: 'var(--text-muted)' }}>
-              <span className="w-3 h-3 rounded-sm border-2 inline-block" style={{ borderColor: '#eab308' }} /> Transitive
-            </div>
+            <div className="flex items-center gap-1.5 text-xs" style={{ color: 'var(--text-muted)' }}><span className="w-3 h-3 rounded-sm border-2 inline-block" style={{ borderColor: '#ef4444' }} /> Selected</div>
+            <div className="flex items-center gap-1.5 text-xs" style={{ color: 'var(--text-muted)' }}><span className="w-3 h-3 rounded-sm border-2 inline-block" style={{ borderColor: '#f97316' }} /> Direct Impact</div>
+            <div className="flex items-center gap-1.5 text-xs" style={{ color: 'var(--text-muted)' }}><span className="w-3 h-3 rounded-sm border-2 inline-block" style={{ borderColor: '#eab308' }} /> Transitive</div>
           </div>
         </div>
       )}
@@ -364,9 +304,9 @@ const GraphView = () => {
           className="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm"
           style={{ background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.25)' }}
         >
-          <span className="font-semibold code-text" style={{ color: '#ef4444' }}>{selectedData.label}</span>
-          <span className="text-xs" style={{ color: 'var(--text-muted)' }}>{selectedData.lang} · {selectedData.type}</span>
-          <span className="text-xs flex-1 truncate hidden sm:block" style={{ color: 'var(--text-muted)' }}>{selectedData.path}</span>
+          <span className="font-semibold code-text" style={{ color: '#ef4444' }}>{selectedData.name || selectedData.id}</span>
+          <span className="text-xs" style={{ color: 'var(--text-muted)' }}>{selectedData.language || selectedData.lang} · {selectedData.type}</span>
+          <span className="text-xs flex-1 truncate hidden sm:block" style={{ color: 'var(--text-muted)' }}>{selectedData.path || selectedData.name}</span>
           <button
             onClick={() => navigate('/impact')}
             className="ml-auto text-xs font-medium px-3 py-1 rounded-lg transition-all flex-shrink-0"
@@ -378,10 +318,7 @@ const GraphView = () => {
       )}
 
       {/* Cytoscape canvas */}
-      <div
-        className="flex-1 rounded-xl overflow-hidden"
-        style={{ background: 'var(--card)', border: '1px solid var(--border)', minHeight: 0 }}
-      >
+      <div className="flex-1 rounded-xl overflow-hidden" style={{ background: 'var(--card)', border: '1px solid var(--border)', minHeight: 0 }}>
         <div ref={containerRef} style={{ width: '100%', height: '100%' }} />
       </div>
     </div>

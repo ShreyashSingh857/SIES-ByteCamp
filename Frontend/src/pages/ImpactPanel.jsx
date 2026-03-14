@@ -1,23 +1,24 @@
 import React, { useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { Zap, GitBranch, Database, Code2, Globe, ChevronRight, Search, ArrowLeft } from 'lucide-react';
+import { Zap, GitBranch, Database, Code2, Globe, ChevronRight, Search, ArrowLeft, Loader2 } from 'lucide-react';
 import { setSelectedNode, clearSelection } from '../store/index';
 import { useGetGraphQuery, useGetImpactAnalysisQuery } from '../store/slices/apiSlice';
 import { NODE_TYPE_CONFIG } from '../assets/mockdata';
 
 const TYPE_ICONS = {
-  service:  GitBranch,
+  SERVICE:  GitBranch,
   schema:   Database,
   api:      Globe,
-  frontend: Code2,
+  FILE:     Code2,
+  FUNCTION: Code2,
 };
 
 const ImpactBadge = ({ level }) => {
   const config = {
-    selected:    { label: 'Origin',    bg: 'rgba(239,68,68,0.12)',   color: '#ef4444' },
-    direct:      { label: 'Direct',    bg: 'rgba(249,115,22,0.12)',  color: '#f97316' },
-    transitive:  { label: 'Transitive',bg: 'rgba(234,179,8,0.12)',   color: '#eab308' },
+    selected:   { label: 'Origin',    bg: 'rgba(239,68,68,0.12)',   color: '#ef4444' },
+    direct:     { label: 'Direct',    bg: 'rgba(249,115,22,0.12)',  color: '#f97316' },
+    transitive: { label: 'Transitive',bg: 'rgba(234,179,8,0.12)',   color: '#eab308' },
   }[level] || {};
   return (
     <span
@@ -50,10 +51,10 @@ const NodeRow = ({ node, level, onSelect, isSelected }) => {
       </div>
       <div className="flex-1 min-w-0">
         <p className="text-sm font-medium code-text truncate" style={{ color: 'var(--text)' }}>
-          {node.label}
+          {node.name || node.id}
         </p>
         <p className="text-xs truncate" style={{ color: 'var(--text-muted)' }}>
-          {node.lang} · {node.path}
+          {node.language || node.lang || ''} · {node.type} · {node.path || node.file || ''}
         </p>
       </div>
       <ImpactBadge level={level} />
@@ -63,45 +64,54 @@ const NodeRow = ({ node, level, onSelect, isSelected }) => {
 };
 
 const ImpactPanel = () => {
-  const dispatch  = useDispatch();
-  const navigate  = useNavigate();
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
 
-  const selectedNodeId   = useSelector((s) => s.graph.selectedNode);
+  const selectedNodeId  = useSelector((s) => s.graph.selectedNode);
+  const currentRepoId   = useSelector((s) => s.graph.currentRepoId);
+  const currentScanId   = useSelector((s) => s.graph.currentScanId);
 
-  const { data: fetchedGraphData } = useGetGraphQuery();
+  // Fetch full graph for node list browsing
+  const { data: fetchedGraphData } = useGetGraphQuery(currentRepoId, {
+    skip: !currentRepoId,
+  });
   const graphData = fetchedGraphData || { nodes: [], edges: [] };
 
-  const { data: impactData } = useGetImpactAnalysisQuery(selectedNodeId, {
-    skip: !selectedNodeId,
-  });
+  // Fetch impact from Neo4j (GET /api/impact?node=...&scanId=...)
+  const { data: impactData, isLoading: impactLoading } = useGetImpactAnalysisQuery(
+    { node: selectedNodeId, scanId: currentScanId },
+    { skip: !selectedNodeId }
+  );
 
-  const directImpactIds = impactData?.directImpact || [];
-  const transitiveImpactIds = impactData?.transitiveImpact || [];
+  // impactData.impactedNodes: [{ id, name, type, hops }]
+  const impactedNodes       = impactData?.impactedNodes || [];
+  const directImpactIds     = impactedNodes.filter((n) => n.hops === 1).map((n) => n.id);
+  const transitiveImpactIds = impactedNodes.filter((n) => n.hops > 1).map((n) => n.id);
 
   const [search, setSearch] = useState('');
 
-  const getNode = (id) => graphData.nodes.find((n) => n.id === id);
+  // Resolve full node objects from graph data by id or name
+  const resolveNode = (idOrName) =>
+    graphData.nodes.find((n) => n.id === idOrName || n.name === idOrName);
 
-  const selectedData     = selectedNodeId ? getNode(selectedNodeId) : null;
-  const directNodes      = directImpactIds.map(getNode).filter(Boolean);
-  const transitiveNodes  = transitiveImpactIds.map(getNode).filter(Boolean);
+  const selectedData     = selectedNodeId ? resolveNode(selectedNodeId) : null;
+  const directNodes      = directImpactIds.map(resolveNode).filter(Boolean);
+  const transitiveNodes  = transitiveImpactIds.map(resolveNode).filter(Boolean);
 
   const filterNodes = (nodes) =>
     search
       ? nodes.filter((n) =>
-          n.label.toLowerCase().includes(search.toLowerCase()) ||
-          n.lang.toLowerCase().includes(search.toLowerCase()) ||
-          n.type.toLowerCase().includes(search.toLowerCase())
+          (n.name || n.id).toLowerCase().includes(search.toLowerCase()) ||
+          (n.type || '').toLowerCase().includes(search.toLowerCase())
         )
       : nodes;
 
   const handleNodeClick = (id) => {
     if (id === selectedNodeId) dispatch(clearSelection());
-    else dispatch(setSelectedNode({ id, graphData }));
+    else dispatch(setSelectedNode({ id }));
   };
 
-  // Node picker — shown when nothing selected
-  const allNodes = graphData.nodes;
+  const allNodes    = graphData.nodes;
   const filteredAll = filterNodes(allNodes);
 
   return (
@@ -130,11 +140,7 @@ const ImpactPanel = () => {
           style={{ color: 'var(--text)' }}
         />
         {search && (
-          <button
-            onClick={() => setSearch('')}
-            className="text-xs"
-            style={{ color: 'var(--text-muted)' }}
-          >
+          <button onClick={() => setSearch('')} className="text-xs" style={{ color: 'var(--text-muted)' }}>
             Clear
           </button>
         )}
@@ -152,17 +158,16 @@ const ImpactPanel = () => {
           <p className="text-xs mb-3" style={{ color: 'var(--text-muted)' }}>
             Click any node below to see what changes in your codebase when you modify it.
           </p>
+          {!currentRepoId && (
+            <p className="text-xs py-4 text-center" style={{ color: 'var(--text-muted)' }}>
+              No repository scanned yet. <button onClick={() => navigate('/upload')} style={{ color: '#3b82f6' }}>Scan one →</button>
+            </p>
+          )}
           <div className="space-y-0.5 max-h-[420px] overflow-y-auto custom-scrollbar pr-1">
             {filteredAll.map((node) => (
-              <NodeRow
-                key={node.id}
-                node={node}
-                level="direct"
-                onSelect={handleNodeClick}
-                isSelected={false}
-              />
+              <NodeRow key={node.id} node={node} level="direct" onSelect={handleNodeClick} isSelected={false} />
             ))}
-            {filteredAll.length === 0 && (
+            {filteredAll.length === 0 && search && (
               <p className="text-sm text-center py-6" style={{ color: 'var(--text-muted)' }}>
                 No nodes match "{search}"
               </p>
@@ -173,27 +178,20 @@ const ImpactPanel = () => {
         /* ── Impact results ── */
         <div className="space-y-4">
           {/* Selected origin */}
-          <div
-            className="card"
-            style={{ borderColor: 'rgba(239,68,68,0.4)', background: 'rgba(239,68,68,0.04)' }}
-          >
+          <div className="card" style={{ borderColor: 'rgba(239,68,68,0.4)', background: 'rgba(239,68,68,0.04)' }}>
             <div className="flex items-start gap-3">
-              <div className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0"
-                style={{ background: '#ef444418', color: '#ef4444' }}>
+              <div className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0" style={{ background: '#ef444418', color: '#ef4444' }}>
                 <Zap size={18} />
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 flex-wrap">
                   <p className="font-semibold code-text" style={{ color: 'var(--text)' }}>
-                    {selectedData?.label}
+                    {selectedData?.name || selectedNodeId}
                   </p>
                   <ImpactBadge level="selected" />
                 </div>
                 <p className="text-xs mt-0.5 truncate" style={{ color: 'var(--text-muted)' }}>
-                  {selectedData?.lang} · {selectedData?.type} · {selectedData?.path}
-                </p>
-                <p className="text-xs mt-1.5" style={{ color: 'var(--text-muted)' }}>
-                  {selectedData?.description}
+                  {selectedData?.language || ''} · {selectedData?.type || ''} · {selectedData?.id}
                 </p>
               </div>
               <button
@@ -206,19 +204,28 @@ const ImpactPanel = () => {
             </div>
           </div>
 
+          {/* Loading indicator */}
+          {impactLoading && (
+            <div className="flex items-center gap-2 text-sm" style={{ color: 'var(--text-muted)' }}>
+              <Loader2 size={14} className="animate-spin" /> Calculating impact via Neo4j…
+            </div>
+          )}
+
           {/* Impact summary bar */}
-          <div className="grid grid-cols-3 gap-3">
-            {[
-              { label: 'Direct Impacts',     value: directNodes.length,     color: '#f97316' },
-              { label: 'Transitive Impacts', value: transitiveNodes.length,  color: '#eab308' },
-              { label: 'Total Affected',     value: directNodes.length + transitiveNodes.length, color: '#ef4444' },
-            ].map(({ label, value, color }) => (
-              <div key={label} className="card py-3 text-center">
-                <p className="text-xl font-display font-bold" style={{ color }}>{value}</p>
-                <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>{label}</p>
-              </div>
-            ))}
-          </div>
+          {!impactLoading && (
+            <div className="grid grid-cols-3 gap-3">
+              {[
+                { label: 'Direct Impacts',     value: directNodes.length,                      color: '#f97316' },
+                { label: 'Transitive Impacts', value: transitiveNodes.length,                  color: '#eab308' },
+                { label: 'Total Affected',     value: directNodes.length + transitiveNodes.length, color: '#ef4444' },
+              ].map(({ label, value, color }) => (
+                <div key={label} className="card py-3 text-center">
+                  <p className="text-xl font-display font-bold" style={{ color }}>{value}</p>
+                  <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>{label}</p>
+                </div>
+              ))}
+            </div>
+          )}
 
           {/* Direct impacts */}
           {directNodes.length > 0 && (
@@ -228,13 +235,7 @@ const ImpactPanel = () => {
               </h3>
               <div className="space-y-0.5 max-h-56 overflow-y-auto custom-scrollbar pr-1">
                 {filterNodes(directNodes).map((node) => (
-                  <NodeRow
-                    key={node.id}
-                    node={node}
-                    level="direct"
-                    onSelect={handleNodeClick}
-                    isSelected={node.id === selectedNodeId}
-                  />
+                  <NodeRow key={node.id} node={node} level="direct" onSelect={handleNodeClick} isSelected={node.id === selectedNodeId} />
                 ))}
               </div>
             </div>
@@ -248,23 +249,17 @@ const ImpactPanel = () => {
               </h3>
               <div className="space-y-0.5 max-h-56 overflow-y-auto custom-scrollbar pr-1">
                 {filterNodes(transitiveNodes).map((node) => (
-                  <NodeRow
-                    key={node.id}
-                    node={node}
-                    level="transitive"
-                    onSelect={handleNodeClick}
-                    isSelected={node.id === selectedNodeId}
-                  />
+                  <NodeRow key={node.id} node={node} level="transitive" onSelect={handleNodeClick} isSelected={node.id === selectedNodeId} />
                 ))}
               </div>
             </div>
           )}
 
-          {directNodes.length === 0 && transitiveNodes.length === 0 && (
+          {!impactLoading && directNodes.length === 0 && transitiveNodes.length === 0 && (
             <div className="card text-center py-8">
               <p className="font-medium text-sm" style={{ color: 'var(--text)' }}>No downstream impacts found</p>
               <p className="text-xs mt-1" style={{ color: 'var(--text-muted)' }}>
-                This node has no outgoing dependencies in the current graph.
+                This node has no outgoing dependencies in the graph, or Neo4j has not been seeded for this scan.
               </p>
             </div>
           )}

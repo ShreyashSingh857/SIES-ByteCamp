@@ -2,8 +2,8 @@ import React, { useState, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { Github, Plus, GitBranch, Loader2, CheckCircle2, Trash2, AlertCircle } from 'lucide-react';
-import { addRepo, removeRepo, updateRepoStatus, setScanStatus, setScanProgress } from '../store/index';
-import { useScanRepoMutation } from '../store/slices/apiSlice';
+import { addRepo, removeRepo, updateRepoStatus, setScanStatus, setScanProgress, setCurrentRepoInfo } from '../store/index';
+import { useScanRepoMutation, useSeedGraphMutation } from '../store/slices/apiSlice';
 
 const LANG_COLORS = {
   Java:       '#f59e0b',
@@ -28,27 +28,27 @@ const LangBadge = ({ lang }) => (
   </span>
 );
 
-const delay = (ms) => new Promise((r) => setTimeout(r, ms));
-
 const UploadRepo = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const repos = useSelector((s) => s.graph.repos);
   const scanStatus = useSelector((s) => s.graph.scanStatus);
   const [scanRepo] = useScanRepoMutation();
+  const [seedGraph] = useSeedGraphMutation();
 
-  const [url, setUrl]     = useState('');
+  const [url, setUrl]       = useState('');
   const [branch, setBranch] = useState('main');
-  const [error, setError] = useState('');
+  const [error, setError]   = useState('');
   const inputRef = useRef(null);
 
-  const isValidGitUrl = (u) => /^(https?:\/\/)?(github\.com|gitlab\.com|bitbucket\.org)\/.+\/.+/.test(u.trim());
+  const isValidGitUrl = (u) =>
+    /^(https?:\/\/)?(github\.com|gitlab\.com|bitbucket\.org)\/.+\/.+/.test(u.trim());
 
   const handleAdd = () => {
     setError('');
     const trimmed = url.trim();
-    if (!trimmed) { setError('Please enter a repository URL.'); return; }
-    if (!isValidGitUrl(trimmed)) { setError('Enter a valid GitHub / GitLab / Bitbucket URL.'); return; }
+    if (!trimmed)                   { setError('Please enter a repository URL.'); return; }
+    if (!isValidGitUrl(trimmed))    { setError('Enter a valid GitHub / GitLab / Bitbucket URL.'); return; }
     if (repos.some((r) => r.url === trimmed)) { setError('This repository has already been added.'); return; }
 
     const name = trimmed.split('/').slice(-1)[0].replace(/\.git$/, '');
@@ -72,10 +72,7 @@ const UploadRepo = () => {
 
   const handleKeyDown = (e) => { if (e.key === 'Enter') handleAdd(); };
 
-  const handleRemove = (id) => {
-    // Only remove pending repos — scanned repos keep their graph data
-    dispatch(removeRepo(id));
-  };
+  const handleRemove = (id) => dispatch(removeRepo(id));
 
   const scanRepos = async () => {
     const pending = repos.filter((r) => r.status === 'pending');
@@ -87,24 +84,47 @@ const UploadRepo = () => {
     try {
       const perRepoProgress = 100 / pending.length;
       let currentProgress = 0;
+
       for (const repo of pending) {
         dispatch(updateRepoStatus({ id: repo.id, status: 'scanning' }));
-        
-        // Let user know scanning is happening by slightly bumping progress
-        currentProgress += perRepoProgress * 0.1;
+
+        currentProgress += perRepoProgress * 0.2;
         dispatch(setScanProgress(currentProgress));
-        
-        await scanRepo({ repoUrl: repo.url }).unwrap();
-        
-        currentProgress += perRepoProgress * 0.9;
+
+        // Step 1: Clone & parse via AI Engine
+        const scanResult = await scanRepo({ repoUrl: repo.url }).unwrap();
+        const repoId = scanResult.repoId;
+
+        currentProgress += perRepoProgress * 0.4;
         dispatch(setScanProgress(currentProgress));
-        dispatch(updateRepoStatus({ id: repo.id, status: 'scanned' }));
+
+        // Step 2: Seed parsed graph into Neo4j
+        let scanId = null;
+        try {
+          const seedResult = await seedGraph({ repoId, repoUrl: repo.url }).unwrap();
+          scanId = seedResult.scanId;
+        } catch (seedErr) {
+          // Neo4j may not be available — continue anyway, impact will be degraded
+          console.warn('Neo4j seed failed (impact analysis may be unavailable):', seedErr?.data?.message || seedErr?.message);
+        }
+
+        // Store the active context for Graph/Impact panels to use
+        dispatch(setCurrentRepoInfo({ repoId, scanId }));
+
+        currentProgress += perRepoProgress * 0.4;
+        dispatch(setScanProgress(currentProgress));
+        dispatch(updateRepoStatus({
+          id: repo.id,
+          status: 'scanned',
+          nodes: scanResult.parserSummary?.nodes,
+          edges: scanResult.parserSummary?.edges,
+        }));
       }
 
       dispatch(setScanStatus('done'));
       navigate('/graph');
     } catch (err) {
-      console.error("Scan error: ", err);
+      console.error('Scan error:', err);
       setError(err?.data?.message || err?.message || 'Failed to scan repository.');
       dispatch(setScanStatus('error'));
     }
@@ -205,7 +225,7 @@ const UploadRepo = () => {
                 <p className="text-xs code-text mt-0.5 truncate" style={{ color: 'var(--text-muted)' }}>
                   {repo.url} · {repo.branch}
                 </p>
-                {repo.langs.length > 0 && (
+                {repo.langs?.length > 0 && (
                   <div className="flex gap-1 mt-1.5 flex-wrap">
                     {repo.langs.map((l) => <LangBadge key={l} lang={l} />)}
                   </div>
@@ -214,8 +234,8 @@ const UploadRepo = () => {
 
               {repo.status === 'scanned' && (
                 <div className="text-right flex-shrink-0">
-                  <p className="text-xs font-medium" style={{ color: 'var(--text)' }}>{repo.nodes} nodes</p>
-                  <p className="text-xs" style={{ color: 'var(--text-muted)' }}>{repo.edges} edges</p>
+                  <p className="text-xs font-medium" style={{ color: 'var(--text)' }}>{repo.nodes ?? 0} nodes</p>
+                  <p className="text-xs" style={{ color: 'var(--text-muted)' }}>{repo.edges ?? 0} edges</p>
                 </div>
               )}
 

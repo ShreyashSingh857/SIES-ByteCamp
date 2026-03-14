@@ -18,7 +18,7 @@ export const apiSlice = createApi({
   }),
   tagTypes: ['Graph'],
   endpoints: (builder) => ({
-    // REPO SCAN ENDPOINT
+    // POST /api/scan — Clone a repo and parse it. Returns { data: { repoId, graphApi, parserSummary, ... } }
     scanRepo: builder.mutation({
       query: (data) => ({
         url: '/scan',
@@ -28,34 +28,73 @@ export const apiSlice = createApi({
       invalidatesTags: ['Graph'],
       transformResponse: (response) => response.data,
     }),
-    
-    // GRAPH ENDPOINT
+
+    // GET /api/graph/:repoId — Get graph for a specific repoId
     getGraph: builder.query({
-      query: () => '/graph',
+      query: (repoId) => `/graph/${repoId}`,
       providesTags: ['Graph'],
       transformResponse: (response) => response.data,
     }),
 
-    // IMPACT ENDPOINT
-    getImpactAnalysis: builder.query({
-      query: (nodeId) => `/impact?nodeId=${nodeId}`,
+    // DELETE /api/graph/:repoId — Delete stored graph for a repo
+    deleteGraph: builder.mutation({
+      query: (repoId) => ({
+        url: `/graph/${repoId}`,
+        method: 'DELETE',
+      }),
+      invalidatesTags: ['Graph'],
+    }),
+
+    // POST /api/db/seed/schema — Creates Neo4j constraints & indexes
+    seedSchema: builder.mutation({
+      query: () => ({
+        url: '/db/seed/schema',
+        method: 'POST',
+      }),
+    }),
+
+    // POST /api/db/seed/graph/:repoId — Seeds the stored parser output into Neo4j. Returns { data: { repoId, scanId, fileCount, ... } }
+    seedGraph: builder.mutation({
+      query: ({ repoId, scanId, repoUrl }) => ({
+        url: `/db/seed/graph/${repoId}`,
+        method: 'POST',
+        body: { scanId, repoUrl },
+      }),
       transformResponse: (response) => response.data,
     }),
 
-    // HEALTH ENDPOINT
+    // GET /api/metrics/:scanId — Returns totalServices + totalDependencies from Neo4j
+    getMetrics: builder.query({
+      query: (scanId) => `/metrics/${scanId}`,
+      transformResponse: (response) => response.data,
+    }),
+
+    // GET /api/impact?node={nodeIdentifier}&scanId={scanId} — Neo4j BFS impact analysis
+    // Returns { data: { node, scanId, count, impactedNodes: [{ id, name, type, hops }] } }
+    getImpactAnalysis: builder.query({
+      query: ({ node, scanId }) =>
+        `/impact?node=${encodeURIComponent(node)}${scanId ? `&scanId=${encodeURIComponent(scanId)}` : ''}`,
+      transformResponse: (response) => response.data,
+    }),
+
+    // GET /api/health — Liveness check
     getHealth: builder.query({
       query: () => '/health',
     }),
 
-    // HELP ENDPOINTS
+    // GET /api/help — All help topics
     getHelpTopics: builder.query({
       query: () => '/help',
       transformResponse: (response) => response.data,
     }),
+
+    // GET /api/help/search?q={keyword} — Search help topics
     searchHelp: builder.query({
-      query: (keyword) => `/help/search?q=${keyword}`,
+      query: (keyword) => `/help/search?q=${encodeURIComponent(keyword)}`,
       transformResponse: (response) => response.data,
     }),
+
+    // GET /api/help/:id — Single help topic
     getHelpTopicById: builder.query({
       query: (id) => `/help/${id}`,
       transformResponse: (response) => response.data,
@@ -63,10 +102,13 @@ export const apiSlice = createApi({
   }),
 });
 
-// Export hooks for usage in components
 export const {
   useScanRepoMutation,
   useGetGraphQuery,
+  useDeleteGraphMutation,
+  useSeedSchemaMutation,
+  useSeedGraphMutation,
+  useGetMetricsQuery,
   useGetImpactAnalysisQuery,
   useGetHealthQuery,
   useGetHelpTopicsQuery,
