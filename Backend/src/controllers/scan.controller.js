@@ -504,3 +504,100 @@ export const getFileRelations = async (req, res, next) => {
     next(error);
   }
 };
+
+/**
+ * @desc    Analyze dependencies for selected text in code editor
+ * @route   POST /api/analyze/dependencies
+ * @access  Public
+ */
+export const analyzeDependencies = async (req, res, next) => {
+  try {
+    const { repoId, currentFile, selectedText } = req.body;
+
+    if (!repoId || !selectedText) {
+      return res.status(400).json({
+        success: false,
+        message: "repoId and selectedText are required",
+      });
+    }
+
+    const graphFilePath = getGraphFilePath(repoId);
+
+    if (!fs.existsSync(graphFilePath)) {
+      return res.status(404).json({
+        success: false,
+        message: `No graph found for repoId: ${repoId}`,
+      });
+    }
+
+    const parserResult = JSON.parse(fs.readFileSync(graphFilePath, "utf8"));
+    const files = (parserResult?.nodes || []).filter((n) => n.type === "FILE");
+
+    const dependencies = [];
+    const searchText = selectedText.trim();
+
+    // Search through all files for occurrences of the selected text
+    for (const fileNode of files) {
+      const filePath = fileNode.name;
+
+      // Skip the current file
+      if (currentFile && filePath === currentFile) {
+        continue;
+      }
+
+      try {
+        // Construct the full path to the repository clone
+        const repoPath = path.join(REPOSITORIES_ROOT);
+
+        // Find the cloned repo directory for this repoId
+        const repoDirs = fs.readdirSync(REPOSITORIES_ROOT).filter((name) => name.includes(repoId.split('-').slice(0, 2).join('-')));
+
+        if (repoDirs.length === 0) {
+          continue;
+        }
+
+        const repoDir = path.join(REPOSITORIES_ROOT, repoDirs[0]);
+        const fullPath = path.join(repoDir, filePath);
+
+        // Check if file exists and is readable
+        if (!fs.existsSync(fullPath)) {
+          continue;
+        }
+
+        const fileContent = fs.readFileSync(fullPath, "utf8");
+        const lines = fileContent.split("\n");
+
+        // Find lines containing the selected text
+        lines.forEach((line, lineIdx) => {
+          if (line.includes(searchText)) {
+            // Extract context (3 lines before and after)
+            const start = Math.max(0, lineIdx - 2);
+            const end = Math.min(lines.length, lineIdx + 3);
+            const snippet = lines.slice(start, end).join("\n");
+
+            dependencies.push({
+              filePath: filePath,
+              lineNumber: lineIdx + 1,
+              codeSnippet: snippet,
+            });
+          }
+        });
+      } catch (err) {
+        // Skip files that can't be read
+        continue;
+      }
+    }
+
+    res.status(200).json({
+      success: true,
+      data: {
+        repoId,
+        selectedText,
+        dependenciesFound: dependencies.length,
+        dependencies,
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};

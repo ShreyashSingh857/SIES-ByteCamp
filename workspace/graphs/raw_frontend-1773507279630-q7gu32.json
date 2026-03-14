@@ -1,0 +1,1220 @@
+{
+  "repositoryPath": "C:\\Users\\adity\\Desktop\\SIES-ByteCamp2\\workspace\\repositories\\raw_frontend-1773507279630-q7gu32",
+  "summary": {
+    "scannedFiles": 19,
+    "parsedFiles": 19,
+    "nodes": 113,
+    "edges": 116,
+    "languages": [
+      "javascript"
+    ]
+  },
+  "nodes": [
+    {
+      "id": "file:RAWAPP/eslint.config.js",
+      "type": "FILE",
+      "name": "RAWAPP/eslint.config.js",
+      "language": "javascript"
+    },
+    {
+      "id": "module:@eslint/js",
+      "type": "MODULE",
+      "name": "@eslint/js"
+    },
+    {
+      "id": "module:globals",
+      "type": "MODULE",
+      "name": "globals"
+    },
+    {
+      "id": "module:eslint-plugin-react-hooks",
+      "type": "MODULE",
+      "name": "eslint-plugin-react-hooks"
+    },
+    {
+      "id": "module:eslint-plugin-react-refresh",
+      "type": "MODULE",
+      "name": "eslint-plugin-react-refresh"
+    },
+    {
+      "id": "module:eslint/config",
+      "type": "MODULE",
+      "name": "eslint/config"
+    },
+    {
+      "id": "symbol:defineConfig",
+      "type": "SYMBOL",
+      "name": "defineConfig"
+    },
+    {
+      "id": "symbol:globalIgnores",
+      "type": "SYMBOL",
+      "name": "globalIgnores"
+    },
+    {
+      "id": "file:RAWAPP/src/api/authApi.js",
+      "type": "FILE",
+      "name": "RAWAPP/src/api/authApi.js",
+      "language": "javascript"
+    },
+    {
+      "id": "module:./axiosClient",
+      "type": "MODULE",
+      "name": "./axiosClient"
+    },
+    {
+      "id": "symbol:post",
+      "type": "SYMBOL",
+      "name": "post"
+    },
+    {
+      "id": "service:axiosClient",
+      "type": "EXTERNAL_SERVICE",
+      "name": "axiosClient"
+    },
+    {
+      "id": "symbol:get",
+      "type": "SYMBOL",
+      "name": "get"
+    },
+    {
+      "id": "file:RAWAPP/src/api/axiosClient.js",
+      "type": "FILE",
+      "name": "RAWAPP/src/api/axiosClient.js",
+      "language": "javascript"
+    },
+    {
+      "id": "function:RAWAPP/src/api/axiosClient.js#resolveBaseUrl",
+      "type": "FUNCTION",
+      "name": "resolveBaseUrl",
+      "file": "RAWAPP/src/api/axiosClient.js",
+      "line": 3
+    },
+    {
+      "id": "module:axios",
+      "type": "MODULE",
+      "name": "axios"
+    },
+    {
+      "id": "symbol:create",
+      "type": "SYMBOL",
+      "name": "create"
+    },
+    {
+      "id": "service:axios",
+      "type": "EXTERNAL_SERVICE",
+      "name": "axios"
+    },
+    {
+      "id": "symbol:use",
+      "type": "SYMBOL",
+      "name": "use"
+    },
+    {
+      "id": "symbol:getItem",
+      "type": "SYMBOL",
+      "name": "getItem"
+    },
+    {
+      "id": "symbol:reject",
+      "type": "SYMBOL",
+      "name": "reject"
+    },
+    {
+      "id": "symbol:removeItem",
+      "type": "SYMBOL",
+      "name": "removeItem"
+    },
+    {
+      "id": "file:RAWAPP/src/api/chatApi.js",
+      "type": "FILE",
+      "name": "RAWAPP/src/api/chatApi.js",
+      "language": "javascript"
+    },
+    {
+      "id": "file:RAWAPP/src/api/groupApi.js",
+      "type": "FILE",
+      "name": "RAWAPP/src/api/groupApi.js",
+      "language": "javascript"
+    },
+    {
+      "id": "file:RAWAPP/src/api/messageApi.js",
+      "type": "FILE",
+      "name": "RAWAPP/src/api/messageApi.js",
+      "language": "javascript"
+    },
+    {
+      "id": "file:RAWAPP/src/api/userApi.js",
+      "type": "FILE",
+      "name": "RAWAPP/src/api/userApi.js",
+      "language": "javascript"
+    },
+    {
+      "id": "symbol:put",
+      "type": "SYMBOL",
+      "name": "put"
+    },
+    {
+      "id": "file:RAWAPP/src/app/store.js",
+      "type": "FILE",
+      "name": "RAWAPP/src/app/store.js",
+      "language": "javascript"
+    },
+    {
+      "id": "module:@reduxjs/toolkit",
+      "type": "MODULE",
+      "name": "@reduxjs/toolkit"
+    },
+    {
+      "id": "module:../features/auth/authSlice",
+      "type": "MODULE",
+      "name": "../features/auth/authSlice"
+    },
+    {
+      "id": "module:../features/chat/chatSlice",
+      "type": "MODULE",
+      "name": "../features/chat/chatSlice"
+    },
+    {
+      "id": "module:../features/socket/socketSlice",
+      "type": "MODULE",
+      "name": "../features/socket/socketSlice"
+    },
+    {
+      "id": "symbol:configureStore",
+      "type": "SYMBOL",
+      "name": "configureStore"
+    },
+    {
+      "id": "symbol:getDefaultMiddleware",
+      "type": "SYMBOL",
+      "name": "getDefaultMiddleware"
+    },
+    {
+      "id": "file:RAWAPP/src/features/auth/authSlice.js",
+      "type": "FILE",
+      "name": "RAWAPP/src/features/auth/authSlice.js",
+      "language": "javascript"
+    },
+    {
+      "id": "function:RAWAPP/src/features/auth/authSlice.js#logout",
+      "type": "FUNCTION",
+      "name": "logout",
+      "file": "RAWAPP/src/features/auth/authSlice.js",
+      "line": 15
+    },
+    {
+      "id": "function:RAWAPP/src/features/auth/authSlice.js#setUser",
+      "type": "FUNCTION",
+      "name": "setUser",
+      "file": "RAWAPP/src/features/auth/authSlice.js",
+      "line": 20
+    },
+    {
+      "id": "module:./authThunks",
+      "type": "MODULE",
+      "name": "./authThunks"
+    },
+    {
+      "id": "symbol:createSlice",
+      "type": "SYMBOL",
+      "name": "createSlice"
+    },
+    {
+      "id": "symbol:addCase",
+      "type": "SYMBOL",
+      "name": "addCase"
+    },
+    {
+      "id": "symbol:setItem",
+      "type": "SYMBOL",
+      "name": "setItem"
+    },
+    {
+      "id": "file:RAWAPP/src/features/auth/authThunks.js",
+      "type": "FILE",
+      "name": "RAWAPP/src/features/auth/authThunks.js",
+      "language": "javascript"
+    },
+    {
+      "id": "module:../../api/authApi",
+      "type": "MODULE",
+      "name": "../../api/authApi"
+    },
+    {
+      "id": "symbol:createAsyncThunk",
+      "type": "SYMBOL",
+      "name": "createAsyncThunk"
+    },
+    {
+      "id": "symbol:login",
+      "type": "SYMBOL",
+      "name": "login"
+    },
+    {
+      "id": "symbol:rejectWithValue",
+      "type": "SYMBOL",
+      "name": "rejectWithValue"
+    },
+    {
+      "id": "symbol:register",
+      "type": "SYMBOL",
+      "name": "register"
+    },
+    {
+      "id": "symbol:me",
+      "type": "SYMBOL",
+      "name": "me"
+    },
+    {
+      "id": "file:RAWAPP/src/features/chat/chatSlice.js",
+      "type": "FILE",
+      "name": "RAWAPP/src/features/chat/chatSlice.js",
+      "language": "javascript"
+    },
+    {
+      "id": "function:RAWAPP/src/features/chat/chatSlice.js#setActiveConversation",
+      "type": "FUNCTION",
+      "name": "setActiveConversation",
+      "file": "RAWAPP/src/features/chat/chatSlice.js",
+      "line": 14
+    },
+    {
+      "id": "function:RAWAPP/src/features/chat/chatSlice.js#addMessage",
+      "type": "FUNCTION",
+      "name": "addMessage",
+      "file": "RAWAPP/src/features/chat/chatSlice.js",
+      "line": 25
+    },
+    {
+      "id": "function:RAWAPP/src/features/chat/chatSlice.js#conversationsLoaded",
+      "type": "FUNCTION",
+      "name": "conversationsLoaded",
+      "file": "RAWAPP/src/features/chat/chatSlice.js",
+      "line": 37
+    },
+    {
+      "id": "function:RAWAPP/src/features/chat/chatSlice.js#sidebarConversationUpdated",
+      "type": "FUNCTION",
+      "name": "sidebarConversationUpdated",
+      "file": "RAWAPP/src/features/chat/chatSlice.js",
+      "line": 41
+    },
+    {
+      "id": "function:RAWAPP/src/features/chat/chatSlice.js#updateUserPresence",
+      "type": "FUNCTION",
+      "name": "updateUserPresence",
+      "file": "RAWAPP/src/features/chat/chatSlice.js",
+      "line": 68
+    },
+    {
+      "id": "function:RAWAPP/src/features/chat/chatSlice.js#messageSeen",
+      "type": "FUNCTION",
+      "name": "messageSeen",
+      "file": "RAWAPP/src/features/chat/chatSlice.js",
+      "line": 90
+    },
+    {
+      "id": "function:RAWAPP/src/features/chat/chatSlice.js#clearUnread",
+      "type": "FUNCTION",
+      "name": "clearUnread",
+      "file": "RAWAPP/src/features/chat/chatSlice.js",
+      "line": 108
+    },
+    {
+      "id": "module:./chatThunks",
+      "type": "MODULE",
+      "name": "./chatThunks"
+    },
+    {
+      "id": "symbol:find",
+      "type": "SYMBOL",
+      "name": "find"
+    },
+    {
+      "id": "symbol:push",
+      "type": "SYMBOL",
+      "name": "push"
+    },
+    {
+      "id": "symbol:findIndex",
+      "type": "SYMBOL",
+      "name": "findIndex"
+    },
+    {
+      "id": "symbol:splice",
+      "type": "SYMBOL",
+      "name": "splice"
+    },
+    {
+      "id": "symbol:unshift",
+      "type": "SYMBOL",
+      "name": "unshift"
+    },
+    {
+      "id": "symbol:forEach",
+      "type": "SYMBOL",
+      "name": "forEach"
+    },
+    {
+      "id": "file:RAWAPP/src/features/chat/chatThunks.js",
+      "type": "FILE",
+      "name": "RAWAPP/src/features/chat/chatThunks.js",
+      "language": "javascript"
+    },
+    {
+      "id": "module:../../api/chatApi",
+      "type": "MODULE",
+      "name": "../../api/chatApi"
+    },
+    {
+      "id": "module:../../api/messageApi",
+      "type": "MODULE",
+      "name": "../../api/messageApi"
+    },
+    {
+      "id": "symbol:getConversations",
+      "type": "SYMBOL",
+      "name": "getConversations"
+    },
+    {
+      "id": "symbol:getMessages",
+      "type": "SYMBOL",
+      "name": "getMessages"
+    },
+    {
+      "id": "file:RAWAPP/src/features/socket/socketSlice.js",
+      "type": "FILE",
+      "name": "RAWAPP/src/features/socket/socketSlice.js",
+      "language": "javascript"
+    },
+    {
+      "id": "function:RAWAPP/src/features/socket/socketSlice.js#disconnectSocket",
+      "type": "FUNCTION",
+      "name": "disconnectSocket",
+      "file": "RAWAPP/src/features/socket/socketSlice.js",
+      "line": 13
+    },
+    {
+      "id": "function:RAWAPP/src/features/socket/socketSlice.js#setConnectionStatus",
+      "type": "FUNCTION",
+      "name": "setConnectionStatus",
+      "file": "RAWAPP/src/features/socket/socketSlice.js",
+      "line": 16
+    },
+    {
+      "id": "file:RAWAPP/src/firebase/firebaseClient.js",
+      "type": "FILE",
+      "name": "RAWAPP/src/firebase/firebaseClient.js",
+      "language": "javascript"
+    },
+    {
+      "id": "module:firebase/app",
+      "type": "MODULE",
+      "name": "firebase/app"
+    },
+    {
+      "id": "module:firebase/auth",
+      "type": "MODULE",
+      "name": "firebase/auth"
+    },
+    {
+      "id": "module:firebase/storage",
+      "type": "MODULE",
+      "name": "firebase/storage"
+    },
+    {
+      "id": "symbol:initializeApp",
+      "type": "SYMBOL",
+      "name": "initializeApp"
+    },
+    {
+      "id": "symbol:getAuth",
+      "type": "SYMBOL",
+      "name": "getAuth"
+    },
+    {
+      "id": "symbol:getStorage",
+      "type": "SYMBOL",
+      "name": "getStorage"
+    },
+    {
+      "id": "file:RAWAPP/src/hooks/useAuth.js",
+      "type": "FILE",
+      "name": "RAWAPP/src/hooks/useAuth.js",
+      "language": "javascript"
+    },
+    {
+      "id": "function:RAWAPP/src/hooks/useAuth.js#useAuth",
+      "type": "FUNCTION",
+      "name": "useAuth",
+      "file": "RAWAPP/src/hooks/useAuth.js",
+      "line": 3
+    },
+    {
+      "id": "module:react-redux",
+      "type": "MODULE",
+      "name": "react-redux"
+    },
+    {
+      "id": "symbol:useSelector",
+      "type": "SYMBOL",
+      "name": "useSelector"
+    },
+    {
+      "id": "file:RAWAPP/src/hooks/useChat.js",
+      "type": "FILE",
+      "name": "RAWAPP/src/hooks/useChat.js",
+      "language": "javascript"
+    },
+    {
+      "id": "function:RAWAPP/src/hooks/useChat.js#useChat",
+      "type": "FUNCTION",
+      "name": "useChat",
+      "file": "RAWAPP/src/hooks/useChat.js",
+      "line": 14
+    },
+    {
+      "id": "function:RAWAPP/src/hooks/useChat.js#loadMessages",
+      "type": "FUNCTION",
+      "name": "loadMessages",
+      "file": "RAWAPP/src/hooks/useChat.js",
+      "line": 33
+    },
+    {
+      "id": "function:RAWAPP/src/hooks/useChat.js#selectConversation",
+      "type": "FUNCTION",
+      "name": "selectConversation",
+      "file": "RAWAPP/src/hooks/useChat.js",
+      "line": 36
+    },
+    {
+      "id": "function:RAWAPP/src/hooks/useChat.js#pushMessage",
+      "type": "FUNCTION",
+      "name": "pushMessage",
+      "file": "RAWAPP/src/hooks/useChat.js",
+      "line": 42
+    },
+    {
+      "id": "module:react",
+      "type": "MODULE",
+      "name": "react"
+    },
+    {
+      "id": "module:../features/chat/chatThunks",
+      "type": "MODULE",
+      "name": "../features/chat/chatThunks"
+    },
+    {
+      "id": "symbol:useDispatch",
+      "type": "SYMBOL",
+      "name": "useDispatch"
+    },
+    {
+      "id": "symbol:useCallback",
+      "type": "SYMBOL",
+      "name": "useCallback"
+    },
+    {
+      "id": "symbol:dispatch",
+      "type": "SYMBOL",
+      "name": "dispatch"
+    },
+    {
+      "id": "symbol:conversationsLoaded",
+      "type": "SYMBOL",
+      "name": "conversationsLoaded"
+    },
+    {
+      "id": "symbol:fetchConversations",
+      "type": "SYMBOL",
+      "name": "fetchConversations"
+    },
+    {
+      "id": "symbol:fetchMessages",
+      "type": "SYMBOL",
+      "name": "fetchMessages"
+    },
+    {
+      "id": "symbol:log",
+      "type": "SYMBOL",
+      "name": "log"
+    },
+    {
+      "id": "symbol:setActiveConversation",
+      "type": "SYMBOL",
+      "name": "setActiveConversation"
+    },
+    {
+      "id": "symbol:addMessage",
+      "type": "SYMBOL",
+      "name": "addMessage"
+    },
+    {
+      "id": "file:RAWAPP/src/socket/socketClient.js",
+      "type": "FILE",
+      "name": "RAWAPP/src/socket/socketClient.js",
+      "language": "javascript"
+    },
+    {
+      "id": "function:RAWAPP/src/socket/socketClient.js#connectSocket",
+      "type": "FUNCTION",
+      "name": "connectSocket",
+      "file": "RAWAPP/src/socket/socketClient.js",
+      "line": 5
+    },
+    {
+      "id": "function:RAWAPP/src/socket/socketClient.js#getSocket",
+      "type": "FUNCTION",
+      "name": "getSocket",
+      "file": "RAWAPP/src/socket/socketClient.js",
+      "line": 19
+    },
+    {
+      "id": "function:RAWAPP/src/socket/socketClient.js#disconnectSocketClient",
+      "type": "FUNCTION",
+      "name": "disconnectSocketClient",
+      "file": "RAWAPP/src/socket/socketClient.js",
+      "line": 21
+    },
+    {
+      "id": "module:socket.io-client",
+      "type": "MODULE",
+      "name": "socket.io-client"
+    },
+    {
+      "id": "symbol:io",
+      "type": "SYMBOL",
+      "name": "io"
+    },
+    {
+      "id": "symbol:disconnect",
+      "type": "SYMBOL",
+      "name": "disconnect"
+    },
+    {
+      "id": "file:RAWAPP/src/utils/formatTimestamp.js",
+      "type": "FILE",
+      "name": "RAWAPP/src/utils/formatTimestamp.js",
+      "language": "javascript"
+    },
+    {
+      "id": "file:RAWAPP/vite.config.js",
+      "type": "FILE",
+      "name": "RAWAPP/vite.config.js",
+      "language": "javascript"
+    },
+    {
+      "id": "module:vite",
+      "type": "MODULE",
+      "name": "vite"
+    },
+    {
+      "id": "module:@vitejs/plugin-react",
+      "type": "MODULE",
+      "name": "@vitejs/plugin-react"
+    },
+    {
+      "id": "module:@tailwindcss/vite",
+      "type": "MODULE",
+      "name": "@tailwindcss/vite"
+    },
+    {
+      "id": "symbol:react",
+      "type": "SYMBOL",
+      "name": "react"
+    },
+    {
+      "id": "symbol:tailwindcss",
+      "type": "SYMBOL",
+      "name": "tailwindcss"
+    },
+    {
+      "id": "symbol:replace",
+      "type": "SYMBOL",
+      "name": "replace"
+    }
+  ],
+  "edges": [
+    {
+      "from": "file:RAWAPP/eslint.config.js",
+      "to": "module:@eslint/js",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "file:RAWAPP/eslint.config.js",
+      "to": "module:globals",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "file:RAWAPP/eslint.config.js",
+      "to": "module:eslint-plugin-react-hooks",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "file:RAWAPP/eslint.config.js",
+      "to": "module:eslint-plugin-react-refresh",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "file:RAWAPP/eslint.config.js",
+      "to": "module:eslint/config",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "file:RAWAPP/eslint.config.js",
+      "to": "symbol:defineConfig",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:RAWAPP/eslint.config.js",
+      "to": "symbol:globalIgnores",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:RAWAPP/src/api/authApi.js",
+      "to": "module:./axiosClient",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "file:RAWAPP/src/api/authApi.js",
+      "to": "symbol:post",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:RAWAPP/src/api/authApi.js",
+      "to": "service:axiosClient",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:RAWAPP/src/api/authApi.js",
+      "to": "symbol:get",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:RAWAPP/src/api/axiosClient.js",
+      "to": "module:axios",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "file:RAWAPP/src/api/axiosClient.js",
+      "to": "symbol:create",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:RAWAPP/src/api/axiosClient.js",
+      "to": "service:axios",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:RAWAPP/src/api/axiosClient.js",
+      "to": "function:RAWAPP/src/api/axiosClient.js#resolveBaseUrl",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:RAWAPP/src/api/axiosClient.js",
+      "to": "symbol:use",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:RAWAPP/src/api/axiosClient.js",
+      "to": "service:axiosClient",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:RAWAPP/src/api/axiosClient.js",
+      "to": "symbol:getItem",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:RAWAPP/src/api/axiosClient.js",
+      "to": "symbol:reject",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:RAWAPP/src/api/axiosClient.js",
+      "to": "symbol:removeItem",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:RAWAPP/src/api/chatApi.js",
+      "to": "module:./axiosClient",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "file:RAWAPP/src/api/chatApi.js",
+      "to": "symbol:post",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:RAWAPP/src/api/chatApi.js",
+      "to": "service:axiosClient",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:RAWAPP/src/api/chatApi.js",
+      "to": "symbol:get",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:RAWAPP/src/api/groupApi.js",
+      "to": "module:./axiosClient",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "file:RAWAPP/src/api/groupApi.js",
+      "to": "symbol:post",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:RAWAPP/src/api/groupApi.js",
+      "to": "service:axiosClient",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:RAWAPP/src/api/messageApi.js",
+      "to": "module:./axiosClient",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "file:RAWAPP/src/api/messageApi.js",
+      "to": "symbol:post",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:RAWAPP/src/api/messageApi.js",
+      "to": "service:axiosClient",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:RAWAPP/src/api/messageApi.js",
+      "to": "symbol:get",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:RAWAPP/src/api/userApi.js",
+      "to": "module:./axiosClient",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "file:RAWAPP/src/api/userApi.js",
+      "to": "symbol:get",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:RAWAPP/src/api/userApi.js",
+      "to": "service:axiosClient",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:RAWAPP/src/api/userApi.js",
+      "to": "symbol:put",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:RAWAPP/src/app/store.js",
+      "to": "module:@reduxjs/toolkit",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "file:RAWAPP/src/app/store.js",
+      "to": "module:../features/auth/authSlice",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "file:RAWAPP/src/app/store.js",
+      "to": "module:../features/chat/chatSlice",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "file:RAWAPP/src/app/store.js",
+      "to": "module:../features/socket/socketSlice",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "file:RAWAPP/src/app/store.js",
+      "to": "symbol:configureStore",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:RAWAPP/src/app/store.js",
+      "to": "symbol:getDefaultMiddleware",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:RAWAPP/src/features/auth/authSlice.js",
+      "to": "module:@reduxjs/toolkit",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "file:RAWAPP/src/features/auth/authSlice.js",
+      "to": "module:./authThunks",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "file:RAWAPP/src/features/auth/authSlice.js",
+      "to": "symbol:createSlice",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:RAWAPP/src/features/auth/authSlice.js#logout",
+      "to": "symbol:removeItem",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:RAWAPP/src/features/auth/authSlice.js",
+      "to": "symbol:addCase",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:RAWAPP/src/features/auth/authSlice.js",
+      "to": "symbol:setItem",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:RAWAPP/src/features/auth/authSlice.js",
+      "to": "symbol:getItem",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:RAWAPP/src/features/auth/authSlice.js",
+      "to": "symbol:removeItem",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:RAWAPP/src/features/auth/authThunks.js",
+      "to": "module:@reduxjs/toolkit",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "file:RAWAPP/src/features/auth/authThunks.js",
+      "to": "module:../../api/authApi",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "file:RAWAPP/src/features/auth/authThunks.js",
+      "to": "symbol:createAsyncThunk",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:RAWAPP/src/features/auth/authThunks.js",
+      "to": "symbol:login",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:RAWAPP/src/features/auth/authThunks.js",
+      "to": "symbol:rejectWithValue",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:RAWAPP/src/features/auth/authThunks.js",
+      "to": "symbol:register",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:RAWAPP/src/features/auth/authThunks.js",
+      "to": "symbol:me",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:RAWAPP/src/features/chat/chatSlice.js",
+      "to": "module:@reduxjs/toolkit",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "file:RAWAPP/src/features/chat/chatSlice.js",
+      "to": "module:./chatThunks",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "file:RAWAPP/src/features/chat/chatSlice.js",
+      "to": "symbol:createSlice",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:RAWAPP/src/features/chat/chatSlice.js#setActiveConversation",
+      "to": "symbol:find",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:RAWAPP/src/features/chat/chatSlice.js#addMessage",
+      "to": "symbol:find",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:RAWAPP/src/features/chat/chatSlice.js#addMessage",
+      "to": "symbol:push",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:RAWAPP/src/features/chat/chatSlice.js#sidebarConversationUpdated",
+      "to": "symbol:find",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:RAWAPP/src/features/chat/chatSlice.js#sidebarConversationUpdated",
+      "to": "symbol:findIndex",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:RAWAPP/src/features/chat/chatSlice.js#sidebarConversationUpdated",
+      "to": "symbol:splice",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:RAWAPP/src/features/chat/chatSlice.js#sidebarConversationUpdated",
+      "to": "symbol:unshift",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:RAWAPP/src/features/chat/chatSlice.js#updateUserPresence",
+      "to": "symbol:forEach",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:RAWAPP/src/features/chat/chatSlice.js#messageSeen",
+      "to": "symbol:forEach",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:RAWAPP/src/features/chat/chatSlice.js#messageSeen",
+      "to": "symbol:find",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:RAWAPP/src/features/chat/chatSlice.js#clearUnread",
+      "to": "symbol:find",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:RAWAPP/src/features/chat/chatSlice.js",
+      "to": "symbol:addCase",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:RAWAPP/src/features/chat/chatThunks.js",
+      "to": "module:@reduxjs/toolkit",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "file:RAWAPP/src/features/chat/chatThunks.js",
+      "to": "module:../../api/chatApi",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "file:RAWAPP/src/features/chat/chatThunks.js",
+      "to": "module:../../api/messageApi",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "file:RAWAPP/src/features/chat/chatThunks.js",
+      "to": "symbol:createAsyncThunk",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:RAWAPP/src/features/chat/chatThunks.js",
+      "to": "symbol:getConversations",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:RAWAPP/src/features/chat/chatThunks.js",
+      "to": "symbol:getMessages",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:RAWAPP/src/features/socket/socketSlice.js",
+      "to": "module:@reduxjs/toolkit",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "file:RAWAPP/src/features/socket/socketSlice.js",
+      "to": "symbol:createSlice",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:RAWAPP/src/firebase/firebaseClient.js",
+      "to": "module:firebase/app",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "file:RAWAPP/src/firebase/firebaseClient.js",
+      "to": "module:firebase/auth",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "file:RAWAPP/src/firebase/firebaseClient.js",
+      "to": "module:firebase/storage",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "file:RAWAPP/src/firebase/firebaseClient.js",
+      "to": "symbol:initializeApp",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:RAWAPP/src/firebase/firebaseClient.js",
+      "to": "symbol:getAuth",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:RAWAPP/src/firebase/firebaseClient.js",
+      "to": "symbol:getStorage",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:RAWAPP/src/hooks/useAuth.js",
+      "to": "module:react-redux",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "function:RAWAPP/src/hooks/useAuth.js#useAuth",
+      "to": "symbol:useSelector",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:RAWAPP/src/hooks/useChat.js",
+      "to": "module:react-redux",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "file:RAWAPP/src/hooks/useChat.js",
+      "to": "module:react",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "file:RAWAPP/src/hooks/useChat.js",
+      "to": "module:../features/chat/chatThunks",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "file:RAWAPP/src/hooks/useChat.js",
+      "to": "module:../features/chat/chatSlice",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "function:RAWAPP/src/hooks/useChat.js#useChat",
+      "to": "symbol:useDispatch",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:RAWAPP/src/hooks/useChat.js#useChat",
+      "to": "symbol:useSelector",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:RAWAPP/src/hooks/useChat.js#useChat",
+      "to": "symbol:useCallback",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:RAWAPP/src/hooks/useChat.js#useChat",
+      "to": "symbol:dispatch",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:RAWAPP/src/hooks/useChat.js#useChat",
+      "to": "symbol:conversationsLoaded",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:RAWAPP/src/hooks/useChat.js#useChat",
+      "to": "symbol:fetchConversations",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:RAWAPP/src/hooks/useChat.js#loadMessages",
+      "to": "symbol:dispatch",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:RAWAPP/src/hooks/useChat.js#loadMessages",
+      "to": "symbol:fetchMessages",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:RAWAPP/src/hooks/useChat.js#selectConversation",
+      "to": "symbol:log",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:RAWAPP/src/hooks/useChat.js#selectConversation",
+      "to": "symbol:dispatch",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:RAWAPP/src/hooks/useChat.js#selectConversation",
+      "to": "symbol:setActiveConversation",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:RAWAPP/src/hooks/useChat.js#selectConversation",
+      "to": "symbol:fetchMessages",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:RAWAPP/src/hooks/useChat.js#pushMessage",
+      "to": "symbol:dispatch",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:RAWAPP/src/hooks/useChat.js#pushMessage",
+      "to": "symbol:addMessage",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:RAWAPP/src/socket/socketClient.js",
+      "to": "module:socket.io-client",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "function:RAWAPP/src/socket/socketClient.js#connectSocket",
+      "to": "symbol:io",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:RAWAPP/src/socket/socketClient.js#connectSocket",
+      "to": "symbol:getItem",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:RAWAPP/src/socket/socketClient.js#disconnectSocketClient",
+      "to": "symbol:disconnect",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:RAWAPP/vite.config.js",
+      "to": "module:vite",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "file:RAWAPP/vite.config.js",
+      "to": "module:@vitejs/plugin-react",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "file:RAWAPP/vite.config.js",
+      "to": "module:@tailwindcss/vite",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "file:RAWAPP/vite.config.js",
+      "to": "symbol:defineConfig",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:RAWAPP/vite.config.js",
+      "to": "symbol:react",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:RAWAPP/vite.config.js",
+      "to": "symbol:tailwindcss",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:RAWAPP/vite.config.js",
+      "to": "symbol:replace",
+      "type": "CALLS"
+    }
+  ]
+}

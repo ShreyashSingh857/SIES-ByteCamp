@@ -1,10 +1,10 @@
 {
-  "repositoryPath": "D:\\ByteCampFinalRound\\SIES-ByteCamp\\Frontend",
+  "repositoryPath": "C:\\Users\\adity\\Desktop\\SIES-ByteCamp2\\Frontend",
   "summary": {
-    "scannedFiles": 14,
-    "parsedFiles": 14,
-    "nodes": 228,
-    "edges": 312,
+    "scannedFiles": 16,
+    "parsedFiles": 16,
+    "nodes": 257,
+    "edges": 344,
     "languages": [
       "javascript"
     ]
@@ -58,6 +58,39 @@
       "language": "javascript"
     },
     {
+      "id": "file:src/lib/utils.js",
+      "type": "FILE",
+      "name": "src/lib/utils.js",
+      "language": "javascript"
+    },
+    {
+      "id": "function:src/lib/utils.js#cn",
+      "type": "FUNCTION",
+      "name": "cn",
+      "file": "src/lib/utils.js",
+      "line": 4
+    },
+    {
+      "id": "module:clsx",
+      "type": "MODULE",
+      "name": "clsx"
+    },
+    {
+      "id": "module:tailwind-merge",
+      "type": "MODULE",
+      "name": "tailwind-merge"
+    },
+    {
+      "id": "symbol:twMerge",
+      "type": "SYMBOL",
+      "name": "twMerge"
+    },
+    {
+      "id": "symbol:clsx",
+      "type": "SYMBOL",
+      "name": "clsx"
+    },
+    {
       "id": "file:src/pages/index.js",
       "type": "FILE",
       "name": "src/pages/index.js",
@@ -89,6 +122,11 @@
       "name": "./UploadRepo"
     },
     {
+      "id": "module:./Analyze",
+      "type": "MODULE",
+      "name": "./Analyze"
+    },
+    {
       "id": "module:./GraphView",
       "type": "MODULE",
       "name": "./GraphView"
@@ -97,6 +135,21 @@
       "id": "module:./ImpactPanel",
       "type": "MODULE",
       "name": "./ImpactPanel"
+    },
+    {
+      "id": "module:./DirListView",
+      "type": "MODULE",
+      "name": "./DirListView"
+    },
+    {
+      "id": "module:./FileViewer",
+      "type": "MODULE",
+      "name": "./FileViewer"
+    },
+    {
+      "id": "module:./FileViewerWithDependencies",
+      "type": "MODULE",
+      "name": "./FileViewerWithDependencies"
     },
     {
       "id": "file:src/services/api.js",
@@ -217,19 +270,19 @@
       "name": "set"
     },
     {
+      "id": "symbol:mutation",
+      "type": "SYMBOL",
+      "name": "mutation"
+    },
+    {
       "id": "symbol:query",
       "type": "SYMBOL",
       "name": "query"
     },
     {
-      "id": "symbol:map",
+      "id": "symbol:encodeURIComponent",
       "type": "SYMBOL",
-      "name": "map"
-    },
-    {
-      "id": "symbol:mutation",
-      "type": "SYMBOL",
-      "name": "mutation"
+      "name": "encodeURIComponent"
     },
     {
       "id": "file:src/store/slices/graphSlice.js",
@@ -242,80 +295,89 @@
       "type": "FUNCTION",
       "name": "computeImpact",
       "file": "src/store/slices/graphSlice.js",
-      "line": 5
+      "line": 4
     },
     {
       "id": "function:src/store/slices/graphSlice.js#setSelectedNode",
       "type": "FUNCTION",
       "name": "setSelectedNode",
       "file": "src/store/slices/graphSlice.js",
-      "line": 58
+      "line": 62
     },
     {
       "id": "function:src/store/slices/graphSlice.js#clearSelection",
       "type": "FUNCTION",
       "name": "clearSelection",
       "file": "src/store/slices/graphSlice.js",
-      "line": 64
+      "line": 73
     },
     {
       "id": "function:src/store/slices/graphSlice.js#setScanStatus",
       "type": "FUNCTION",
       "name": "setScanStatus",
       "file": "src/store/slices/graphSlice.js",
-      "line": 69
+      "line": 78
     },
     {
       "id": "function:src/store/slices/graphSlice.js#setScanProgress",
       "type": "FUNCTION",
       "name": "setScanProgress",
       "file": "src/store/slices/graphSlice.js",
-      "line": 72
+      "line": 81
     },
     {
       "id": "function:src/store/slices/graphSlice.js#addRepo",
       "type": "FUNCTION",
       "name": "addRepo",
       "file": "src/store/slices/graphSlice.js",
-      "line": 75
+      "line": 84
     },
     {
       "id": "function:src/store/slices/graphSlice.js#updateRepoStatus",
       "type": "FUNCTION",
       "name": "updateRepoStatus",
       "file": "src/store/slices/graphSlice.js",
-      "line": 78
+      "line": 87
     },
     {
       "id": "function:src/store/slices/graphSlice.js#removeRepo",
       "type": "FUNCTION",
       "name": "removeRepo",
       "file": "src/store/slices/graphSlice.js",
-      "line": 83
+      "line": 96
     },
     {
       "id": "function:src/store/slices/graphSlice.js#setFilterLangs",
       "type": "FUNCTION",
       "name": "setFilterLangs",
       "file": "src/store/slices/graphSlice.js",
-      "line": 86
+      "line": 99
     },
     {
       "id": "function:src/store/slices/graphSlice.js#setFilterTypes",
       "type": "FUNCTION",
       "name": "setFilterTypes",
       "file": "src/store/slices/graphSlice.js",
-      "line": 89
+      "line": 102
+    },
+    {
+      "id": "function:src/store/slices/graphSlice.js#setGraphData",
+      "type": "FUNCTION",
+      "name": "setGraphData",
+      "file": "src/store/slices/graphSlice.js",
+      "line": 107
+    },
+    {
+      "id": "function:src/store/slices/graphSlice.js#setCurrentRepoInfo",
+      "type": "FUNCTION",
+      "name": "setCurrentRepoInfo",
+      "file": "src/store/slices/graphSlice.js",
+      "line": 111
     },
     {
       "id": "module:@reduxjs/toolkit",
       "type": "MODULE",
       "name": "@reduxjs/toolkit"
-    },
-    {
-      "id": "module:../../assets/mockdata",
-      "type": "MODULE",
-      "name": "../../assets/mockdata"
     },
     {
       "id": "symbol:forEach",
@@ -699,6 +761,11 @@
       "id": "symbol:setFilter",
       "type": "SYMBOL",
       "name": "setFilter"
+    },
+    {
+      "id": "symbol:map",
+      "type": "SYMBOL",
+      "name": "map"
     },
     {
       "id": "symbol:useEffect",
@@ -1296,6 +1363,96 @@
       "name": "createTheme"
     },
     {
+      "id": "file:tests/integration.test.js",
+      "type": "FILE",
+      "name": "tests/integration.test.js",
+      "language": "javascript"
+    },
+    {
+      "id": "function:tests/integration.test.js#logTestResult",
+      "type": "FUNCTION",
+      "name": "logTestResult",
+      "file": "tests/integration.test.js",
+      "line": 48
+    },
+    {
+      "id": "function:tests/integration.test.js#apiRequest",
+      "type": "FUNCTION",
+      "name": "apiRequest",
+      "file": "tests/integration.test.js",
+      "line": 53
+    },
+    {
+      "id": "module:@jest/globals",
+      "type": "MODULE",
+      "name": "@jest/globals"
+    },
+    {
+      "id": "symbol:apiClient",
+      "type": "SYMBOL",
+      "name": "apiClient"
+    },
+    {
+      "id": "symbol:error",
+      "type": "SYMBOL",
+      "name": "error"
+    },
+    {
+      "id": "symbol:describe",
+      "type": "SYMBOL",
+      "name": "describe"
+    },
+    {
+      "id": "symbol:test",
+      "type": "SYMBOL",
+      "name": "test"
+    },
+    {
+      "id": "symbol:toBe",
+      "type": "SYMBOL",
+      "name": "toBe"
+    },
+    {
+      "id": "symbol:expect",
+      "type": "SYMBOL",
+      "name": "expect"
+    },
+    {
+      "id": "symbol:toHaveProperty",
+      "type": "SYMBOL",
+      "name": "toHaveProperty"
+    },
+    {
+      "id": "symbol:toBeDefined",
+      "type": "SYMBOL",
+      "name": "toBeDefined"
+    },
+    {
+      "id": "symbol:isArray",
+      "type": "SYMBOL",
+      "name": "isArray"
+    },
+    {
+      "id": "symbol:toContain",
+      "type": "SYMBOL",
+      "name": "toContain"
+    },
+    {
+      "id": "symbol:isInteger",
+      "type": "SYMBOL",
+      "name": "isInteger"
+    },
+    {
+      "id": "symbol:toBeGreaterThanOrEqual",
+      "type": "SYMBOL",
+      "name": "toBeGreaterThanOrEqual"
+    },
+    {
+      "id": "symbol:toBeLessThan",
+      "type": "SYMBOL",
+      "name": "toBeLessThan"
+    },
+    {
       "id": "file:vite.config.js",
       "type": "FILE",
       "name": "vite.config.js",
@@ -1364,6 +1521,26 @@
       "type": "CALLS"
     },
     {
+      "from": "file:src/lib/utils.js",
+      "to": "module:clsx",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "file:src/lib/utils.js",
+      "to": "module:tailwind-merge",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "function:src/lib/utils.js#cn",
+      "to": "symbol:twMerge",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/lib/utils.js#cn",
+      "to": "symbol:clsx",
+      "type": "CALLS"
+    },
+    {
       "from": "file:src/pages/index.js",
       "to": "module:./Landing",
       "type": "IMPORTS"
@@ -1390,12 +1567,32 @@
     },
     {
       "from": "file:src/pages/index.js",
+      "to": "module:./Analyze",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "file:src/pages/index.js",
       "to": "module:./GraphView",
       "type": "IMPORTS"
     },
     {
       "from": "file:src/pages/index.js",
       "to": "module:./ImpactPanel",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "file:src/pages/index.js",
+      "to": "module:./DirListView",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "file:src/pages/index.js",
+      "to": "module:./FileViewer",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "file:src/pages/index.js",
+      "to": "module:./FileViewerWithDependencies",
       "type": "IMPORTS"
     },
     {
@@ -1505,27 +1702,22 @@
     },
     {
       "from": "file:src/store/slices/apiSlice.js",
+      "to": "symbol:mutation",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:src/store/slices/apiSlice.js",
       "to": "symbol:query",
       "type": "CALLS"
     },
     {
       "from": "file:src/store/slices/apiSlice.js",
-      "to": "symbol:map",
-      "type": "CALLS"
-    },
-    {
-      "from": "file:src/store/slices/apiSlice.js",
-      "to": "symbol:mutation",
+      "to": "symbol:encodeURIComponent",
       "type": "CALLS"
     },
     {
       "from": "file:src/store/slices/graphSlice.js",
       "to": "module:@reduxjs/toolkit",
-      "type": "IMPORTS"
-    },
-    {
-      "from": "file:src/store/slices/graphSlice.js",
-      "to": "module:../../assets/mockdata",
       "type": "IMPORTS"
     },
     {
@@ -1559,6 +1751,11 @@
       "type": "CALLS"
     },
     {
+      "from": "file:src/store/slices/graphSlice.js",
+      "to": "symbol:getItem",
+      "type": "CALLS"
+    },
+    {
       "from": "function:src/store/slices/graphSlice.js#setSelectedNode",
       "to": "function:src/store/slices/graphSlice.js#computeImpact",
       "type": "CALLS"
@@ -1576,6 +1773,16 @@
     {
       "from": "function:src/store/slices/graphSlice.js#removeRepo",
       "to": "symbol:filter",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/graphSlice.js#setCurrentRepoInfo",
+      "to": "symbol:setItem",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/graphSlice.js#setCurrentRepoInfo",
+      "to": "symbol:removeItem",
       "type": "CALLS"
     },
     {
@@ -2859,6 +3066,116 @@
       "type": "CALLS"
     },
     {
+      "from": "file:tests/integration.test.js",
+      "to": "module:axios",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "file:tests/integration.test.js",
+      "to": "module:@jest/globals",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "file:tests/integration.test.js",
+      "to": "symbol:create",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:tests/integration.test.js",
+      "to": "service:axios",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:tests/integration.test.js#logTestResult",
+      "to": "symbol:log",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:tests/integration.test.js#apiRequest",
+      "to": "symbol:apiClient",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:tests/integration.test.js#apiRequest",
+      "to": "symbol:error",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:tests/integration.test.js",
+      "to": "symbol:describe",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:tests/integration.test.js",
+      "to": "symbol:test",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:tests/integration.test.js",
+      "to": "function:tests/integration.test.js#apiRequest",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:tests/integration.test.js",
+      "to": "symbol:toBe",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:tests/integration.test.js",
+      "to": "symbol:expect",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:tests/integration.test.js",
+      "to": "function:tests/integration.test.js#logTestResult",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:tests/integration.test.js",
+      "to": "symbol:toHaveProperty",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:tests/integration.test.js",
+      "to": "symbol:toBeDefined",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:tests/integration.test.js",
+      "to": "symbol:isArray",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:tests/integration.test.js",
+      "to": "symbol:toContain",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:tests/integration.test.js",
+      "to": "symbol:now",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:tests/integration.test.js",
+      "to": "symbol:isInteger",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:tests/integration.test.js",
+      "to": "symbol:forEach",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:tests/integration.test.js",
+      "to": "symbol:toBeGreaterThanOrEqual",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:tests/integration.test.js",
+      "to": "symbol:toBeLessThan",
+      "type": "CALLS"
+    },
+    {
       "from": "file:vite.config.js",
       "to": "module:vite",
       "type": "IMPORTS"
@@ -2891,7 +3208,7 @@
   ],
   "llmInsights": {
     "status": "ok",
-    "generatedAt": "2026-03-14T09:25:27.396Z",
+    "generatedAt": "2026-03-14T17:28:32.618Z",
     "model": "Qwen/Qwen3-0.6B",
     "modeUsed": "chat",
     "contextMeta": {
@@ -2903,132 +3220,71 @@
         "from": "file:eslint.config.js",
         "to": "module:@eslint/js",
         "type": "IMPORTS",
-        "reason": "eslint config is used for linting and configuration",
+        "reason": "eslint is a core ESLint plugin that provides linting capabilities",
         "confidence": 0
       },
       {
         "from": "module:@eslint/js",
         "to": "module:globals",
         "type": "IMPORTS",
-        "reason": "eslint plugin is used for global configuration",
+        "reason": "eslint is a global tool that can be used across multiple files",
         "confidence": 0
       },
       {
         "from": "module:eslint-plugin-react-hooks",
         "to": "module:eslint/config",
         "type": "IMPORTS",
-        "reason": "eslint plugin is used for react hooks",
+        "reason": "eslint is used in the 'eslint/config' module for configuration",
         "confidence": 0
       },
       {
-        "from": "module:eslint-plugin-react-refresh",
-        "to": "module:eslint/config",
-        "type": "IMPORTS",
-        "reason": "eslint plugin is used for react refresh",
-        "confidence": 0
-      },
-      {
-        "from": "module:eslint/config",
-        "to": "symbol:defineConfig",
+        "from": "symbol:defineConfig",
+        "to": "module:@eslint/js",
         "type": "CALLS",
-        "reason": "eslint config is used for defining configuration",
+        "reason": "eslint is called in the 'defineConfig' function",
         "confidence": 0
       }
     ],
     "apiContracts": [
       {
-        "consumer": "create",
-        "endpoint": "module:axios",
-        "provider": "symbol:create",
-        "reason": "create function uses axios for API requests",
+        "consumer": "eslint",
+        "endpoint": "eslint",
+        "provider": "eslint",
+        "reason": "eslint is used to lint code",
         "confidence": 0
       },
       {
-        "consumer": "getItem",
-        "endpoint": "symbol:use",
-        "provider": "symbol:getItem",
-        "reason": "getItem function uses use API method",
-        "confidence": 0
-      },
-      {
-        "consumer": "post",
-        "endpoint": "symbol:post",
-        "provider": "symbol:post",
-        "reason": "post function uses post API method",
-        "confidence": 0
-      },
-      {
-        "consumer": "put",
-        "endpoint": "symbol:put",
-        "provider": "symbol:put",
-        "reason": "put function uses put API method",
-        "confidence": 0
-      },
-      {
-        "consumer": "delete",
-        "endpoint": "symbol:delete",
-        "provider": "symbol:delete",
-        "reason": "delete function uses delete API method",
+        "consumer": "axios",
+        "endpoint": "axios",
+        "provider": "axios",
+        "reason": "axios is a library for making HTTP requests",
         "confidence": 0
       }
     ],
     "databaseLineage": [
       {
-        "apiOrService": "module:axios",
-        "dbEntity": "symbol:use",
-        "field": "use",
+        "apiOrService": "eslint",
+        "dbEntity": "eslint",
+        "field": "import",
         "relationship": "READS",
-        "reason": "axios is used for API requests",
+        "reason": "eslint is imported from a database module",
         "confidence": 0
       },
       {
-        "apiOrService": "module:@reduxjs/toolkit",
-        "dbEntity": "symbol:createSlice",
-        "field": "create",
-        "relationship": "USES",
-        "reason": "createSlice uses Redux Toolkit for state management",
-        "confidence": 0
-      },
-      {
-        "apiOrService": "module:@reduxjs/toolkit",
-        "dbEntity": "symbol:fetchBaseQuery",
-        "field": "fetch",
-        "relationship": "USES",
-        "reason": "fetchBaseQuery uses Redux Toolkit for API calls",
-        "confidence": 0
-      },
-      {
-        "apiOrService": "module:@reduxjs/toolkit",
-        "dbEntity": "symbol:getItem",
-        "field": "get",
-        "relationship": "USES",
-        "reason": "getItem uses get API method",
+        "apiOrService": "axios",
+        "dbEntity": "axios",
+        "field": "import",
+        "relationship": "READS",
+        "reason": "axios is imported from a database module",
         "confidence": 0
       }
     ],
     "impactPredictions": [
       {
-        "changeNode": "function:src/store/slices/graphSlice.js#computeImpact",
-        "impacted": [
-          "symbol:forEach",
-          "symbol:map",
-          "symbol:push",
-          "symbol:filter"
-        ],
-        "impact": "The graph state changes due to the usage of graphSlice functions",
-        "reason": "These functions modify the graph structure, affecting the impact prediction",
-        "confidence": 0
-      },
-      {
-        "changeNode": "function:src/store/slices/graphSlice.js#setSelectedNode",
-        "impacted": [
-          "symbol:forEach",
-          "symbol:map",
-          "symbol:push",
-          "symbol:filter"
-        ],
-        "impact": "The selected node update affects the impact prediction",
-        "reason": "The selected node change alters the graph's selected state",
+        "changeNode": "file:eslint.config.js",
+        "impacted": [],
+        "impact": "The configuration file may affect linting rules",
+        "reason": "eslint is used in the configuration file",
         "confidence": 0
       }
     ],
@@ -3036,76 +3292,37 @@
       {
         "service": "axios",
         "dependsOn": [
-          "symbol:create",
-          "symbol:use"
+          "eslint",
+          "eslint-plugin-react-hooks",
+          "eslint-plugin-react-refresh"
         ],
         "usedBy": [
+          "module:axios",
           "symbol:use",
-          "symbol:post",
-          "symbol:put",
-          "symbol:delete"
+          "symbol:getItem"
         ],
-        "criticality": "HIGH",
-        "reason": "The axios service is used by multiple functions in the graph"
-      },
-      {
-        "service": "api",
-        "dependsOn": [
-          "symbol:create",
-          "symbol:use"
-        ],
-        "usedBy": [
-          "symbol:use",
-          "symbol:post",
-          "symbol:put",
-          "symbol:delete"
-        ],
-        "criticality": "HIGH",
-        "reason": "The API service is used by multiple functions in the graph"
-      },
-      {
-        "service": "apiSlice",
-        "dependsOn": [
-          "symbol:create",
-          "symbol:fetchBaseQuery"
-        ],
-        "usedBy": [
-          "symbol:fetchBaseQuery",
-          "symbol:use"
-        ],
-        "criticality": "MEDIUM",
-        "reason": "The API slice uses fetchBaseQuery and uses the same service"
+        "criticality": "LOW",
+        "reason": "axios is a library and not a service"
       }
     ],
     "explanations": [
       {
         "nodeId": "file:eslint.config.js",
-        "text": "eslint config is used for linting and configuration"
-      },
-      {
-        "nodeId": "module:@eslint/js",
-        "text": "eslint plugin is used for global configuration"
-      },
-      {
-        "nodeId": "symbol:defineConfig",
-        "text": "eslint config is used for defining configuration"
-      },
-      {
-        "nodeId": "module:@reduxjs/toolkit",
-        "text": "Redux Toolkit is used for state management"
+        "text": "eslint is a core tool used for code linting"
       }
     ],
-    "architectureSummary": "The architecture consists of a modular store module, with graphSlice, themeSlice, and apiSlice components interacting through the store module. The use of axios and Redux Toolkit ensures efficient API management.",
+    "architectureSummary": "The architecture includes the ESLint configuration, axios library, and various modules for handling dependencies and services. The impact predictions suggest that changes to these modules may affect the application's functionality.",
     "assumptions": [
-      "All dependencies are necessary for the graph structure",
-      "The impact predictions are based on the graph's function usage"
+      "The dependencies are inferred from the graph context",
+      "The API contracts are based on the graph's imports"
     ],
     "suggestedNewEdges": [
       {
-        "from": "function:src/store/slices/graphSlice.js#computeImpact",
-        "to": "function:src/store/slices/graphSlice.js#setSelectedNode",
+        "from": "symbol:defineConfig",
+        "to": "module:@eslint/js",
         "type": "CALLS",
-        "reason": "These functions modify the graph state, affecting the impact prediction"
+        "reason": "eslint is called in the 'defineConfig' function",
+        "confidence": 0
       }
     ]
   }

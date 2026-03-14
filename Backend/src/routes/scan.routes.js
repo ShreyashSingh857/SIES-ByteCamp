@@ -8,6 +8,7 @@ import {
 	getMetrics,
 	seedSchema,
 	seedGraphToDb,
+	analyzeDependencies,
 } from "../controllers/scan.controller.js";
 
 const router = Router();
@@ -35,5 +36,8 @@ router.get("/impact", getImpact);
 
 // GET /api/impact/files?scanId=...&filePath=... → related files for a file path
 router.get("/impact/files", getFileRelations);
+
+// POST /api/analyze/dependencies → analyze dependencies for selected text
+router.post("/analyze/dependencies", analyzeDependencies);
 
 export default router;
