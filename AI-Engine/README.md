@@ -49,6 +49,51 @@ Optional model override:
 npm run analyze -- --repo ../Frontend --out ./output/frontend-graph-with-insights.json --with-llm --model gpt-4.1-mini
 ```
 
+## Dependency Change Agent
+
+The dependency change agent helps identify updates needed in dependency manifests (for example, `package.json`) after source code changes.
+
+It works by:
+
+1. Detecting changed files from git diff (or using explicit file input).
+2. Comparing previous imports (`--base`, default `HEAD`) vs current imports.
+3. Mapping added/removed external packages.
+4. Recommending dependency file updates and listing impacted files.
+
+Run against changed files from git:
+
+```bash
+npm run agent:deps -- --repo ../Backend --out ./output/dependency-recommendations.json
+```
+
+Run with explicit changed files (comma-separated, repo-relative):
+
+```bash
+npm run agent:deps -- --repo ../Backend --changed src/controllers/auth.controller.js,src/routes/auth.routes.js
+```
+
+Useful flags:
+
+- `--base <gitRef>`: compare against a different ref (default `HEAD`).
+- `--include-untracked`: include untracked files in analysis.
+- `--out <path>`: export recommendations to JSON.
+- `--with-llm`: generate optional AI recommendations from detected deltas.
+- `--model <openai-model>`: override default LLM model for `--with-llm`.
+
+Example with LLM:
+
+```bash
+npm run agent:deps -- --repo ../Backend --out ./output/dependency-recommendations.json --with-llm --model gpt-4.1-mini
+```
+
+Output includes:
+
+- `summary.missingDependencies`
+- `summary.removableCandidates`
+- `recommendations[].missingDependencies[]`
+- `recommendations[].removableCandidates[]`
+- `llmRecommendations` (only when `--with-llm` is used)
+
 ## Environment
 
 Create/update `.env` in `AI-Engine`:
