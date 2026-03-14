@@ -1,0 +1,416 @@
+{
+  "repositoryPath": "C:\\Users\\singh\\OneDrive\\Desktop\\SIES-ByteCamp\\SIES-ByteCamp\\workspace\\repositories\\mybrowser-1773507173797-580494",
+  "summary": {
+    "scannedFiles": 6,
+    "parsedFiles": 6,
+    "nodes": 41,
+    "edges": 37,
+    "languages": [
+      "java"
+    ]
+  },
+  "nodes": [
+    {
+      "id": "file:CustomExceptions/ContentEncodingHeaderFoundException.java",
+      "type": "FILE",
+      "name": "CustomExceptions/ContentEncodingHeaderFoundException.java",
+      "language": "java"
+    },
+    {
+      "id": "file:CustomExceptions/NotHTTPException.java",
+      "type": "FILE",
+      "name": "CustomExceptions/NotHTTPException.java",
+      "language": "java"
+    },
+    {
+      "id": "file:CustomExceptions/TransferEncodingHeaderFoundException.java",
+      "type": "FILE",
+      "name": "CustomExceptions/TransferEncodingHeaderFoundException.java",
+      "language": "java"
+    },
+    {
+      "id": "file:Engine/Engine.java",
+      "type": "FILE",
+      "name": "Engine/Engine.java",
+      "language": "java"
+    },
+    {
+      "id": "function:Engine/Engine.java#main",
+      "type": "FUNCTION",
+      "name": "main",
+      "file": "Engine/Engine.java",
+      "line": 6
+    },
+    {
+      "id": "module:HTMLParser.TextExtracter",
+      "type": "MODULE",
+      "name": "HTMLParser.TextExtracter"
+    },
+    {
+      "id": "module:URLClass.*",
+      "type": "MODULE",
+      "name": "URLClass.*"
+    },
+    {
+      "id": "module:java.net.*",
+      "type": "MODULE",
+      "name": "java.net.*"
+    },
+    {
+      "id": "symbol:request",
+      "type": "SYMBOL",
+      "name": "request"
+    },
+    {
+      "id": "symbol:println",
+      "type": "SYMBOL",
+      "name": "println"
+    },
+    {
+      "id": "symbol:getMessage",
+      "type": "SYMBOL",
+      "name": "getMessage"
+    },
+    {
+      "id": "file:HTMLParser/TextExtracter.java",
+      "type": "FILE",
+      "name": "HTMLParser/TextExtracter.java",
+      "language": "java"
+    },
+    {
+      "id": "symbol:toCharArray",
+      "type": "SYMBOL",
+      "name": "toCharArray"
+    },
+    {
+      "id": "symbol:print",
+      "type": "SYMBOL",
+      "name": "print"
+    },
+    {
+      "id": "file:URLClass/MyURL.java",
+      "type": "FILE",
+      "name": "URLClass/MyURL.java",
+      "language": "java"
+    },
+    {
+      "id": "function:URLClass/MyURL.java#request",
+      "type": "FUNCTION",
+      "name": "request",
+      "file": "URLClass/MyURL.java",
+      "line": 38
+    },
+    {
+      "id": "module:CustomExceptions.*",
+      "type": "MODULE",
+      "name": "CustomExceptions.*"
+    },
+    {
+      "id": "module:java.io.*",
+      "type": "MODULE",
+      "name": "java.io.*"
+    },
+    {
+      "id": "module:java.nio.charset.StandardCharsets",
+      "type": "MODULE",
+      "name": "java.nio.charset.StandardCharsets"
+    },
+    {
+      "id": "module:java.util.*",
+      "type": "MODULE",
+      "name": "java.util.*"
+    },
+    {
+      "id": "module:javax.net.ssl.SSLSocket",
+      "type": "MODULE",
+      "name": "javax.net.ssl.SSLSocket"
+    },
+    {
+      "id": "module:javax.net.ssl.SSLSocketFactory",
+      "type": "MODULE",
+      "name": "javax.net.ssl.SSLSocketFactory"
+    },
+    {
+      "id": "symbol:split",
+      "type": "SYMBOL",
+      "name": "split"
+    },
+    {
+      "id": "symbol:equals",
+      "type": "SYMBOL",
+      "name": "equals"
+    },
+    {
+      "id": "symbol:contains",
+      "type": "SYMBOL",
+      "name": "contains"
+    },
+    {
+      "id": "symbol:connect",
+      "type": "SYMBOL",
+      "name": "connect"
+    },
+    {
+      "id": "symbol:getDefault",
+      "type": "SYMBOL",
+      "name": "getDefault"
+    },
+    {
+      "id": "symbol:createSocket",
+      "type": "SYMBOL",
+      "name": "createSocket"
+    },
+    {
+      "id": "symbol:startHandshake",
+      "type": "SYMBOL",
+      "name": "startHandshake"
+    },
+    {
+      "id": "symbol:getOutputStream",
+      "type": "SYMBOL",
+      "name": "getOutputStream"
+    },
+    {
+      "id": "symbol:write",
+      "type": "SYMBOL",
+      "name": "write"
+    },
+    {
+      "id": "symbol:getBytes",
+      "type": "SYMBOL",
+      "name": "getBytes"
+    },
+    {
+      "id": "symbol:flush",
+      "type": "SYMBOL",
+      "name": "flush"
+    },
+    {
+      "id": "symbol:getInputStream",
+      "type": "SYMBOL",
+      "name": "getInputStream"
+    },
+    {
+      "id": "symbol:readLine",
+      "type": "SYMBOL",
+      "name": "readLine"
+    },
+    {
+      "id": "symbol:isEmpty",
+      "type": "SYMBOL",
+      "name": "isEmpty"
+    },
+    {
+      "id": "symbol:trim",
+      "type": "SYMBOL",
+      "name": "trim"
+    },
+    {
+      "id": "symbol:add",
+      "type": "SYMBOL",
+      "name": "add"
+    },
+    {
+      "id": "symbol:computeIfAbsent",
+      "type": "SYMBOL",
+      "name": "computeIfAbsent"
+    },
+    {
+      "id": "symbol:containsKey",
+      "type": "SYMBOL",
+      "name": "containsKey"
+    },
+    {
+      "id": "symbol:forEach",
+      "type": "SYMBOL",
+      "name": "forEach"
+    }
+  ],
+  "edges": [
+    {
+      "from": "file:Engine/Engine.java",
+      "to": "module:HTMLParser.TextExtracter",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "file:Engine/Engine.java",
+      "to": "module:URLClass.*",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "file:Engine/Engine.java",
+      "to": "module:java.net.*",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "function:Engine/Engine.java#main",
+      "to": "symbol:request",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:Engine/Engine.java#main",
+      "to": "symbol:println",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:Engine/Engine.java#main",
+      "to": "symbol:getMessage",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:HTMLParser/TextExtracter.java",
+      "to": "symbol:toCharArray",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:HTMLParser/TextExtracter.java",
+      "to": "symbol:print",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:URLClass/MyURL.java",
+      "to": "module:CustomExceptions.*",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "file:URLClass/MyURL.java",
+      "to": "module:java.io.*",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "file:URLClass/MyURL.java",
+      "to": "module:java.net.*",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "file:URLClass/MyURL.java",
+      "to": "module:java.nio.charset.StandardCharsets",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "file:URLClass/MyURL.java",
+      "to": "module:java.util.*",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "file:URLClass/MyURL.java",
+      "to": "module:javax.net.ssl.SSLSocket",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "file:URLClass/MyURL.java",
+      "to": "module:javax.net.ssl.SSLSocketFactory",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "file:URLClass/MyURL.java",
+      "to": "symbol:split",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:URLClass/MyURL.java",
+      "to": "symbol:equals",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:URLClass/MyURL.java",
+      "to": "symbol:contains",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:URLClass/MyURL.java#request",
+      "to": "symbol:equals",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:URLClass/MyURL.java#request",
+      "to": "symbol:connect",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:URLClass/MyURL.java#request",
+      "to": "symbol:getDefault",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:URLClass/MyURL.java#request",
+      "to": "symbol:createSocket",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:URLClass/MyURL.java#request",
+      "to": "symbol:startHandshake",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:URLClass/MyURL.java#request",
+      "to": "symbol:println",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:URLClass/MyURL.java#request",
+      "to": "symbol:getOutputStream",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:URLClass/MyURL.java#request",
+      "to": "symbol:write",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:URLClass/MyURL.java#request",
+      "to": "symbol:getBytes",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:URLClass/MyURL.java#request",
+      "to": "symbol:flush",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:URLClass/MyURL.java#request",
+      "to": "symbol:getInputStream",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:URLClass/MyURL.java#request",
+      "to": "symbol:readLine",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:URLClass/MyURL.java#request",
+      "to": "symbol:isEmpty",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:URLClass/MyURL.java#request",
+      "to": "symbol:split",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:URLClass/MyURL.java#request",
+      "to": "symbol:trim",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:URLClass/MyURL.java#request",
+      "to": "symbol:add",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:URLClass/MyURL.java#request",
+      "to": "symbol:computeIfAbsent",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:URLClass/MyURL.java#request",
+      "to": "symbol:containsKey",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:URLClass/MyURL.java#request",
+      "to": "symbol:forEach",
+      "type": "CALLS"
+    }
+  ]
+}

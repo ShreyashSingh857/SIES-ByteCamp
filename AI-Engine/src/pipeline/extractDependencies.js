@@ -3,6 +3,8 @@ const { getNodeText, walkTree } = require('../utils/ast');
 const { toProjectRelativePath } = require('../utils/paths');
 
 const ENDPOINT_METHODS = new Set(['get', 'post', 'put', 'patch', 'delete', 'options', 'head', 'all']);
+const JS_LIKE_LANGUAGES = new Set(['javascript', 'typescript', 'tsx']);
+const SQL_LIKE_LANGUAGES = new Set(['sql', 'postgresql']);
 
 function fileNodeId(relativePath) {
   return `file:${relativePath}`;
@@ -41,7 +43,7 @@ function getStringLiteralValue(text) {
 }
 
 function extractRoutePathFromCall(node, source, language) {
-  if (language === 'javascript') {
+  if (JS_LIKE_LANGUAGES.has(language)) {
     const firstArgument = node.namedChildren[1];
     if (!firstArgument) {
       return null;
@@ -119,7 +121,7 @@ function normalizeCallableName(calleeText) {
 }
 
 function getCalleeText(node, source, language) {
-  if (language === 'javascript') {
+  if (JS_LIKE_LANGUAGES.has(language)) {
     const functionNode = node.childForFieldName('function');
     return functionNode ? getNodeText(functionNode, source).trim() : null;
   }
@@ -127,6 +129,11 @@ function getCalleeText(node, source, language) {
   if (language === 'python') {
     const functionNode = node.childForFieldName('function');
     return functionNode ? getNodeText(functionNode, source).trim() : null;
+  }
+
+  if (language === 'java') {
+    const nameNode = node.childForFieldName('name');
+    return nameNode ? getNodeText(nameNode, source).trim() : getNodeText(node, source).trim();
   }
 
   return null;
@@ -210,7 +217,7 @@ function collectDeclaredFunctions(rootNode, source, language, relativePath, grap
   }
 
   walkTree(rootNode, (node) => {
-    if (language === 'javascript') {
+    if (JS_LIKE_LANGUAGES.has(language)) {
       if (node.type === 'function_declaration' || node.type === 'method_definition') {
         const nameNode = node.childForFieldName('name');
         if (nameNode) {
@@ -241,13 +248,20 @@ function collectDeclaredFunctions(rootNode, source, language, relativePath, grap
         declareFunction(getNodeText(nameNode, source), node);
       }
     }
+
+    if (language === 'java' && node.type === 'method_declaration') {
+      const nameNode = node.childForFieldName('name');
+      if (nameNode) {
+        declareFunction(getNodeText(nameNode, source), node);
+      }
+    }
   });
 
   return declarationMap;
 }
 
 function getCurrentFunctionContext(node, source, language, relativePath, declarationMap, existingContext) {
-  if (language === 'javascript') {
+  if (JS_LIKE_LANGUAGES.has(language)) {
     if (node.type === 'function_declaration' || node.type === 'method_definition') {
       const nameNode = node.childForFieldName('name');
       const name = nameNode ? getNodeText(nameNode, source) : null;
@@ -278,13 +292,21 @@ function getCurrentFunctionContext(node, source, language, relativePath, declara
     }
   }
 
+  if (language === 'java' && node.type === 'method_declaration') {
+    const nameNode = node.childForFieldName('name');
+    const name = nameNode ? getNodeText(nameNode, source) : null;
+    if (name) {
+      return declarationMap.get(name) ?? functionNodeId(relativePath, name);
+    }
+  }
+
   return existingContext;
 }
 
 function extractImports(node, language, source) {
   const imports = [];
 
-  if (language === 'javascript') {
+  if (JS_LIKE_LANGUAGES.has(language)) {
     if (node.type === 'import_statement') {
       const moduleName = parseJsImportStatement(getNodeText(node, source));
       if (moduleName) {
@@ -303,6 +325,13 @@ function extractImports(node, language, source) {
 
   if (language === 'python' && (node.type === 'import_statement' || node.type === 'import_from_statement')) {
     imports.push(...parsePythonImports(getNodeText(node, source)));
+  }
+
+  if (language === 'java' && node.type === 'import_declaration') {
+    const importText = getNodeText(node, source).replace(/^import\s+|;$/g, '').trim();
+    if (importText) {
+      imports.push(importText);
+    }
   }
 
   return imports;
@@ -326,6 +355,43 @@ function addImportEdges(imports, fileId, graph) {
   }
 }
 
+function extractSqlTableReferences(source) {
+  const tables = new Set();
+  const patterns = [
+    /\bfrom\s+([a-zA-Z_][\w.]*)/gi,
+    /\bjoin\s+([a-zA-Z_][\w.]*)/gi,
+    /\bupdate\s+([a-zA-Z_][\w.]*)/gi,
+    /\binsert\s+into\s+([a-zA-Z_][\w.]*)/gi,
+    /\bdelete\s+from\s+([a-zA-Z_][\w.]*)/gi,
+    /\bcreate\s+table\s+(?:if\s+not\s+exists\s+)?([a-zA-Z_][\w.]*)/gi,
+    /\balter\s+table\s+([a-zA-Z_][\w.]*)/gi,
+  ];
+
+  for (const pattern of patterns) {
+    let match;
+    while ((match = pattern.exec(source)) !== null) {
+      tables.add(match[1].replace(/[`"']/g, ''));
+    }
+  }
+
+  return Array.from(tables);
+}
+
+function extractSqlDependencies(source, fileId, graph) {
+  const tables = extractSqlTableReferences(source);
+  const dbTech = source.toLowerCase().includes('postgres') ? 'PostgreSQL' : 'SQL';
+  const dbId = databaseNodeId(dbTech);
+
+  graph.upsertNode({ id: dbId, type: 'DATABASE', name: dbTech });
+  graph.upsertEdge({ from: fileId, to: dbId, type: 'READS' });
+
+  for (const tableName of tables) {
+    const tableId = databaseNodeId(`${dbTech}:${tableName}`);
+    graph.upsertNode({ id: tableId, type: 'DATABASE', name: tableName, technology: dbTech });
+    graph.upsertEdge({ from: fileId, to: tableId, type: 'READS' });
+  }
+}
+
 function extractDependenciesFromAst(parsedFile, repositoryPath, graph) {
   const { filePath, source, tree, language } = parsedFile;
   const relativePath = toProjectRelativePath(repositoryPath, filePath);
@@ -337,6 +403,13 @@ function extractDependenciesFromAst(parsedFile, repositoryPath, graph) {
     name: relativePath,
     language,
   });
+
+  if (!tree || !tree.rootNode) {
+    if (SQL_LIKE_LANGUAGES.has(language)) {
+      extractSqlDependencies(source, fileId, graph);
+    }
+    return;
+  }
 
   const declarationMap = collectDeclaredFunctions(tree.rootNode, source, language, relativePath, graph);
 
@@ -357,7 +430,10 @@ function extractDependenciesFromAst(parsedFile, repositoryPath, graph) {
         addImportEdges(imports, fileId, graph);
       }
 
-      const isCallExpression = (language === 'javascript' && node.type === 'call_expression') || (language === 'python' && node.type === 'call');
+      const isCallExpression =
+        (JS_LIKE_LANGUAGES.has(language) && node.type === 'call_expression') ||
+        (language === 'python' && node.type === 'call') ||
+        (language === 'java' && node.type === 'method_invocation');
 
       if (isCallExpression) {
         const calleeText = getCalleeText(node, source, language);

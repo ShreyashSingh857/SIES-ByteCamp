@@ -1,0 +1,1782 @@
+{
+  "repositoryPath": "C:\\Users\\singh\\OneDrive\\Desktop\\SIES-ByteCamp\\SIES-ByteCamp\\workspace\\repositories\\kairos-1773507054487-3ipb9y",
+  "summary": {
+    "scannedFiles": 18,
+    "parsedFiles": 18,
+    "nodes": 131,
+    "edges": 206,
+    "languages": [
+      "javascript",
+      "sql"
+    ]
+  },
+  "nodes": [
+    {
+      "id": "file:eslint.config.js",
+      "type": "FILE",
+      "name": "eslint.config.js",
+      "language": "javascript"
+    },
+    {
+      "id": "module:@eslint/js",
+      "type": "MODULE",
+      "name": "@eslint/js"
+    },
+    {
+      "id": "module:globals",
+      "type": "MODULE",
+      "name": "globals"
+    },
+    {
+      "id": "module:eslint-plugin-react-hooks",
+      "type": "MODULE",
+      "name": "eslint-plugin-react-hooks"
+    },
+    {
+      "id": "module:eslint-plugin-react-refresh",
+      "type": "MODULE",
+      "name": "eslint-plugin-react-refresh"
+    },
+    {
+      "id": "module:eslint/config",
+      "type": "MODULE",
+      "name": "eslint/config"
+    },
+    {
+      "id": "symbol:defineConfig",
+      "type": "SYMBOL",
+      "name": "defineConfig"
+    },
+    {
+      "id": "symbol:globalIgnores",
+      "type": "SYMBOL",
+      "name": "globalIgnores"
+    },
+    {
+      "id": "file:postcss.config.js",
+      "type": "FILE",
+      "name": "postcss.config.js",
+      "language": "javascript"
+    },
+    {
+      "id": "file:src/data/foodDatabase.js",
+      "type": "FILE",
+      "name": "src/data/foodDatabase.js",
+      "language": "javascript"
+    },
+    {
+      "id": "file:src/data/moodData.js",
+      "type": "FILE",
+      "name": "src/data/moodData.js",
+      "language": "javascript"
+    },
+    {
+      "id": "function:src/data/moodData.js#getRandomQuote",
+      "type": "FUNCTION",
+      "name": "getRandomQuote",
+      "file": "src/data/moodData.js",
+      "line": 106
+    },
+    {
+      "id": "symbol:floor",
+      "type": "SYMBOL",
+      "name": "floor"
+    },
+    {
+      "id": "symbol:random",
+      "type": "SYMBOL",
+      "name": "random"
+    },
+    {
+      "id": "file:src/hooks/useAuth.js",
+      "type": "FILE",
+      "name": "src/hooks/useAuth.js",
+      "language": "javascript"
+    },
+    {
+      "id": "function:src/hooks/useAuth.js#useAuth",
+      "type": "FUNCTION",
+      "name": "useAuth",
+      "file": "src/hooks/useAuth.js",
+      "line": 4
+    },
+    {
+      "id": "function:src/hooks/useAuth.js#signInWithGoogle",
+      "type": "FUNCTION",
+      "name": "signInWithGoogle",
+      "file": "src/hooks/useAuth.js",
+      "line": 27
+    },
+    {
+      "id": "function:src/hooks/useAuth.js#signInWithEmail",
+      "type": "FUNCTION",
+      "name": "signInWithEmail",
+      "file": "src/hooks/useAuth.js",
+      "line": 41
+    },
+    {
+      "id": "function:src/hooks/useAuth.js#signUp",
+      "type": "FUNCTION",
+      "name": "signUp",
+      "file": "src/hooks/useAuth.js",
+      "line": 49
+    },
+    {
+      "id": "function:src/hooks/useAuth.js#signOut",
+      "type": "FUNCTION",
+      "name": "signOut",
+      "file": "src/hooks/useAuth.js",
+      "line": 57
+    },
+    {
+      "id": "module:react",
+      "type": "MODULE",
+      "name": "react"
+    },
+    {
+      "id": "module:../lib/supabase",
+      "type": "MODULE",
+      "name": "../lib/supabase"
+    },
+    {
+      "id": "symbol:useState",
+      "type": "SYMBOL",
+      "name": "useState"
+    },
+    {
+      "id": "symbol:useEffect",
+      "type": "SYMBOL",
+      "name": "useEffect"
+    },
+    {
+      "id": "symbol:then",
+      "type": "SYMBOL",
+      "name": "then"
+    },
+    {
+      "id": "symbol:getSession",
+      "type": "SYMBOL",
+      "name": "getSession"
+    },
+    {
+      "id": "symbol:setSession",
+      "type": "SYMBOL",
+      "name": "setSession"
+    },
+    {
+      "id": "symbol:setUser",
+      "type": "SYMBOL",
+      "name": "setUser"
+    },
+    {
+      "id": "symbol:setLoading",
+      "type": "SYMBOL",
+      "name": "setLoading"
+    },
+    {
+      "id": "symbol:onAuthStateChange",
+      "type": "SYMBOL",
+      "name": "onAuthStateChange"
+    },
+    {
+      "id": "symbol:unsubscribe",
+      "type": "SYMBOL",
+      "name": "unsubscribe"
+    },
+    {
+      "id": "symbol:signInWithOAuth",
+      "type": "SYMBOL",
+      "name": "signInWithOAuth"
+    },
+    {
+      "id": "symbol:signInWithPassword",
+      "type": "SYMBOL",
+      "name": "signInWithPassword"
+    },
+    {
+      "id": "file:src/hooks/useChapters.js",
+      "type": "FILE",
+      "name": "src/hooks/useChapters.js",
+      "language": "javascript"
+    },
+    {
+      "id": "function:src/hooks/useChapters.js#useChapters",
+      "type": "FUNCTION",
+      "name": "useChapters",
+      "file": "src/hooks/useChapters.js",
+      "line": 4
+    },
+    {
+      "id": "module:@tanstack/react-query",
+      "type": "MODULE",
+      "name": "@tanstack/react-query"
+    },
+    {
+      "id": "symbol:useQueryClient",
+      "type": "SYMBOL",
+      "name": "useQueryClient"
+    },
+    {
+      "id": "symbol:useQuery",
+      "type": "SYMBOL",
+      "name": "useQuery"
+    },
+    {
+      "id": "symbol:order",
+      "type": "SYMBOL",
+      "name": "order"
+    },
+    {
+      "id": "symbol:eq",
+      "type": "SYMBOL",
+      "name": "eq"
+    },
+    {
+      "id": "symbol:select",
+      "type": "SYMBOL",
+      "name": "select"
+    },
+    {
+      "id": "symbol:from",
+      "type": "SYMBOL",
+      "name": "from"
+    },
+    {
+      "id": "symbol:useMutation",
+      "type": "SYMBOL",
+      "name": "useMutation"
+    },
+    {
+      "id": "symbol:single",
+      "type": "SYMBOL",
+      "name": "single"
+    },
+    {
+      "id": "symbol:insert",
+      "type": "SYMBOL",
+      "name": "insert"
+    },
+    {
+      "id": "symbol:invalidateQueries",
+      "type": "SYMBOL",
+      "name": "invalidateQueries"
+    },
+    {
+      "id": "symbol:update",
+      "type": "SYMBOL",
+      "name": "update"
+    },
+    {
+      "id": "symbol:delete",
+      "type": "SYMBOL",
+      "name": "delete"
+    },
+    {
+      "id": "file:src/hooks/useInstitutions.js",
+      "type": "FILE",
+      "name": "src/hooks/useInstitutions.js",
+      "language": "javascript"
+    },
+    {
+      "id": "function:src/hooks/useInstitutions.js#useInstitutions",
+      "type": "FUNCTION",
+      "name": "useInstitutions",
+      "file": "src/hooks/useInstitutions.js",
+      "line": 4
+    },
+    {
+      "id": "function:src/hooks/useInstitutions.js#searchInstitutions",
+      "type": "FUNCTION",
+      "name": "searchInstitutions",
+      "file": "src/hooks/useInstitutions.js",
+      "line": 8
+    },
+    {
+      "id": "symbol:limit",
+      "type": "SYMBOL",
+      "name": "limit"
+    },
+    {
+      "id": "symbol:ilike",
+      "type": "SYMBOL",
+      "name": "ilike"
+    },
+    {
+      "id": "file:src/hooks/useProductivity.js",
+      "type": "FILE",
+      "name": "src/hooks/useProductivity.js",
+      "language": "javascript"
+    },
+    {
+      "id": "function:src/hooks/useProductivity.js#useProductivity",
+      "type": "FUNCTION",
+      "name": "useProductivity",
+      "file": "src/hooks/useProductivity.js",
+      "line": 5
+    },
+    {
+      "id": "module:./useAuth",
+      "type": "MODULE",
+      "name": "./useAuth"
+    },
+    {
+      "id": "symbol:useAuth",
+      "type": "SYMBOL",
+      "name": "useAuth"
+    },
+    {
+      "id": "file:src/hooks/useProjects.js",
+      "type": "FILE",
+      "name": "src/hooks/useProjects.js",
+      "language": "javascript"
+    },
+    {
+      "id": "function:src/hooks/useProjects.js#useProjects",
+      "type": "FUNCTION",
+      "name": "useProjects",
+      "file": "src/hooks/useProjects.js",
+      "line": 5
+    },
+    {
+      "id": "function:src/hooks/useProjects.js#searchUsers",
+      "type": "FUNCTION",
+      "name": "searchUsers",
+      "file": "src/hooks/useProjects.js",
+      "line": 152
+    },
+    {
+      "id": "symbol:map",
+      "type": "SYMBOL",
+      "name": "map"
+    },
+    {
+      "id": "symbol:values",
+      "type": "SYMBOL",
+      "name": "values"
+    },
+    {
+      "id": "symbol:filter",
+      "type": "SYMBOL",
+      "name": "filter"
+    },
+    {
+      "id": "symbol:round",
+      "type": "SYMBOL",
+      "name": "round"
+    },
+    {
+      "id": "file:src/hooks/useResources.js",
+      "type": "FILE",
+      "name": "src/hooks/useResources.js",
+      "language": "javascript"
+    },
+    {
+      "id": "function:src/hooks/useResources.js#useResources",
+      "type": "FUNCTION",
+      "name": "useResources",
+      "file": "src/hooks/useResources.js",
+      "line": 5
+    },
+    {
+      "id": "function:src/hooks/useResources.js#uploadFile",
+      "type": "FUNCTION",
+      "name": "uploadFile",
+      "file": "src/hooks/useResources.js",
+      "line": 57
+    },
+    {
+      "id": "function:src/hooks/useResources.js#usePublicResources",
+      "type": "FUNCTION",
+      "name": "usePublicResources",
+      "file": "src/hooks/useResources.js",
+      "line": 98
+    },
+    {
+      "id": "symbol:pop",
+      "type": "SYMBOL",
+      "name": "pop"
+    },
+    {
+      "id": "symbol:split",
+      "type": "SYMBOL",
+      "name": "split"
+    },
+    {
+      "id": "symbol:substring",
+      "type": "SYMBOL",
+      "name": "substring"
+    },
+    {
+      "id": "symbol:toString",
+      "type": "SYMBOL",
+      "name": "toString"
+    },
+    {
+      "id": "symbol:now",
+      "type": "SYMBOL",
+      "name": "now"
+    },
+    {
+      "id": "symbol:upload",
+      "type": "SYMBOL",
+      "name": "upload"
+    },
+    {
+      "id": "symbol:getPublicUrl",
+      "type": "SYMBOL",
+      "name": "getPublicUrl"
+    },
+    {
+      "id": "file:src/hooks/useSubjects.js",
+      "type": "FILE",
+      "name": "src/hooks/useSubjects.js",
+      "language": "javascript"
+    },
+    {
+      "id": "function:src/hooks/useSubjects.js#useSubjects",
+      "type": "FUNCTION",
+      "name": "useSubjects",
+      "file": "src/hooks/useSubjects.js",
+      "line": 5
+    },
+    {
+      "id": "file:src/hooks/useVitality.js",
+      "type": "FILE",
+      "name": "src/hooks/useVitality.js",
+      "language": "javascript"
+    },
+    {
+      "id": "function:src/hooks/useVitality.js#useVitality",
+      "type": "FUNCTION",
+      "name": "useVitality",
+      "file": "src/hooks/useVitality.js",
+      "line": 5
+    },
+    {
+      "id": "symbol:toISOString",
+      "type": "SYMBOL",
+      "name": "toISOString"
+    },
+    {
+      "id": "symbol:maybeSingle",
+      "type": "SYMBOL",
+      "name": "maybeSingle"
+    },
+    {
+      "id": "file:src/lib/schema.sql",
+      "type": "FILE",
+      "name": "src/lib/schema.sql",
+      "language": "sql"
+    },
+    {
+      "id": "database:SQL",
+      "type": "DATABASE",
+      "name": "SQL"
+    },
+    {
+      "id": "database:SQL:public.subjects",
+      "type": "DATABASE",
+      "name": "public.subjects",
+      "technology": "SQL"
+    },
+    {
+      "id": "database:SQL:public.food_logs",
+      "type": "DATABASE",
+      "name": "public.food_logs",
+      "technology": "SQL"
+    },
+    {
+      "id": "database:SQL:public.exercise_logs",
+      "type": "DATABASE",
+      "name": "public.exercise_logs",
+      "technology": "SQL"
+    },
+    {
+      "id": "database:SQL:public.projects",
+      "type": "DATABASE",
+      "name": "public.projects",
+      "technology": "SQL"
+    },
+    {
+      "id": "database:SQL:public.project_members",
+      "type": "DATABASE",
+      "name": "public.project_members",
+      "technology": "SQL"
+    },
+    {
+      "id": "database:SQL:their",
+      "type": "DATABASE",
+      "name": "their",
+      "technology": "SQL"
+    },
+    {
+      "id": "database:SQL:public.profiles",
+      "type": "DATABASE",
+      "name": "public.profiles",
+      "technology": "SQL"
+    },
+    {
+      "id": "database:SQL:using",
+      "type": "DATABASE",
+      "name": "using",
+      "technology": "SQL"
+    },
+    {
+      "id": "database:SQL:resources",
+      "type": "DATABASE",
+      "name": "resources",
+      "technology": "SQL"
+    },
+    {
+      "id": "database:SQL:Projects",
+      "type": "DATABASE",
+      "name": "Projects",
+      "technology": "SQL"
+    },
+    {
+      "id": "database:SQL:Tasks",
+      "type": "DATABASE",
+      "name": "Tasks",
+      "technology": "SQL"
+    },
+    {
+      "id": "database:SQL:tasks",
+      "type": "DATABASE",
+      "name": "tasks",
+      "technology": "SQL"
+    },
+    {
+      "id": "database:SQL:Resources",
+      "type": "DATABASE",
+      "name": "Resources",
+      "technology": "SQL"
+    },
+    {
+      "id": "database:SQL:public.chapters",
+      "type": "DATABASE",
+      "name": "public.chapters",
+      "technology": "SQL"
+    },
+    {
+      "id": "database:SQL:public.attendance_logs",
+      "type": "DATABASE",
+      "name": "public.attendance_logs",
+      "technology": "SQL"
+    },
+    {
+      "id": "database:SQL:public.tasks",
+      "type": "DATABASE",
+      "name": "public.tasks",
+      "technology": "SQL"
+    },
+    {
+      "id": "database:SQL:public.daily_metrics",
+      "type": "DATABASE",
+      "name": "public.daily_metrics",
+      "technology": "SQL"
+    },
+    {
+      "id": "database:SQL:public.diet_plans",
+      "type": "DATABASE",
+      "name": "public.diet_plans",
+      "technology": "SQL"
+    },
+    {
+      "id": "database:SQL:public.institutions",
+      "type": "DATABASE",
+      "name": "public.institutions",
+      "technology": "SQL"
+    },
+    {
+      "id": "database:SQL:public.resources",
+      "type": "DATABASE",
+      "name": "public.resources",
+      "technology": "SQL"
+    },
+    {
+      "id": "file:src/lib/supabase.js",
+      "type": "FILE",
+      "name": "src/lib/supabase.js",
+      "language": "javascript"
+    },
+    {
+      "id": "module:@supabase/supabase-js",
+      "type": "MODULE",
+      "name": "@supabase/supabase-js"
+    },
+    {
+      "id": "symbol:createClient",
+      "type": "SYMBOL",
+      "name": "createClient"
+    },
+    {
+      "id": "file:src/scripts/check_vitality.js",
+      "type": "FILE",
+      "name": "src/scripts/check_vitality.js",
+      "language": "javascript"
+    },
+    {
+      "id": "function:src/scripts/check_vitality.js#checkPermissions",
+      "type": "FUNCTION",
+      "name": "checkPermissions",
+      "file": "src/scripts/check_vitality.js",
+      "line": 23
+    },
+    {
+      "id": "module:dotenv",
+      "type": "MODULE",
+      "name": "dotenv"
+    },
+    {
+      "id": "module:url",
+      "type": "MODULE",
+      "name": "url"
+    },
+    {
+      "id": "module:path",
+      "type": "MODULE",
+      "name": "path"
+    },
+    {
+      "id": "module:fs",
+      "type": "MODULE",
+      "name": "fs"
+    },
+    {
+      "id": "symbol:fileURLToPath",
+      "type": "SYMBOL",
+      "name": "fileURLToPath"
+    },
+    {
+      "id": "symbol:dirname",
+      "type": "SYMBOL",
+      "name": "dirname"
+    },
+    {
+      "id": "symbol:join",
+      "type": "SYMBOL",
+      "name": "join"
+    },
+    {
+      "id": "symbol:existsSync",
+      "type": "SYMBOL",
+      "name": "existsSync"
+    },
+    {
+      "id": "symbol:parse",
+      "type": "SYMBOL",
+      "name": "parse"
+    },
+    {
+      "id": "symbol:readFileSync",
+      "type": "SYMBOL",
+      "name": "readFileSync"
+    },
+    {
+      "id": "symbol:log",
+      "type": "SYMBOL",
+      "name": "log"
+    },
+    {
+      "id": "file:src/utils/fitnessCalculators.js",
+      "type": "FILE",
+      "name": "src/utils/fitnessCalculators.js",
+      "language": "javascript"
+    },
+    {
+      "id": "function:src/utils/fitnessCalculators.js#calculateBMR",
+      "type": "FUNCTION",
+      "name": "calculateBMR",
+      "file": "src/utils/fitnessCalculators.js",
+      "line": 57
+    },
+    {
+      "id": "function:src/utils/fitnessCalculators.js#calculateTDEE",
+      "type": "FUNCTION",
+      "name": "calculateTDEE",
+      "file": "src/utils/fitnessCalculators.js",
+      "line": 74
+    },
+    {
+      "id": "function:src/utils/fitnessCalculators.js#calculateExerciseCalories",
+      "type": "FUNCTION",
+      "name": "calculateExerciseCalories",
+      "file": "src/utils/fitnessCalculators.js",
+      "line": 79
+    },
+    {
+      "id": "module:date-fns",
+      "type": "MODULE",
+      "name": "date-fns"
+    },
+    {
+      "id": "symbol:differenceInYears",
+      "type": "SYMBOL",
+      "name": "differenceInYears"
+    },
+    {
+      "id": "symbol:max",
+      "type": "SYMBOL",
+      "name": "max"
+    },
+    {
+      "id": "file:tailwind.config.js",
+      "type": "FILE",
+      "name": "tailwind.config.js",
+      "language": "javascript"
+    },
+    {
+      "id": "file:vite.config.js",
+      "type": "FILE",
+      "name": "vite.config.js",
+      "language": "javascript"
+    },
+    {
+      "id": "module:vite",
+      "type": "MODULE",
+      "name": "vite"
+    },
+    {
+      "id": "module:@vitejs/plugin-react",
+      "type": "MODULE",
+      "name": "@vitejs/plugin-react"
+    },
+    {
+      "id": "symbol:react",
+      "type": "SYMBOL",
+      "name": "react"
+    }
+  ],
+  "edges": [
+    {
+      "from": "file:eslint.config.js",
+      "to": "module:@eslint/js",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "file:eslint.config.js",
+      "to": "module:globals",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "file:eslint.config.js",
+      "to": "module:eslint-plugin-react-hooks",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "file:eslint.config.js",
+      "to": "module:eslint-plugin-react-refresh",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "file:eslint.config.js",
+      "to": "module:eslint/config",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "file:eslint.config.js",
+      "to": "symbol:defineConfig",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:eslint.config.js",
+      "to": "symbol:globalIgnores",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/data/moodData.js#getRandomQuote",
+      "to": "symbol:floor",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/data/moodData.js#getRandomQuote",
+      "to": "symbol:random",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:src/hooks/useAuth.js",
+      "to": "module:react",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "file:src/hooks/useAuth.js",
+      "to": "module:../lib/supabase",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "function:src/hooks/useAuth.js#useAuth",
+      "to": "symbol:useState",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/hooks/useAuth.js#useAuth",
+      "to": "symbol:useEffect",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/hooks/useAuth.js#useAuth",
+      "to": "symbol:then",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/hooks/useAuth.js#useAuth",
+      "to": "symbol:getSession",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/hooks/useAuth.js#useAuth",
+      "to": "symbol:setSession",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/hooks/useAuth.js#useAuth",
+      "to": "symbol:setUser",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/hooks/useAuth.js#useAuth",
+      "to": "symbol:setLoading",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/hooks/useAuth.js#useAuth",
+      "to": "symbol:onAuthStateChange",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/hooks/useAuth.js#useAuth",
+      "to": "symbol:unsubscribe",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/hooks/useAuth.js#signInWithGoogle",
+      "to": "symbol:signInWithOAuth",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/hooks/useAuth.js#signInWithEmail",
+      "to": "symbol:signInWithPassword",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/hooks/useAuth.js#signUp",
+      "to": "function:src/hooks/useAuth.js#signUp",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/hooks/useAuth.js#signOut",
+      "to": "function:src/hooks/useAuth.js#signOut",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:src/hooks/useChapters.js",
+      "to": "module:@tanstack/react-query",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "file:src/hooks/useChapters.js",
+      "to": "module:../lib/supabase",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "function:src/hooks/useChapters.js#useChapters",
+      "to": "symbol:useQueryClient",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/hooks/useChapters.js#useChapters",
+      "to": "symbol:useQuery",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/hooks/useChapters.js#useChapters",
+      "to": "symbol:order",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/hooks/useChapters.js#useChapters",
+      "to": "symbol:eq",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/hooks/useChapters.js#useChapters",
+      "to": "symbol:select",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/hooks/useChapters.js#useChapters",
+      "to": "symbol:from",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/hooks/useChapters.js#useChapters",
+      "to": "symbol:useMutation",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/hooks/useChapters.js#useChapters",
+      "to": "symbol:single",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/hooks/useChapters.js#useChapters",
+      "to": "symbol:insert",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/hooks/useChapters.js#useChapters",
+      "to": "symbol:invalidateQueries",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/hooks/useChapters.js#useChapters",
+      "to": "symbol:update",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/hooks/useChapters.js#useChapters",
+      "to": "symbol:delete",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:src/hooks/useInstitutions.js",
+      "to": "module:@tanstack/react-query",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "file:src/hooks/useInstitutions.js",
+      "to": "module:../lib/supabase",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "function:src/hooks/useInstitutions.js#useInstitutions",
+      "to": "symbol:useQueryClient",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/hooks/useInstitutions.js#searchInstitutions",
+      "to": "symbol:limit",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/hooks/useInstitutions.js#searchInstitutions",
+      "to": "symbol:ilike",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/hooks/useInstitutions.js#searchInstitutions",
+      "to": "symbol:select",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/hooks/useInstitutions.js#searchInstitutions",
+      "to": "symbol:from",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/hooks/useInstitutions.js#useInstitutions",
+      "to": "symbol:useMutation",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/hooks/useInstitutions.js#useInstitutions",
+      "to": "symbol:single",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/hooks/useInstitutions.js#useInstitutions",
+      "to": "symbol:eq",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/hooks/useInstitutions.js#useInstitutions",
+      "to": "symbol:select",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/hooks/useInstitutions.js#useInstitutions",
+      "to": "symbol:from",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/hooks/useInstitutions.js#useInstitutions",
+      "to": "symbol:insert",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/hooks/useInstitutions.js#useInstitutions",
+      "to": "symbol:invalidateQueries",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:src/hooks/useProductivity.js",
+      "to": "module:@tanstack/react-query",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "file:src/hooks/useProductivity.js",
+      "to": "module:../lib/supabase",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "file:src/hooks/useProductivity.js",
+      "to": "module:./useAuth",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "function:src/hooks/useProductivity.js#useProductivity",
+      "to": "symbol:useAuth",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/hooks/useProductivity.js#useProductivity",
+      "to": "symbol:useQueryClient",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/hooks/useProductivity.js#useProductivity",
+      "to": "symbol:useQuery",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/hooks/useProductivity.js#useProductivity",
+      "to": "symbol:order",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/hooks/useProductivity.js#useProductivity",
+      "to": "symbol:eq",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/hooks/useProductivity.js#useProductivity",
+      "to": "symbol:select",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/hooks/useProductivity.js#useProductivity",
+      "to": "symbol:from",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/hooks/useProductivity.js#useProductivity",
+      "to": "symbol:useMutation",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/hooks/useProductivity.js#useProductivity",
+      "to": "symbol:single",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/hooks/useProductivity.js#useProductivity",
+      "to": "symbol:insert",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/hooks/useProductivity.js#useProductivity",
+      "to": "symbol:invalidateQueries",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/hooks/useProductivity.js#useProductivity",
+      "to": "symbol:update",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/hooks/useProductivity.js#useProductivity",
+      "to": "symbol:delete",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:src/hooks/useProjects.js",
+      "to": "module:@tanstack/react-query",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "file:src/hooks/useProjects.js",
+      "to": "module:../lib/supabase",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "file:src/hooks/useProjects.js",
+      "to": "module:./useAuth",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "function:src/hooks/useProjects.js#useProjects",
+      "to": "symbol:useAuth",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/hooks/useProjects.js#useProjects",
+      "to": "symbol:useQueryClient",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/hooks/useProjects.js#useProjects",
+      "to": "symbol:useQuery",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/hooks/useProjects.js#useProjects",
+      "to": "symbol:order",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/hooks/useProjects.js#useProjects",
+      "to": "symbol:eq",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/hooks/useProjects.js#useProjects",
+      "to": "symbol:select",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/hooks/useProjects.js#useProjects",
+      "to": "symbol:from",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/hooks/useProjects.js#useProjects",
+      "to": "symbol:map",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/hooks/useProjects.js#useProjects",
+      "to": "symbol:values",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/hooks/useProjects.js#useProjects",
+      "to": "symbol:filter",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/hooks/useProjects.js#useProjects",
+      "to": "symbol:round",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/hooks/useProjects.js#useProjects",
+      "to": "symbol:useMutation",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/hooks/useProjects.js#useProjects",
+      "to": "symbol:single",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/hooks/useProjects.js#useProjects",
+      "to": "symbol:insert",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/hooks/useProjects.js#useProjects",
+      "to": "symbol:invalidateQueries",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/hooks/useProjects.js#useProjects",
+      "to": "symbol:delete",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/hooks/useProjects.js#useProjects",
+      "to": "symbol:update",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/hooks/useProjects.js#searchUsers",
+      "to": "symbol:limit",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/hooks/useProjects.js#searchUsers",
+      "to": "symbol:ilike",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/hooks/useProjects.js#searchUsers",
+      "to": "symbol:select",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/hooks/useProjects.js#searchUsers",
+      "to": "symbol:from",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:src/hooks/useResources.js",
+      "to": "module:@tanstack/react-query",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "file:src/hooks/useResources.js",
+      "to": "module:../lib/supabase",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "file:src/hooks/useResources.js",
+      "to": "module:./useAuth",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "function:src/hooks/useResources.js#useResources",
+      "to": "symbol:useAuth",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/hooks/useResources.js#useResources",
+      "to": "symbol:useQueryClient",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/hooks/useResources.js#useResources",
+      "to": "symbol:useQuery",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/hooks/useResources.js#useResources",
+      "to": "symbol:order",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/hooks/useResources.js#useResources",
+      "to": "symbol:eq",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/hooks/useResources.js#useResources",
+      "to": "symbol:select",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/hooks/useResources.js#useResources",
+      "to": "symbol:from",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/hooks/useResources.js#useResources",
+      "to": "symbol:useMutation",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/hooks/useResources.js#useResources",
+      "to": "symbol:single",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/hooks/useResources.js#useResources",
+      "to": "symbol:insert",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/hooks/useResources.js#useResources",
+      "to": "symbol:invalidateQueries",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/hooks/useResources.js#uploadFile",
+      "to": "symbol:pop",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/hooks/useResources.js#uploadFile",
+      "to": "symbol:split",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/hooks/useResources.js#uploadFile",
+      "to": "symbol:substring",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/hooks/useResources.js#uploadFile",
+      "to": "symbol:toString",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/hooks/useResources.js#uploadFile",
+      "to": "symbol:random",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/hooks/useResources.js#uploadFile",
+      "to": "symbol:now",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/hooks/useResources.js#uploadFile",
+      "to": "symbol:upload",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/hooks/useResources.js#uploadFile",
+      "to": "symbol:from",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/hooks/useResources.js#uploadFile",
+      "to": "symbol:getPublicUrl",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/hooks/useResources.js#useResources",
+      "to": "symbol:delete",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/hooks/useResources.js#usePublicResources",
+      "to": "symbol:useAuth",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/hooks/useResources.js#usePublicResources",
+      "to": "symbol:useQuery",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/hooks/useResources.js#usePublicResources",
+      "to": "symbol:order",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/hooks/useResources.js#usePublicResources",
+      "to": "symbol:eq",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/hooks/useResources.js#usePublicResources",
+      "to": "symbol:select",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/hooks/useResources.js#usePublicResources",
+      "to": "symbol:from",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:src/hooks/useSubjects.js",
+      "to": "module:@tanstack/react-query",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "file:src/hooks/useSubjects.js",
+      "to": "module:../lib/supabase",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "file:src/hooks/useSubjects.js",
+      "to": "module:./useAuth",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "function:src/hooks/useSubjects.js#useSubjects",
+      "to": "symbol:useAuth",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/hooks/useSubjects.js#useSubjects",
+      "to": "symbol:useQueryClient",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/hooks/useSubjects.js#useSubjects",
+      "to": "symbol:useQuery",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/hooks/useSubjects.js#useSubjects",
+      "to": "symbol:order",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/hooks/useSubjects.js#useSubjects",
+      "to": "symbol:eq",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/hooks/useSubjects.js#useSubjects",
+      "to": "symbol:select",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/hooks/useSubjects.js#useSubjects",
+      "to": "symbol:from",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/hooks/useSubjects.js#useSubjects",
+      "to": "symbol:map",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/hooks/useSubjects.js#useSubjects",
+      "to": "symbol:filter",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/hooks/useSubjects.js#useSubjects",
+      "to": "symbol:round",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/hooks/useSubjects.js#useSubjects",
+      "to": "symbol:useMutation",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/hooks/useSubjects.js#useSubjects",
+      "to": "symbol:single",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/hooks/useSubjects.js#useSubjects",
+      "to": "symbol:insert",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/hooks/useSubjects.js#useSubjects",
+      "to": "symbol:invalidateQueries",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/hooks/useSubjects.js#useSubjects",
+      "to": "symbol:delete",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/hooks/useSubjects.js#useSubjects",
+      "to": "symbol:update",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:src/hooks/useVitality.js",
+      "to": "module:@tanstack/react-query",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "file:src/hooks/useVitality.js",
+      "to": "module:../lib/supabase",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "file:src/hooks/useVitality.js",
+      "to": "module:./useAuth",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "function:src/hooks/useVitality.js#useVitality",
+      "to": "symbol:useAuth",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/hooks/useVitality.js#useVitality",
+      "to": "symbol:useQueryClient",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/hooks/useVitality.js#useVitality",
+      "to": "symbol:split",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/hooks/useVitality.js#useVitality",
+      "to": "symbol:toISOString",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/hooks/useVitality.js#useVitality",
+      "to": "symbol:useQuery",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/hooks/useVitality.js#useVitality",
+      "to": "symbol:maybeSingle",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/hooks/useVitality.js#useVitality",
+      "to": "symbol:eq",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/hooks/useVitality.js#useVitality",
+      "to": "symbol:select",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/hooks/useVitality.js#useVitality",
+      "to": "symbol:from",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/hooks/useVitality.js#useVitality",
+      "to": "symbol:useMutation",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/hooks/useVitality.js#useVitality",
+      "to": "symbol:update",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/hooks/useVitality.js#useVitality",
+      "to": "symbol:insert",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/hooks/useVitality.js#useVitality",
+      "to": "symbol:invalidateQueries",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:src/lib/schema.sql",
+      "to": "database:SQL",
+      "type": "READS"
+    },
+    {
+      "from": "file:src/lib/schema.sql",
+      "to": "database:SQL:public.subjects",
+      "type": "READS"
+    },
+    {
+      "from": "file:src/lib/schema.sql",
+      "to": "database:SQL:public.food_logs",
+      "type": "READS"
+    },
+    {
+      "from": "file:src/lib/schema.sql",
+      "to": "database:SQL:public.exercise_logs",
+      "type": "READS"
+    },
+    {
+      "from": "file:src/lib/schema.sql",
+      "to": "database:SQL:public.projects",
+      "type": "READS"
+    },
+    {
+      "from": "file:src/lib/schema.sql",
+      "to": "database:SQL:public.project_members",
+      "type": "READS"
+    },
+    {
+      "from": "file:src/lib/schema.sql",
+      "to": "database:SQL:their",
+      "type": "READS"
+    },
+    {
+      "from": "file:src/lib/schema.sql",
+      "to": "database:SQL:public.profiles",
+      "type": "READS"
+    },
+    {
+      "from": "file:src/lib/schema.sql",
+      "to": "database:SQL:using",
+      "type": "READS"
+    },
+    {
+      "from": "file:src/lib/schema.sql",
+      "to": "database:SQL:resources",
+      "type": "READS"
+    },
+    {
+      "from": "file:src/lib/schema.sql",
+      "to": "database:SQL:Projects",
+      "type": "READS"
+    },
+    {
+      "from": "file:src/lib/schema.sql",
+      "to": "database:SQL:Tasks",
+      "type": "READS"
+    },
+    {
+      "from": "file:src/lib/schema.sql",
+      "to": "database:SQL:tasks",
+      "type": "READS"
+    },
+    {
+      "from": "file:src/lib/schema.sql",
+      "to": "database:SQL:Resources",
+      "type": "READS"
+    },
+    {
+      "from": "file:src/lib/schema.sql",
+      "to": "database:SQL:public.chapters",
+      "type": "READS"
+    },
+    {
+      "from": "file:src/lib/schema.sql",
+      "to": "database:SQL:public.attendance_logs",
+      "type": "READS"
+    },
+    {
+      "from": "file:src/lib/schema.sql",
+      "to": "database:SQL:public.tasks",
+      "type": "READS"
+    },
+    {
+      "from": "file:src/lib/schema.sql",
+      "to": "database:SQL:public.daily_metrics",
+      "type": "READS"
+    },
+    {
+      "from": "file:src/lib/schema.sql",
+      "to": "database:SQL:public.diet_plans",
+      "type": "READS"
+    },
+    {
+      "from": "file:src/lib/schema.sql",
+      "to": "database:SQL:public.institutions",
+      "type": "READS"
+    },
+    {
+      "from": "file:src/lib/schema.sql",
+      "to": "database:SQL:public.resources",
+      "type": "READS"
+    },
+    {
+      "from": "file:src/lib/supabase.js",
+      "to": "module:@supabase/supabase-js",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "file:src/lib/supabase.js",
+      "to": "symbol:createClient",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:src/scripts/check_vitality.js",
+      "to": "module:@supabase/supabase-js",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "file:src/scripts/check_vitality.js",
+      "to": "module:dotenv",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "file:src/scripts/check_vitality.js",
+      "to": "module:url",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "file:src/scripts/check_vitality.js",
+      "to": "module:path",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "file:src/scripts/check_vitality.js",
+      "to": "module:fs",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "file:src/scripts/check_vitality.js",
+      "to": "symbol:fileURLToPath",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:src/scripts/check_vitality.js",
+      "to": "symbol:dirname",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:src/scripts/check_vitality.js",
+      "to": "symbol:join",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:src/scripts/check_vitality.js",
+      "to": "symbol:existsSync",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:src/scripts/check_vitality.js",
+      "to": "symbol:parse",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:src/scripts/check_vitality.js",
+      "to": "symbol:readFileSync",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:src/scripts/check_vitality.js",
+      "to": "symbol:createClient",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/scripts/check_vitality.js#checkPermissions",
+      "to": "symbol:log",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:src/scripts/check_vitality.js",
+      "to": "function:src/scripts/check_vitality.js#checkPermissions",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:src/utils/fitnessCalculators.js",
+      "to": "module:date-fns",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "function:src/utils/fitnessCalculators.js#calculateBMR",
+      "to": "symbol:differenceInYears",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/utils/fitnessCalculators.js#calculateBMR",
+      "to": "symbol:max",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/utils/fitnessCalculators.js#calculateBMR",
+      "to": "symbol:round",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/utils/fitnessCalculators.js#calculateTDEE",
+      "to": "symbol:max",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/utils/fitnessCalculators.js#calculateTDEE",
+      "to": "symbol:round",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/utils/fitnessCalculators.js#calculateExerciseCalories",
+      "to": "symbol:max",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/utils/fitnessCalculators.js#calculateExerciseCalories",
+      "to": "symbol:round",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:vite.config.js",
+      "to": "module:vite",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "file:vite.config.js",
+      "to": "module:@vitejs/plugin-react",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "file:vite.config.js",
+      "to": "symbol:defineConfig",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:vite.config.js",
+      "to": "symbol:react",
+      "type": "CALLS"
+    }
+  ]
+}

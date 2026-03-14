@@ -10,6 +10,8 @@
     "analyze:with-llm": "node src/index.js --repo ../Frontend --out ./output/frontend-graph-with-insights.json --with-llm"
   },
   "dependencies": {
+    "@repomix/tree-sitter-wasms": "^0.1.16",
+    "@vscode/tree-sitter-wasm": "^0.3.0",
     "dotenv": "^16.6.1",
     "openai": "^4.104.0",
     "tree-sitter-wasms": "^0.1.13",
