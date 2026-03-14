@@ -6,11 +6,15 @@ import dotenv from "dotenv";
 dotenv.config();
 
 // Neo4j verification
-import driver from './src/config/neo4j.js';
+import { isNeo4jConfigured, verifyNeo4jConnectivity } from './src/config/neo4j.js';
 
-driver.verifyConnectivity()
-  .then(() => console.log('✅ Neo4j connected'))
-  .catch((err) => console.error('❌ Neo4j connection failed:', err));
+if (isNeo4jConfigured) {
+  verifyNeo4jConnectivity()
+    .then(() => console.log('✅ Neo4j connected'))
+    .catch((err) => console.error('❌ Neo4j connection failed:', err.message || err));
+} else {
+  console.warn('⚠️ Neo4j is not configured. Set NEO4J_URI, NEO4J_USER/NEO4J_USERNAME, and NEO4J_PASSWORD to enable graph DB features.');
+}
 
 // Route imports
 import helpRouter from "./src/routes/help.routes.js";
