@@ -25,6 +25,10 @@ async function initializeParser() {
 }
 
 async function loadLanguage(languageConfig) {
+  if (!languageConfig.wasmPath) {
+    return null;
+  }
+
   if (languageCache.has(languageConfig.key)) {
     return languageCache.get(languageConfig.key);
   }
@@ -47,9 +51,19 @@ async function parseFiles(fileRecords) {
     }
 
     const source = fs.readFileSync(file.path, 'utf8');
+    const loadedLanguage = await loadLanguage(language);
 
-  const loadedLanguage = await loadLanguage(language);
-  parser.setLanguage(loadedLanguage);
+    if (!loadedLanguage) {
+      results.push({
+        filePath: file.path,
+        language: language.key,
+        source,
+        tree: null,
+      });
+      continue;
+    }
+
+    parser.setLanguage(loadedLanguage);
     const tree = parser.parse(source);
 
     results.push({

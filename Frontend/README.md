@@ -63,13 +63,21 @@ npm run dev
 
 ## 🔐 Environment Variables
 
-Create a `.env` file in the root:
+Create a `.env` file in `Frontend`:
 
 ```env
 VITE_API_URL=http://localhost:5000/api
 ```
 
 This URL is used by Axios for all API requests.
+
+For Vercel, add the same variable in Project Settings -> Environment Variables:
+
+```env
+VITE_API_URL=https://your-backend-domain/api
+```
+
+If your backend is also deployed on Vercel, use its production URL there.
 
 ---
 
