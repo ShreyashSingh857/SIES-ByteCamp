@@ -208,6 +208,22 @@ export const postScan = async (req, res, next) => {
 };
 
 /**
+ * Normalise a raw parser edge { from, to, type } into the shape the frontend
+ * Cytoscape view and Redux graphSlice expect: { id, source, target, type }.
+ * Also passes through edges that already use source/target (future-proofing).
+ */
+function normalizeEdge(edge, index) {
+  const source = edge.source ?? edge.from ?? null;
+  const target = edge.target ?? edge.to ?? null;
+  return {
+    id: edge.id || `edge-${index}`,
+    source,
+    target,
+    type: edge.type || "UNKNOWN",
+  };
+}
+
+/**
  * @desc    Return parser graph as nodes + edges for a scanned repo
  * @route   GET /api/graph/:repoId
  * @access  Public
@@ -226,13 +242,19 @@ export const getGraph = async (req, res, next) => {
 
     const parserResult = JSON.parse(fs.readFileSync(graphFilePath, "utf8"));
 
+    // Normalise edges so the frontend always receives { id, source, target, type }
+    const rawEdges = parserResult?.edges || [];
+    const edges = rawEdges.map(normalizeEdge);
+
     res.status(200).json({
       success: true,
       repoId,
       data: {
         nodes: parserResult?.nodes || [],
-        edges: parserResult?.edges || [],
+        edges,
         summary: parserResult?.summary || null,
+        // Forward LLM insights when the graph was scanned with --with-llm
+        llmInsights: parserResult?.llmInsights || null,
       },
     });
   } catch (error) {

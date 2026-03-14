@@ -100,6 +100,11 @@ const graphSlice = createSlice({
     setFilterTypes(state, action) {
       state.filterTypes = action.payload;
     },
+    // Persist the last fetched graph data into Redux state so any setSelectedNode
+    // dispatch that omits graphData can still fall back to real nodes/edges.
+    setGraphData(state, action) {
+      state.graphData = action.payload || { nodes: [], edges: [] };
+    },
     // Set the active repoId + scanId after a successful scan+seed cycle
     setCurrentRepoInfo(state, action) {
       const { repoId, scanId } = action.payload;
@@ -123,6 +128,7 @@ export const {
   updateRepoStatus,
   setFilterLangs,
   setFilterTypes,
+  setGraphData,
   setCurrentRepoInfo,
 } = graphSlice.actions;
 
