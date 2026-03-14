@@ -540,14 +540,12 @@ export async function traceSymbolDependencies(symbolName, scanId, maxDepth = 5) 
     }
 
     // Get complete dependency chain for all found nodes
-    // Note: maxDepth must be a literal number, not a parameter
-    const depthValue = Math.min(Math.max(1, maxDepth), 10); // Limit to 1-10
     const chainResult = await session.run(
-      `MATCH (n)-[r*1..${depthValue}]-(m)
+      `MATCH (n)-[r*1..$maxDepth]-(m)
        WHERE n.id IN $nodeIds AND n.scanId = $scanId AND m.scanId = $scanId
        WITH DISTINCT m, r
        RETURN COLLECT(DISTINCT m) AS relatedNodes, COLLECT(DISTINCT r) AS relationships`,
-      { nodeIds, scanId }
+      { nodeIds, maxDepth, scanId }
     );
 
     if (chainResult.records.length === 0) {

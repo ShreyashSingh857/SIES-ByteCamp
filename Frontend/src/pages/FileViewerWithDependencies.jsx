@@ -239,6 +239,148 @@ const DependencySnippet = ({ file, snippet, isDark, selectedText }) => {
     );
 };
 
+// ─── LLM Insights Card ─────────────────────────────────────────────────────
+
+const LLMInsightCard = ({ insight, isDark }) => {
+    try {
+        const analysis = typeof insight === 'string' ? JSON.parse(insight) : insight;
+
+        const getRiskColor = (risk) => {
+            const colors = {
+                'LOW': '#10b981',
+                'MEDIUM': '#f59e0b',
+                'HIGH': '#ef4444',
+            };
+            return colors[risk?.toUpperCase()] || '#6b7280';
+        };
+
+        const getImpactColor = (impact) => {
+            const colors = {
+                'LOW': '#6b7280',
+                'MEDIUM': '#3b82f6',
+                'HIGH': '#8b5cf6',
+            };
+            return colors[impact?.toUpperCase()] || '#6b7280';
+        };
+
+        return (
+            <div
+                style={{
+                    background: isDark ? 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)' : 'linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%)',
+                    border: '2px solid #3b82f6',
+                    borderRadius: '0.5rem',
+                    padding: '1rem',
+                    marginBottom: '1rem',
+                }}
+            >
+                <div style={{ marginBottom: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <span style={{ color: '#3b82f6', fontSize: '1.25rem' }}>🤖</span>
+                    <h3 style={{ margin: 0, color: '#3b82f6', fontWeight: 600, fontSize: '0.95rem' }}>
+                        AI Dependency Analysis
+                    </h3>
+                </div>
+
+                <div style={{ display: 'grid', gap: '0.75rem', fontSize: '0.85rem' }}>
+                    {analysis.dependencyType && (
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <span style={{ color: 'var(--text-muted)' }}>Type:</span>
+                            <span
+                                style={{
+                                    background: '#06b6d4',
+                                    color: '#fff',
+                                    padding: '0.25rem 0.5rem',
+                                    borderRadius: '0.25rem',
+                                    fontWeight: 500,
+                                    fontSize: '0.75rem',
+                                    textTransform: 'uppercase',
+                                }}
+                            >
+                                {analysis.dependencyType}
+                            </span>
+                        </div>
+                    )}
+
+                    {analysis.classification && (
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <span style={{ color: 'var(--text-muted)' }}>Classification:</span>
+                            <span style={{ color: 'var(--text)' }}>{analysis.classification}</span>
+                        </div>
+                    )}
+
+                    {analysis.scope && (
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <span style={{ color: 'var(--text-muted)' }}>Scope:</span>
+                            <span
+                                style={{
+                                    background: '#8b5cf6',
+                                    color: '#fff',
+                                    padding: '0.25rem 0.5rem',
+                                    borderRadius: '0.25rem',
+                                    fontSize: '0.75rem',
+                                    textTransform: 'capitalize',
+                                }}
+                            >
+                                {analysis.scope}
+                            </span>
+                        </div>
+                    )}
+
+                    {analysis.impact && (
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <span style={{ color: 'var(--text-muted)' }}>Impact:</span>
+                            <span
+                                style={{
+                                    background: getImpactColor(analysis.impact),
+                                    color: '#fff',
+                                    padding: '0.25rem 0.5rem',
+                                    borderRadius: '0.25rem',
+                                    fontWeight: 500,
+                                    fontSize: '0.75rem',
+                                    textTransform: 'uppercase',
+                                }}
+                            >
+                                {analysis.impact}
+                            </span>
+                        </div>
+                    )}
+
+                    {analysis.riskLevel && (
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <span style={{ color: 'var(--text-muted)' }}>Risk:</span>
+                            <span
+                                style={{
+                                    background: getRiskColor(analysis.riskLevel),
+                                    color: '#fff',
+                                    padding: '0.25rem 0.5rem',
+                                    borderRadius: '0.25rem',
+                                    fontWeight: 500,
+                                    fontSize: '0.75rem',
+                                    textTransform: 'uppercase',
+                                }}
+                            >
+                                {analysis.riskLevel}
+                            </span>
+                        </div>
+                    )}
+
+                    {analysis.reason && (
+                        <div style={{ marginTop: '0.5rem', paddingTop: '0.75rem', borderTop: '1px solid var(--border)' }}>
+                            <p style={{ margin: '0 0 0.5rem 0', color: 'var(--text-muted)', fontSize: '0.75rem', fontWeight: 500 }}>
+                                Reason:
+                            </p>
+                            <p style={{ margin: 0, color: 'var(--text)', fontSize: '0.8rem', lineHeight: '1.4' }}>
+                                {analysis.reason}
+                            </p>
+                        </div>
+                    )}
+                </div>
+            </div>
+        );
+    } catch (e) {
+        return null;
+    }
+};
+
 // ─── DependencyPanel ───────────────────────────────────────────────────────────
 
 const DependencyPanel = ({
@@ -249,6 +391,10 @@ const DependencyPanel = ({
     isDark,
     onClear,
 }) => {
+    // Separate LLM insights from regular dependencies
+    const llmInsight = dependencies.find(dep => dep.type === 'llm-insight');
+    const otherDeps = dependencies.filter(dep => dep.type !== 'llm-insight');
+
     return (
         <div
             className="card"
@@ -268,7 +414,7 @@ const DependencyPanel = ({
                 <div className="flex items-center gap-2 min-w-0">
                     <Search size={14} style={{ color: '#3b82f6', flexShrink: 0 }} />
                     <span className="text-sm font-semibold" style={{ color: 'var(--text)' }}>
-                        Dependencies
+                        Dependencies & AI Analysis
                     </span>
                     {selectedText && (
                         <span
@@ -310,7 +456,7 @@ const DependencyPanel = ({
                     <div className="flex items-center justify-center gap-2 py-8">
                         <Loader2 size={16} className="animate-spin" style={{ color: '#3b82f6' }} />
                         <span className="text-sm" style={{ color: 'var(--text-muted)' }}>
-                            Analyzing dependencies…
+                            Running AI analysis…
                         </span>
                     </div>
                 )}
@@ -335,18 +481,30 @@ const DependencyPanel = ({
 
                 {selectedText && !loading && dependencies.length > 0 && (
                     <div>
-                        <div className="text-xs mb-3" style={{ color: 'var(--text-muted)' }}>
-                            Found in {dependencies.length} location{dependencies.length > 1 ? 's' : ''}
-                        </div>
-                        {dependencies.map((dep, idx) => (
-                            <DependencySnippet
-                                key={idx}
-                                file={dep}
-                                snippet={dep.snippet}
-                                isDark={isDark}
-                                selectedText={selectedText}
-                            />
-                        ))}
+                        {/* LLM Insight Section - Shows First & Prominently */}
+                        {llmInsight && (
+                            <div style={{ marginBottom: '1.5rem' }}>
+                                <LLMInsightCard insight={llmInsight.snippet} isDark={isDark} />
+                            </div>
+                        )}
+
+                        {/* Other Dependencies Section */}
+                        {otherDeps.length > 0 && (
+                            <div>
+                                <div className="text-xs mb-3" style={{ color: 'var(--text-muted)', fontWeight: 500 }}>
+                                    📍 Found in {otherDeps.length} location{otherDeps.length > 1 ? 's' : ''}
+                                </div>
+                                {otherDeps.map((dep, idx) => (
+                                    <DependencySnippet
+                                        key={idx}
+                                        file={dep}
+                                        snippet={dep.snippet}
+                                        isDark={isDark}
+                                        selectedText={selectedText}
+                                    />
+                                ))}
+                            </div>
+                        )}
                     </div>
                 )}
             </div>
@@ -366,6 +524,7 @@ const FileViewerWithDependencies = () => {
     const currentRepoUrl = useSelector((s) => s.graph.currentRepoUrl);
     const currentRepoBranch = useSelector((s) => s.graph.currentRepoBranch || 'main');
     const currentRepoId = useSelector((s) => s.graph.currentRepoId);
+    const currentScanId = useSelector((s) => s.graph.currentScanId);
     const isDark = useSelector((s) => s.theme?.isDark ?? true);
 
     const [code, setCode] = useState('');
@@ -450,8 +609,13 @@ const FileViewerWithDependencies = () => {
             try {
                 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
-                // Try to get scanId for LLM-enhanced analysis
-                let scanId = localStorage.getItem('currentScanId');
+                // Prefer Redux scanId, then localStorage fallback.
+                const scanId = currentScanId || localStorage.getItem('currentScanId');
+
+                // Persist most recent scanId for page refreshes/navigation.
+                if (scanId && localStorage.getItem('currentScanId') !== scanId) {
+                    localStorage.setItem('currentScanId', scanId);
+                }
 
                 if (!scanId) {
                     // Fallback: use basic file-based analysis
@@ -559,7 +723,7 @@ const FileViewerWithDependencies = () => {
 
         const timer = setTimeout(queryDependencies, 300);
         return () => clearTimeout(timer);
-    }, [selectedText, currentRepoId, filePath]);
+    }, [selectedText, currentRepoId, currentScanId, filePath]);
 
     const handleCopy = () => {
         navigator.clipboard.writeText(code).then(() => {

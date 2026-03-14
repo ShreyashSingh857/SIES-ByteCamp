@@ -31,7 +31,7 @@ const Analyze = lazy(() => import('./pages/Analyze'));
 const GraphView = lazy(() => import('./pages/GraphView'));
 const ImpactPanel = lazy(() => import('./pages/ImpactPanel'));
 const DirListView = lazy(() => import('./pages/DirListView'));
-const FileViewer = lazy(() => import('./pages/FileViewer'));
+const FileViewerWithDependencies = lazy(() => import('./pages/FileViewerWithDependencies'));
 const Layout = lazy(() => import('./components/layout/Layout'));
 
 function AppRoutes() {
@@ -49,7 +49,7 @@ function AppRoutes() {
           <Route path="upload" element={<UploadRepo />} />
           <Route path="analyze" element={<Analyze />} />
           <Route path="analyze/dir/:dirName" element={<DirListView />} />
-          <Route path="analyze/dir/:dirName/file/*" element={<FileViewer />} />
+          <Route path="analyze/dir/:dirName/file/*" element={<FileViewerWithDependencies />} />
           <Route path="graph"  element={<GraphView />} />
           <Route path="impact" element={<ImpactPanel />} />
           <Route path="*" element={<Navigate to="/home" replace />} />

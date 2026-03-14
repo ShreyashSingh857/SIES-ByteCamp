@@ -1,9 +1,9 @@
 import { Router } from 'express';
 import {
-  analyzeWithLLMAndImport,
-  getScanStats,
-  listScans,
-  deleteScan,
+    analyzeWithLLMAndImport,
+    getScanStats,
+    listScans,
+    deleteScan,
 } from '../controllers/import.controller.js';
 
 const router = Router();

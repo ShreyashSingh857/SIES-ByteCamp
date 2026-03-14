@@ -66,7 +66,7 @@ Please provide:
 
 Format your response as a structured JSON object with these exact keys: dependencyType, dependencyScope, impactAnalysis, criticalDependencies, accessPatterns, riskAssessment, recommendations.`;
 
-        const response = await client.chat.completions.create({
+        const response = await client.messages.create({
             model: DEFAULT_MODEL,
             max_tokens: 1500,
             messages: [
@@ -78,7 +78,7 @@ Format your response as a structured JSON object with these exact keys: dependen
         });
 
         // Extract the analysis from the response
-        const content = response.choices[0]?.message?.content || '';
+        const content = response.content[0]?.text || '';
 
         // Try to parse as JSON, otherwise return raw text
         let analysis;
