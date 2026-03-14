@@ -119,9 +119,8 @@ const buildSelectionContext = (fullCode, selectedValue) => {
 
 // ─── DependencySnippet ───────────────────────────────────────────────────────
 
-const DependencySnippet = ({ file, snippet, isDark, selectedText }) => {
+const DependencySnippet = ({ file, snippet, selectedText }) => {
     const [expanded, setExpanded] = useState(true);
-    const lang = getLanguage(file.path || '');
     const normalizedSnippet = useMemo(() => {
         if (typeof snippet === 'string') return snippet;
         if (snippet && typeof snippet === 'object') {
@@ -133,19 +132,6 @@ const DependencySnippet = ({ file, snippet, isDark, selectedText }) => {
         }
         return '';
     }, [snippet]);
-    const parsedLlmSnippet = useMemo(() => {
-        if (file.type !== 'llm-insight') return null;
-        if (!snippet) return null;
-        if (snippet && typeof snippet === 'object') return snippet;
-        if (typeof snippet !== 'string') return null;
-
-        try {
-            const parsed = JSON.parse(snippet);
-            return parsed && typeof parsed === 'object' ? parsed : null;
-        } catch {
-            return null;
-        }
-    }, [file.type, snippet]);
     const personalizedInsight = file.personalizedInsight || null;
 
     const personalizedStatic = Array.isArray(personalizedInsight?.staticDependencies)
@@ -158,20 +144,18 @@ const DependencySnippet = ({ file, snippet, isDark, selectedText }) => {
         ? personalizedInsight.recommendedActions
         : [];
 
-    // Get badge color based on dependency type
-    const getTypeColor = (type) => {
-        const typeColors = {
-            'CALLS': '#8b5cf6',
-            'IMPORTS': '#06b6d4',
-            'USES_TABLE': '#f59e0b',
-            'USES_FIELD': '#ec4899',
-            'CONSUMES_API': '#10b981',
-            'llm-insight': '#3b82f6',
-            'file-occurrence': '#6366f1',
-            'dependency': '#a78bfa',
+    const riskLevel = String(personalizedInsight?.riskLevel || '').toUpperCase() || 'UNKNOWN';
+    const getRiskColor = (risk) => {
+        const colors = {
+            LOW: '#10b981',
+            MEDIUM: '#f59e0b',
+            HIGH: '#ef4444',
+            UNKNOWN: '#3b82f6',
         };
-        return typeColors[type] || '#6b7280';
+        return colors[String(risk || '').toUpperCase()] || '#3b82f6';
     };
+
+    const accentColor = getRiskColor(riskLevel);
 
     // Render code with highlighted matches
     const renderHighlightedCode = () => {
@@ -220,7 +204,7 @@ const DependencySnippet = ({ file, snippet, isDark, selectedText }) => {
         <div
             className="border-l-2 transition-all"
             style={{
-                borderColor: getTypeColor(file.type),
+                borderColor: accentColor,
                 background: 'var(--bg-muted)',
                 borderRadius: '0.375rem',
                 overflow: 'hidden',
@@ -240,25 +224,26 @@ const DependencySnippet = ({ file, snippet, isDark, selectedText }) => {
                 onMouseLeave={(e) => { e.currentTarget.style.background = 'var(--card)'; }}
             >
                 <div className="flex items-center gap-2 min-w-0">
-                    <FileCode2 size={14} style={{ color: getTypeColor(file.type), flexShrink: 0 }} />
+                    <FileCode2 size={14} style={{ color: accentColor, flexShrink: 0 }} />
                     <code className="text-xs truncate" style={{ color: 'var(--text)', fontFamily: "'JetBrains Mono'" }}>
                         {file.displayName || file.path}
                     </code>
                     {file.lineNumber > 0 && (
-                        <span className="text-xs px-1.5 py-0.5 rounded" style={{ background: 'var(--bg-muted)', color: getTypeColor(file.type) }}>
+                        <span className="text-xs px-1.5 py-0.5 rounded" style={{ background: 'var(--bg-muted)', color: accentColor }}>
                             L{file.lineNumber}
                         </span>
                     )}
-                    {file.type && (
+                    {personalizedInsight?.riskLevel && (
                         <span
-                            className="text-xs px-2 py-0.5 rounded font-mono"
+                            className="text-[0.65rem] px-2 py-0.5 rounded font-mono"
                             style={{
-                                background: getTypeColor(file.type),
+                                background: accentColor,
                                 color: '#fff',
-                                fontSize: '0.65rem',
+                                textTransform: 'uppercase',
+                                flexShrink: 0,
                             }}
                         >
-                            {file.type}
+                            {riskLevel}
                         </span>
                     )}
                 </div>
@@ -289,29 +274,16 @@ const DependencySnippet = ({ file, snippet, isDark, selectedText }) => {
                         style={{
                             margin: 0,
                             padding: '0.75rem',
-                            color: file.type === 'llm-insight' ? '#3b82f6' : 'var(--text)',
+                            color: 'var(--text)',
                             whiteSpace: 'pre-wrap',
                             wordBreak: 'break-word',
                             fontFamily: "'JetBrains Mono', 'Courier New', monospace",
                         }}
                     >
-                        {file.type === 'llm-insight' && parsedLlmSnippet ? (
-                            <div style={{ color: 'var(--text)' }}>
-                                {Object.entries(parsedLlmSnippet).map(([key, value]) => (
-                                    <div key={key} style={{ marginBottom: '0.5rem' }}>
-                                        <strong style={{ color: '#3b82f6' }}>{key}:</strong>
-                                        <div style={{ marginLeft: '1rem', color: 'var(--text-muted)' }}>
-                                            {typeof value === 'string' ? value : JSON.stringify(value, null, 2)}
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        ) : (
-                            renderHighlightedCode()
-                        )}
+                        {renderHighlightedCode()}
                     </pre>
 
-                    {personalizedInsight && file.type !== 'llm-insight' && (
+                    {personalizedInsight && (
                         <div
                             style={{
                                 margin: '0 0.75rem 0.75rem',
@@ -321,9 +293,7 @@ const DependencySnippet = ({ file, snippet, isDark, selectedText }) => {
                                 background: 'var(--bg-muted)',
                             }}
                         >
-                            <div style={{ color: '#3b82f6', fontSize: '0.72rem', fontWeight: 600, marginBottom: '0.4rem' }}>
-                                Personalized Impact for this File
-                            </div>
+                            <div style={{ color: '#3b82f6', fontSize: '0.72rem', fontWeight: 600, marginBottom: '0.4rem' }}>Impact in this file</div>
 
                             {personalizedInsight.whyRelated && (
                                 <div style={{ color: 'var(--text)', fontSize: '0.76rem', marginBottom: '0.4rem' }}>
@@ -362,191 +332,20 @@ const DependencySnippet = ({ file, snippet, isDark, selectedText }) => {
     );
 };
 
-// ─── LLM Insights Card ─────────────────────────────────────────────────────
-
-const LLMInsightCard = ({ insight, meta, isDark }) => {
-    const analysis = useMemo(() => {
-        if (!insight) return null;
-        if (typeof insight === 'object') return insight;
-
-        try {
-            return JSON.parse(insight);
-        } catch {
-            return { impactAnalysis: String(insight) };
-        }
-    }, [insight]);
-
-    if (!analysis) {
-        return null;
-    }
-
-    const getRiskColor = (risk) => {
-        const colors = {
-            LOW: '#10b981',
-            MEDIUM: '#f59e0b',
-            HIGH: '#ef4444',
-            UNKNOWN: '#6b7280',
-        };
-        return colors[String(risk || '').toUpperCase()] || '#6b7280';
-    };
-
-    const listOrFallback = (value) => {
-        if (Array.isArray(value)) {
-            return value.map((item) => String(item).trim()).filter(Boolean);
-        }
-        if (typeof value === 'string' && value.trim()) {
-            return [value.trim()];
-        }
-        return [];
-    };
-
-    const recommendations = listOrFallback(analysis.recommendations);
-    const criticalDependencies = listOrFallback(analysis.criticalDependencies);
-    const accessPatterns = listOrFallback(analysis.accessPatterns);
-
-    return (
-        <div
-            style={{
-                background: isDark ? 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)' : 'linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%)',
-                border: '2px solid #3b82f6',
-                borderRadius: '0.5rem',
-                padding: '1rem',
-                marginBottom: '1rem',
-            }}
-        >
-            <div style={{ marginBottom: '0.75rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.75rem' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                    <span style={{ color: '#3b82f6', fontSize: '1.25rem' }}>🤖</span>
-                    <h3 style={{ margin: 0, color: '#3b82f6', fontWeight: 600, fontSize: '0.95rem' }}>
-                        AI Dependency Analysis
-                    </h3>
-                </div>
-                {meta?.model && (
-                    <span
-                        className="code-text"
-                        style={{
-                            fontSize: '0.68rem',
-                            color: '#bfdbfe',
-                            background: '#1e3a8a',
-                            padding: '0.25rem 0.45rem',
-                            borderRadius: '0.25rem',
-                            whiteSpace: 'nowrap',
-                        }}
-                    >
-                        {meta.model}
-                    </span>
-                )}
-            </div>
-
-            {meta?.status && (
-                <div style={{ marginBottom: '0.75rem', color: 'var(--text-muted)', fontSize: '0.75rem' }}>
-                    Analysis quality: {meta?.status || 'unknown'}
-                </div>
-            )}
-
-            <div style={{ display: 'grid', gap: '0.75rem', fontSize: '0.85rem' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '0.5rem' }}>
-                    <span style={{ color: 'var(--text-muted)' }}>Type:</span>
-                    <span style={{ color: 'var(--text)', fontWeight: 500, textAlign: 'right' }}>{analysis.dependencyType || 'Unknown'}</span>
-                </div>
-
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '0.5rem' }}>
-                    <span style={{ color: 'var(--text-muted)' }}>Scope:</span>
-                    <span style={{ color: 'var(--text)', fontWeight: 500, textAlign: 'right' }}>{analysis.dependencyScope || analysis.scope || 'Unknown'}</span>
-                </div>
-
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '0.5rem' }}>
-                    <span style={{ color: 'var(--text-muted)' }}>Risk:</span>
-                    <span
-                        style={{
-                            background: getRiskColor(analysis.riskLevel || analysis.riskAssessment),
-                            color: '#fff',
-                            padding: '0.2rem 0.45rem',
-                            borderRadius: '0.25rem',
-                            fontWeight: 600,
-                            fontSize: '0.72rem',
-                            textTransform: 'uppercase',
-                        }}
-                    >
-                        {analysis.riskLevel || 'UNKNOWN'}
-                    </span>
-                </div>
-
-                {analysis.impactAnalysis && (
-                    <div style={{ paddingTop: '0.5rem', borderTop: '1px solid var(--border)' }}>
-                        <p style={{ margin: '0 0 0.4rem 0', color: 'var(--text-muted)', fontSize: '0.75rem', fontWeight: 600 }}>
-                            Impact Analysis
-                        </p>
-                        <p style={{ margin: 0, color: 'var(--text)', fontSize: '0.8rem', lineHeight: '1.45' }}>
-                            {analysis.impactAnalysis}
-                        </p>
-                    </div>
-                )}
-
-                {criticalDependencies.length > 0 && (
-                    <div style={{ paddingTop: '0.5rem', borderTop: '1px solid var(--border)' }}>
-                        <p style={{ margin: '0 0 0.4rem 0', color: 'var(--text-muted)', fontSize: '0.75rem', fontWeight: 600 }}>
-                            Critical Dependencies
-                        </p>
-                        <div style={{ display: 'grid', gap: '0.25rem' }}>
-                            {criticalDependencies.slice(0, 5).map((item, idx) => (
-                                <div key={`${item}-${idx}`} style={{ color: 'var(--text)', fontSize: '0.8rem' }}>
-                                    • {item}
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                )}
-
-                {accessPatterns.length > 0 && (
-                    <div style={{ paddingTop: '0.5rem', borderTop: '1px solid var(--border)' }}>
-                        <p style={{ margin: '0 0 0.4rem 0', color: 'var(--text-muted)', fontSize: '0.75rem', fontWeight: 600 }}>
-                            Access Patterns
-                        </p>
-                        <div style={{ color: 'var(--text)', fontSize: '0.8rem' }}>
-                            {accessPatterns.join(' • ')}
-                        </div>
-                    </div>
-                )}
-
-                {recommendations.length > 0 && (
-                    <div style={{ paddingTop: '0.5rem', borderTop: '1px solid var(--border)' }}>
-                        <p style={{ margin: '0 0 0.4rem 0', color: 'var(--text-muted)', fontSize: '0.75rem', fontWeight: 600 }}>
-                            Recommendations
-                        </p>
-                        <div style={{ display: 'grid', gap: '0.25rem' }}>
-                            {recommendations.slice(0, 5).map((item, idx) => (
-                                <div key={`${item}-${idx}`} style={{ color: 'var(--text)', fontSize: '0.8rem' }}>
-                                    • {item}
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                )}
-
-            </div>
-        </div>
-    );
-};
-
 // ─── DependencyPanel ───────────────────────────────────────────────────────────
 
 const DependencyPanel = ({
     selectedText,
     dependencies,
-    llmMeta,
     loading,
     error,
-    isDark,
     fileRelations,
     relationsLoading,
     relationsError,
     staticRuntimeSummary,
     onClear,
 }) => {
-    // Separate LLM insights from regular dependencies
-    const llmInsight = dependencies.find(dep => dep.type === 'llm-insight');
-    const otherDeps = dependencies.filter(dep => dep.type !== 'llm-insight');
+    const impactedFiles = Array.isArray(dependencies) ? dependencies : [];
     const incomingFileDeps = fileRelations?.incoming || [];
     const outgoingFileDeps = fileRelations?.outgoing || [];
     const staticIncoming = fileRelations?.staticIncoming || [];
@@ -574,7 +373,7 @@ const DependencyPanel = ({
                 <div className="flex items-center gap-2 min-w-0">
                     <Search size={14} style={{ color: '#3b82f6', flexShrink: 0 }} />
                     <span className="text-sm font-semibold" style={{ color: 'var(--text)' }}>
-                        Dependency Intelligence
+                        Related impact
                     </span>
                     {selectedText && (
                         <span
@@ -615,14 +414,14 @@ const DependencyPanel = ({
                     <div className="flex items-center gap-2" style={{ marginBottom: '0.6rem' }}>
                         <Link2 size={14} style={{ color: '#3b82f6' }} />
                         <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: '#3b82f6' }}>
-                            File-Level Dependencies
+                            This file connects to
                         </span>
                         {relationsLoading && <Loader2 size={12} className="animate-spin" style={{ color: 'var(--text-muted)' }} />}
                     </div>
 
                     {!hasLiveFileData && (
                         <p className="text-xs" style={{ color: 'var(--text-muted)', margin: 0 }}>
-                            Live graph relationships appear here once a scan and graph seed are available.
+                            File connections appear here once a scan is available.
                         </p>
                     )}
 
@@ -636,7 +435,7 @@ const DependencyPanel = ({
                         <div style={{ display: 'grid', gap: '0.65rem' }}>
                             <div>
                                 <div className="text-xs" style={{ color: '#f97316', fontWeight: 600, marginBottom: '0.35rem' }}>
-                                    Files depending on this ({incomingFileDeps.length})
+                                    Used by ({incomingFileDeps.length})
                                 </div>
                                 {incomingFileDeps.length === 0 ? (
                                     <div className="text-xs" style={{ color: 'var(--text-muted)' }}>No incoming dependencies.</div>
@@ -654,7 +453,7 @@ const DependencyPanel = ({
 
                             <div>
                                 <div className="text-xs" style={{ color: 'var(--text)', fontWeight: 600, marginBottom: '0.35rem' }}>
-                                    Static relations ({staticIncoming.length + staticOutgoing.length})
+                                    Static links ({staticIncoming.length + staticOutgoing.length})
                                 </div>
                                 {staticIncoming.length === 0 && staticOutgoing.length === 0 ? (
                                     <div className="text-xs" style={{ color: 'var(--text-muted)' }}>No static relationships.</div>
@@ -663,13 +462,13 @@ const DependencyPanel = ({
                                         {staticIncoming.slice(0, 20).map((item) => (
                                             <div key={`static-in-${item}`} className="flex items-start gap-1" style={{ color: 'var(--text)', fontSize: '0.72rem' }}>
                                                 <ArrowRight size={11} style={{ marginTop: '2px', color: '#f97316', flexShrink: 0 }} />
-                                                <span style={{ wordBreak: 'break-word' }}>IN: {item}</span>
+                                                <span style={{ wordBreak: 'break-word' }}>{item}</span>
                                             </div>
                                         ))}
                                         {staticOutgoing.slice(0, 20).map((item) => (
                                             <div key={`static-out-${item}`} className="flex items-start gap-1" style={{ color: 'var(--text)', fontSize: '0.72rem' }}>
                                                 <ArrowRight size={11} style={{ marginTop: '2px', color: '#3b82f6', flexShrink: 0 }} />
-                                                <span style={{ wordBreak: 'break-word' }}>OUT: {item}</span>
+                                                <span style={{ wordBreak: 'break-word' }}>{item}</span>
                                             </div>
                                         ))}
                                     </div>
@@ -678,7 +477,7 @@ const DependencyPanel = ({
 
                             <div>
                                 <div className="text-xs" style={{ color: 'var(--text)', fontWeight: 600, marginBottom: '0.35rem' }}>
-                                    Runtime relations ({runtimeIncoming.length + runtimeOutgoing.length})
+                                    Runtime links ({runtimeIncoming.length + runtimeOutgoing.length})
                                 </div>
                                 {runtimeIncoming.length === 0 && runtimeOutgoing.length === 0 ? (
                                     <div className="text-xs" style={{ color: 'var(--text-muted)' }}>No runtime relationships.</div>
@@ -687,13 +486,13 @@ const DependencyPanel = ({
                                         {runtimeIncoming.slice(0, 20).map((item) => (
                                             <div key={`runtime-in-${item}`} className="flex items-start gap-1" style={{ color: 'var(--text)', fontSize: '0.72rem' }}>
                                                 <ArrowRight size={11} style={{ marginTop: '2px', color: '#22c55e', flexShrink: 0 }} />
-                                                <span style={{ wordBreak: 'break-word' }}>IN: {item}</span>
+                                                <span style={{ wordBreak: 'break-word' }}>{item}</span>
                                             </div>
                                         ))}
                                         {runtimeOutgoing.slice(0, 20).map((item) => (
                                             <div key={`runtime-out-${item}`} className="flex items-start gap-1" style={{ color: 'var(--text)', fontSize: '0.72rem' }}>
                                                 <ArrowRight size={11} style={{ marginTop: '2px', color: '#22c55e', flexShrink: 0 }} />
-                                                <span style={{ wordBreak: 'break-word' }}>OUT: {item}</span>
+                                                <span style={{ wordBreak: 'break-word' }}>{item}</span>
                                             </div>
                                         ))}
                                     </div>
@@ -702,7 +501,7 @@ const DependencyPanel = ({
 
                             <div>
                                 <div className="text-xs" style={{ color: '#3b82f6', fontWeight: 600, marginBottom: '0.35rem' }}>
-                                    Files this depends on ({outgoingFileDeps.length})
+                                    Uses ({outgoingFileDeps.length})
                                 </div>
                                 {outgoingFileDeps.length === 0 ? (
                                     <div className="text-xs" style={{ color: 'var(--text-muted)' }}>No outgoing dependencies.</div>
@@ -725,7 +524,7 @@ const DependencyPanel = ({
                     <div className="text-center py-8">
                         <Search size={24} style={{ color: 'var(--text-muted)', margin: '0 auto 1rem' }} />
                         <p className="text-sm" style={{ color: 'var(--text-muted)' }}>
-                            Select any line or symbol to run deep cross-repository dependency analysis.
+                            Select code to see where it matters across the repo.
                         </p>
                     </div>
                 )}
@@ -757,7 +556,7 @@ const DependencyPanel = ({
                     </div>
                 )}
 
-                {selectedText && !loading && dependencies.length > 0 && (
+                {selectedText && !loading && impactedFiles.length > 0 && (
                     <div>
                         {staticRuntimeSummary && (
                             <div
@@ -778,30 +577,19 @@ const DependencyPanel = ({
                             </div>
                         )}
 
-                        {/* LLM Insight Section - Shows First & Prominently */}
-                        {llmInsight && (
-                            <div style={{ marginBottom: '1.5rem' }}>
-                                <LLMInsightCard insight={llmInsight.snippet} meta={llmMeta} isDark={isDark} />
+                        <div>
+                            <div className="text-xs mb-3" style={{ color: 'var(--text-muted)', fontWeight: 500 }}>
+                                Affected files: {impactedFiles.length}
                             </div>
-                        )}
-
-                        {/* Other Dependencies Section */}
-                        {otherDeps.length > 0 && (
-                            <div>
-                                <div className="text-xs mb-3" style={{ color: 'var(--text-muted)', fontWeight: 500 }}>
-                                    📍 Found in {otherDeps.length} location{otherDeps.length > 1 ? 's' : ''}
-                                </div>
-                                {otherDeps.map((dep, idx) => (
-                                    <DependencySnippet
-                                        key={idx}
-                                        file={dep}
-                                        snippet={dep.snippet}
-                                        isDark={isDark}
-                                        selectedText={selectedText}
-                                    />
-                                ))}
-                            </div>
-                        )}
+                            {impactedFiles.map((dep, idx) => (
+                                <DependencySnippet
+                                    key={dep.id || idx}
+                                    file={dep}
+                                    snippet={dep.snippet}
+                                    selectedText={selectedText}
+                                />
+                            ))}
+                        </div>
                     </div>
                 )}
             </div>
@@ -830,7 +618,6 @@ const FileViewerWithDependencies = () => {
     const [copied, setCopied] = useState(false);
     const [selectedText, setSelectedText] = useState('');
     const [dependencies, setDependencies] = useState([]);
-    const [llmMeta, setLlmMeta] = useState(null);
     const [staticRuntimeSummary, setStaticRuntimeSummary] = useState(null);
     const [depLoading, setDepLoading] = useState(false);
     const [depError, setDepError] = useState('');
@@ -929,7 +716,6 @@ const FileViewerWithDependencies = () => {
     useEffect(() => {
         if (!selectedText || !currentRepoId) {
             setDependencies([]);
-            setLlmMeta(null);
             setStaticRuntimeSummary(null);
             setDepError('');
             return;
@@ -938,7 +724,6 @@ const FileViewerWithDependencies = () => {
         const queryDependencies = async () => {
             setDepLoading(true);
             setDepError('');
-            setLlmMeta(null);
             setStaticRuntimeSummary(null);
 
             try {
@@ -983,11 +768,6 @@ const FileViewerWithDependencies = () => {
                             type: 'file-occurrence',
                         }))
                     );
-                    setLlmMeta({
-                        status: 'not-available',
-                        model: null,
-                        message: 'LLM analysis requires an active scanId.',
-                    });
                     setStaticRuntimeSummary(null);
                     return;
                 }
@@ -1009,12 +789,11 @@ const FileViewerWithDependencies = () => {
                 });
 
                 if (!response.ok) {
-                    throw new Error('Failed to analyze dependencies with LLM');
+                    throw new Error('Failed to analyze selected code');
                 }
 
                 const result = await response.json();
                 const data = result.data || {};
-                const llmAnalysis = data.llmAnalysis || null;
                 const personalizedInsights = Array.isArray(data.personalizedInsights?.files)
                     ? data.personalizedInsights.files
                     : [];
@@ -1023,93 +802,82 @@ const FileViewerWithDependencies = () => {
                         .filter((item) => item?.filePath)
                         .map((item) => [item.filePath, item])
                 );
-                const llmMetaState = llmAnalysis
-                    ? {
-                        status: llmAnalysis.status,
-                        model: llmAnalysis.model,
-                        contextStats: llmAnalysis.contextStats,
-                        summary: data.summary,
-                    }
-                    : null;
-
-                setLlmMeta(llmMetaState);
                 setStaticRuntimeSummary(data.staticRuntimeDependencies || null);
 
-                // Format enriched dependencies
-                const enrichedDeps = [];
-
-                // Add symbol occurrences
-                if (data.symbolOccurrences) {
-                    enrichedDeps.push(
-                        ...data.symbolOccurrences.map((occ) => ({
-                            id: occ.id,
-                            path: occ.filePath,
-                            lineNumber: occ.lineNumber,
-                            type: occ.type,
-                            displayName: occ.displayName,
-                            snippet: `Located at ${occ.context || 'this location'}`,
-                            personalizedInsight: personalizedInsightsMap.get(occ.filePath) || null,
-                        }))
-                    );
+                const occurrences = Array.isArray(data.symbolOccurrences) ? data.symbolOccurrences : [];
+                const references = Array.isArray(data.references) ? data.references : [];
+                const occurrencesByFile = new Map();
+                for (const occ of occurrences) {
+                    const occPath = String(occ?.filePath || '').trim() || 'unknown';
+                    if (!occurrencesByFile.has(occPath)) occurrencesByFile.set(occPath, []);
+                    occurrencesByFile.get(occPath).push(occ);
                 }
+                const referencesByFile = new Map(
+                    references
+                        .filter((ref) => ref?.filePath)
+                        .map((ref) => [ref.filePath, ref])
+                );
 
-                // Add dependencies
-                if (data.dependencies?.perNode) {
-                    Object.entries(data.dependencies.perNode).forEach(([nodeId, deps]) => {
-                        const incoming = Array.isArray(deps?.incoming) ? deps.incoming : [];
-                        const outgoing = Array.isArray(deps?.outgoing) ? deps.outgoing : [];
+                const buildEvidenceSnippet = (filePathValue) => {
+                    const lines = [];
+                    const fileOccurrences = occurrencesByFile.get(filePathValue) || [];
+                    const fileRef = referencesByFile.get(filePathValue);
 
-                        [...incoming, ...outgoing].forEach(dep => {
-                            const targetPath = dep.targetName || dep.sourceName || 'unknown';
-                            enrichedDeps.push({
-                                id: `${nodeId}-${dep.targetId}`,
-                                path: targetPath,
-                                lineNumber: 0,
-                                type: 'dependency',
-                                displayName: `${dep.relationshipType}: ${targetPath}`,
-                                snippet: `${dep.sourceType} → [${dep.relationshipType}] → ${dep.targetType}`,
-                                personalizedInsight: personalizedInsightsMap.get(targetPath) || null,
+                    if (fileOccurrences.length > 0) {
+                        lines.push('Where it shows up');
+                        fileOccurrences
+                            .slice(0, 6)
+                            .forEach((o) => {
+                                const label = o.displayName || o.type || 'match';
+                                const ln = o.lineNumber ? `L${o.lineNumber}` : '';
+                                lines.push(`- ${label}${ln ? ` (${ln})` : ''}`);
                             });
-                        });
-                    });
-                }
+                    }
 
-                // Add LLM insights
-                if (llmAnalysis?.analysis) {
-                    enrichedDeps.push({
-                        id: 'llm-analysis',
-                        path: 'AI Analysis',
-                        lineNumber: 0,
-                        type: 'llm-insight',
-                        displayName: llmAnalysis.model
-                            ? `LLM Dependency Analysis (${llmAnalysis.model})`
-                            : 'LLM Dependency Analysis',
-                        snippet: llmAnalysis.analysis,
-                    });
-                } else if (llmAnalysis && (llmAnalysis.message || llmAnalysis.error)) {
-                    enrichedDeps.push({
-                        id: 'llm-analysis-status',
-                        path: 'AI Analysis',
-                        lineNumber: 0,
-                        type: 'llm-insight',
-                        displayName: llmAnalysis.model
-                            ? `LLM Dependency Analysis (${llmAnalysis.model})`
-                            : 'LLM Dependency Analysis',
-                        snippet: {
-                            dependencyType: 'Unavailable',
-                            dependencyScope: data.summary?.uniqueFiles > 1 ? 'cross-file' : 'local',
-                            impactAnalysis: llmAnalysis.message || llmAnalysis.error,
-                            riskLevel: 'UNKNOWN',
-                            recommendations: ['Refine selection to a symbol/function name for deeper graph tracing.'],
-                        },
-                    });
-                }
+                    const funcs = Array.isArray(fileRef?.functions) ? fileRef.functions : [];
+                    if (funcs.length > 0) {
+                        if (lines.length > 0) lines.push('');
+                        lines.push('Related functions');
+                        funcs
+                            .slice(0, 6)
+                            .forEach((fn) => {
+                                const name = fn.qualifiedName || fn.name || 'function';
+                                const ln = fn.lineStart ? `L${fn.lineStart}` : '';
+                                lines.push(`- ${name}${ln ? ` (${ln})` : ''}`);
+                            });
+                    }
 
-                setDependencies(enrichedDeps);
+                    return lines.join('\n');
+                };
+
+                const fileInsightList = Array.isArray(personalizedInsights) && personalizedInsights.length > 0
+                    ? personalizedInsights
+                    : [...new Set(occurrences.map((o) => o?.filePath).filter(Boolean))].map((filePathValue) => ({
+                        filePath: filePathValue,
+                    }));
+
+                const fileCards = fileInsightList
+                    .filter((item) => item?.filePath)
+                    .map((item) => {
+                        const insight = personalizedInsightsMap.get(item.filePath) || null;
+                        const fileOccurrences = occurrencesByFile.get(item.filePath) || [];
+                        const firstLine = fileOccurrences.find((o) => Number(o?.lineNumber) > 0)?.lineNumber || 0;
+
+                        return {
+                            id: `impact-${item.filePath}`,
+                            path: item.filePath,
+                            lineNumber: firstLine,
+                            type: 'file-impact',
+                            displayName: item.filePath,
+                            snippet: buildEvidenceSnippet(item.filePath),
+                            personalizedInsight: insight,
+                        };
+                    });
+
+                setDependencies(fileCards);
             } catch (err) {
                 setDepError(err.message || 'Error analyzing dependencies');
                 setDependencies([]);
-                setLlmMeta(null);
                 setStaticRuntimeSummary(null);
             } finally {
                 setDepLoading(false);
@@ -1130,7 +898,6 @@ const FileViewerWithDependencies = () => {
     const handleClearSelection = () => {
         setSelectedText('');
         setDependencies([]);
-        setLlmMeta(null);
         setStaticRuntimeSummary(null);
     };
 
@@ -1320,14 +1087,12 @@ const FileViewerWithDependencies = () => {
                     <DependencyPanel
                         selectedText={selectedText}
                         dependencies={dependencies}
-                        llmMeta={llmMeta}
                         fileRelations={fileRelations}
                         relationsLoading={relationsLoading}
                         relationsError={relationsError}
                         staticRuntimeSummary={staticRuntimeSummary}
                         loading={depLoading}
                         error={depError}
-                        isDark={isDark}
                         onClear={handleClearSelection}
                     />
                 </div>

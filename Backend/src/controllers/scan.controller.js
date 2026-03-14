@@ -968,6 +968,135 @@ export const analyzeDependenciesWithIntelligence = async (req, res, next) => {
     }
 
     if (symbolOccurrences.length === 0) {
+      // Fallback: scan repository files for literal text matches.
+      // This keeps the UX useful even when the selection is not a clean symbol present in Neo4j.
+      let textMatches = [];
+      let fallbackOccurrences = [];
+      let fallbackFileContexts = [];
+
+      try {
+        if (repoId) {
+          const graphFilePath = getGraphFilePath(repoId);
+          if (fs.existsSync(graphFilePath)) {
+            const parserResult = JSON.parse(fs.readFileSync(graphFilePath, "utf8"));
+            const files = (parserResult?.nodes || []).filter((n) => n.type === "FILE");
+            const searchText = normalizedSelectedText.trim();
+
+            const repoDirs = fs
+              .readdirSync(REPOSITORIES_ROOT)
+              .filter((name) => name.includes(repoId.split("-").slice(0, 2).join("-")));
+
+            if (repoDirs.length > 0 && searchText) {
+              const repoDir = path.join(REPOSITORIES_ROOT, repoDirs[0]);
+
+              const contextByFile = new Map();
+
+              for (const fileNode of files) {
+                const candidatePath = fileNode.name;
+                if (!candidatePath) continue;
+                if (currentFile && candidatePath === currentFile) continue;
+
+                const fullPath = path.join(repoDir, candidatePath);
+                if (!fs.existsSync(fullPath)) continue;
+
+                let fileContent = "";
+                try {
+                  fileContent = fs.readFileSync(fullPath, "utf8");
+                } catch {
+                  continue;
+                }
+
+                const lines = fileContent.split("\n");
+                for (let lineIdx = 0; lineIdx < lines.length; lineIdx += 1) {
+                  const line = lines[lineIdx];
+                  if (!line || !line.includes(searchText)) continue;
+
+                  const start = Math.max(0, lineIdx - 2);
+                  const end = Math.min(lines.length, lineIdx + 3);
+                  const snippet = lines.slice(start, end).join("\n");
+
+                  const match = {
+                    filePath: candidatePath,
+                    lineNumber: lineIdx + 1,
+                    lineText: String(line).trim().slice(0, 180),
+                    codeSnippet: snippet,
+                  };
+                  textMatches.push(match);
+
+                  if (!contextByFile.has(candidatePath)) {
+                    contextByFile.set(candidatePath, {
+                      filePath: candidatePath,
+                      occurrences: [],
+                      dependencies: [],
+                      referencedFunctions: [],
+                    });
+                  }
+
+                  contextByFile.get(candidatePath).occurrences.push({
+                    id: `${candidatePath}:${lineIdx + 1}`,
+                    displayName: match.lineText || "text match",
+                    type: "TEXT_MATCH",
+                    lineNumber: lineIdx + 1,
+                    context: snippet,
+                  });
+
+                  fallbackOccurrences.push({
+                    id: `${candidatePath}:${lineIdx + 1}`,
+                    displayName: match.lineText || "text match",
+                    type: "TextMatch",
+                    filePath: candidatePath,
+                    lineNumber: lineIdx + 1,
+                    context: snippet,
+                  });
+                }
+              }
+
+              fallbackFileContexts = [...contextByFile.values()].sort((a, b) => {
+                const aCount = a.occurrences?.length || 0;
+                const bCount = b.occurrences?.length || 0;
+                return bCount - aCount;
+              });
+            }
+          }
+        }
+      } catch (err) {
+        console.warn("Fallback repo scan failed:", err.message);
+      }
+
+      if (fallbackFileContexts.length > 0) {
+        const staticRuntimeDependencies = summarizeStaticRuntimeDependencies(fallbackFileContexts);
+        const personalizedInsights = await generatePerFileDependencyInsights(
+          normalizedSelectedText,
+          fallbackFileContexts,
+          {
+            currentFile,
+            implicitDependencies: null,
+            staticRuntimeSummary: staticRuntimeDependencies,
+            model: process.env.OPENAI_MODEL || "gpt-4.1-mini",
+          }
+        );
+
+        return res.status(200).json({
+          success: true,
+          data: {
+            selectedText: normalizedSelectedText,
+            scanId,
+            searchCandidates,
+            symbolOccurrences: fallbackOccurrences,
+            dependencies: {
+              perNode: {},
+              chain: { nodes: [], edges: [] },
+            },
+            references: [],
+            staticRuntimeDependencies,
+            implicitDependencies: null,
+            personalizedInsights,
+            contentMatches: textMatches.slice(0, 500),
+            message: "No Neo4j symbol matches; showing literal text matches across the repo.",
+          },
+        });
+      }
+
       return res.status(200).json({
         success: true,
         data: {
@@ -976,13 +1105,7 @@ export const analyzeDependenciesWithIntelligence = async (req, res, next) => {
           searchCandidates,
           symbolOccurrences: [],
           dependencies: [],
-          llmAnalysis: withLLM
-            ? {
-              status: "skipped",
-              message: "No occurrences found",
-              model: process.env.OPENAI_MODEL || "gpt-4.1-mini",
-            }
-            : null,
+          llmAnalysis: null,
           message: "No symbol occurrences found in database",
         },
       });
