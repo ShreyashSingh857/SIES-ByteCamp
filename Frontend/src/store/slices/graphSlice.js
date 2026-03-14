@@ -1,5 +1,4 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { mockGraphData, mockRepos } from '../../assets/mockdata';
 
 // BFS to compute directly and transitively impacted nodes from a selected node
 function computeImpact(graphData, selectedNodeId) {
@@ -44,10 +43,10 @@ function computeImpact(graphData, selectedNodeId) {
 const graphSlice = createSlice({
   name: 'graph',
   initialState: {
-    repos: mockRepos,
+    repos: [],
     scanStatus: 'idle', // 'idle' | 'scanning' | 'done' | 'error'
     scanProgress: 0,
-    graphData: mockGraphData,
+    graphData: { nodes: [], edges: [] },
     selectedNode: null,
     directImpact: [],
     transitiveImpact: [],
@@ -56,8 +55,13 @@ const graphSlice = createSlice({
   },
   reducers: {
     setSelectedNode(state, action) {
-      state.selectedNode = action.payload;
-      const impact = computeImpact(state.graphData, action.payload);
+      const { id, graphData } = action.payload || {};
+      const nodeId = id !== undefined ? id : action.payload;
+      const dataToUse = graphData || state.graphData;
+
+      
+      state.selectedNode = nodeId;
+      const impact = computeImpact(dataToUse, nodeId);
       state.directImpact = impact.directImpact;
       state.transitiveImpact = impact.transitiveImpact;
     },

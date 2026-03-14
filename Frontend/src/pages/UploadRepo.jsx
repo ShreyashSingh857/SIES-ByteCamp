@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { Github, Plus, GitBranch, Loader2, CheckCircle2, Trash2, AlertCircle } from 'lucide-react';
 import { addRepo, removeRepo, updateRepoStatus, setScanStatus, setScanProgress } from '../store/index';
+import { useScanRepoMutation } from '../store/slices/apiSlice';
 
 const LANG_COLORS = {
   Java:       '#f59e0b',
@@ -34,6 +35,7 @@ const UploadRepo = () => {
   const navigate = useNavigate();
   const repos = useSelector((s) => s.graph.repos);
   const scanStatus = useSelector((s) => s.graph.scanStatus);
+  const [scanRepo] = useScanRepoMutation();
 
   const [url, setUrl]     = useState('');
   const [branch, setBranch] = useState('main');
@@ -75,24 +77,37 @@ const UploadRepo = () => {
     dispatch(removeRepo(id));
   };
 
-  const simulateScan = async () => {
+  const scanRepos = async () => {
     const pending = repos.filter((r) => r.status === 'pending');
     if (pending.length === 0) { navigate('/graph'); return; }
 
     dispatch(setScanStatus('scanning'));
     dispatch(setScanProgress(0));
 
-    for (let p = 0; p <= 100; p += 4) {
-      await delay(120);
-      dispatch(setScanProgress(p));
-    }
+    try {
+      const perRepoProgress = 100 / pending.length;
+      let currentProgress = 0;
+      for (const repo of pending) {
+        dispatch(updateRepoStatus({ id: repo.id, status: 'scanning' }));
+        
+        // Let user know scanning is happening by slightly bumping progress
+        currentProgress += perRepoProgress * 0.1;
+        dispatch(setScanProgress(currentProgress));
+        
+        await scanRepo({ repoUrl: repo.url }).unwrap();
+        
+        currentProgress += perRepoProgress * 0.9;
+        dispatch(setScanProgress(currentProgress));
+        dispatch(updateRepoStatus({ id: repo.id, status: 'scanned' }));
+      }
 
-    for (const repo of pending) {
-      dispatch(updateRepoStatus({ id: repo.id, status: 'scanned' }));
+      dispatch(setScanStatus('done'));
+      navigate('/graph');
+    } catch (err) {
+      console.error("Scan error: ", err);
+      setError(err?.data?.message || err?.message || 'Failed to scan repository.');
+      dispatch(setScanStatus('error'));
     }
-
-    dispatch(setScanStatus('done'));
-    navigate('/graph');
   };
 
   const pendingCount = repos.filter((r) => r.status === 'pending').length;
@@ -232,7 +247,7 @@ const UploadRepo = () => {
             : 'Add at least one repository to continue'}
         </p>
         <button
-          onClick={simulateScan}
+          onClick={scanRepos}
           disabled={scanning || repos.length === 0}
           className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all disabled:opacity-50"
           style={{ background: '#1e3a8a', color: '#93c5fd' }}

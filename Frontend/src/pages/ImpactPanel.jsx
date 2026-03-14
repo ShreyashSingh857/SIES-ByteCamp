@@ -3,6 +3,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { Zap, GitBranch, Database, Code2, Globe, ChevronRight, Search, ArrowLeft } from 'lucide-react';
 import { setSelectedNode, clearSelection } from '../store/index';
+import { useGetGraphQuery } from '../store/slices/apiSlice';
 import { NODE_TYPE_CONFIG } from '../assets/mockdata';
 
 const TYPE_ICONS = {
@@ -65,10 +66,12 @@ const ImpactPanel = () => {
   const dispatch  = useDispatch();
   const navigate  = useNavigate();
 
-  const graphData        = useSelector((s) => s.graph.graphData);
   const selectedNodeId   = useSelector((s) => s.graph.selectedNode);
   const directImpact     = useSelector((s) => s.graph.directImpact);
   const transitiveImpact = useSelector((s) => s.graph.transitiveImpact);
+
+  const { data: fetchedGraphData } = useGetGraphQuery();
+  const graphData = fetchedGraphData || { nodes: [], edges: [] };
 
   const [search, setSearch] = useState('');
 
@@ -89,7 +92,7 @@ const ImpactPanel = () => {
 
   const handleNodeClick = (id) => {
     if (id === selectedNodeId) dispatch(clearSelection());
-    else dispatch(setSelectedNode(id));
+    else dispatch(setSelectedNode({ id, graphData }));
   };
 
   // Node picker — shown when nothing selected

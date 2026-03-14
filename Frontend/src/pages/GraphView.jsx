@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import cytoscape from 'cytoscape';
 import { Filter, RefreshCw, ZoomIn, ZoomOut, Maximize2, Info } from 'lucide-react';
 import { setSelectedNode, clearSelection } from '../store/index';
+import { useGetGraphQuery } from '../store/slices/apiSlice';
 import { NODE_TYPE_CONFIG, EDGE_TYPE_CONFIG } from '../assets/mockdata';
 
 const NODE_TYPES  = Object.keys(NODE_TYPE_CONFIG);
@@ -123,12 +124,16 @@ const GraphView = () => {
   const cyRef      = useRef(null);
   const containerRef = useRef(null);
 
-  const graphData      = useSelector((s) => s.graph.graphData);
   const selectedNode   = useSelector((s) => s.graph.selectedNode);
   const directImpact   = useSelector((s) => s.graph.directImpact);
   const transitiveImpact = useSelector((s) => s.graph.transitiveImpact);
   const filterTypes    = useSelector((s) => s.graph.filterTypes);
   const filterLangs    = useSelector((s) => s.graph.filterLangs);
+
+  const { data: fetchedGraphData, isLoading } = useGetGraphQuery();
+  
+  // Use fetched data if available, otherwise fallback to empty arrays
+  const graphData = fetchedGraphData || { nodes: [], edges: [] };
 
   const [showLegend, setShowLegend]   = useState(false);
   const [showFilters, setShowFilters] = useState(false);
@@ -166,7 +171,7 @@ const GraphView = () => {
       if (id === selectedNode) {
         dispatch(clearSelection());
       } else {
-        dispatch(setSelectedNode(id));
+        dispatch(setSelectedNode({ id, graphData: elements.length ? { nodes: elements.filter(e => e.data.type || e.data.lang).map(e => ({...e.data})), edges: elements.filter(e => e.data.source).map(e => ({...e.data})) } : graphData }));
       }
     });
 
@@ -225,6 +230,11 @@ const GraphView = () => {
 
   return (
     <div className="flex flex-col gap-3" style={{ height: 'calc(100vh - 7rem)' }}>
+      {isLoading && (
+        <div className="absolute top-4 right-4 z-50 px-4 py-2 rounded-lg" style={{ background: '#3b82f6', color: '#fff' }}>
+          Loading graph data...
+        </div>
+      )}
       {/* Toolbar */}
       <div className="flex items-center gap-2 flex-wrap">
         <div className="flex items-center gap-1 rounded-lg p-1" style={{ background: 'var(--card)', border: '1px solid var(--border)' }}>
