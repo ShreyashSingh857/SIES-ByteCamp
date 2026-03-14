@@ -703,9 +703,160 @@ Format as JSON with these keys: implicit_dependencies, runtime_dependencies, env
     }
 }
 
+function normalizeLineEdit(item) {
+    const source = item && typeof item === 'object' && !Array.isArray(item) ? item : {};
+    const lineNumber = Number(source.lineNumber || source.line || 0);
+
+    return {
+        filePath: String(source.filePath || source.path || '').trim(),
+        lineNumber: Number.isFinite(lineNumber) && lineNumber > 0 ? lineNumber : 0,
+        oldText: String(source.oldText || source.before || '').trim(),
+        newText: String(source.newText || source.after || '').trim(),
+        reason: truncateText(source.reason || source.explanation || '', 500),
+        confidence: normalizeConfidence(source.confidence),
+        symbol: String(source.symbol || source.name || '').trim(),
+        editType: String(source.editType || source.type || 'replace').trim().toLowerCase(),
+    };
+}
+
+function normalizeRenameCandidate(item) {
+    const source = item && typeof item === 'object' && !Array.isArray(item) ? item : {};
+    return {
+        oldName: String(source.oldName || source.from || '').trim(),
+        newName: String(source.newName || source.to || '').trim(),
+        reason: truncateText(source.reason || source.explanation || '', 300),
+        confidence: normalizeConfidence(source.confidence),
+    };
+}
+
+function normalizeDetailedImpactPlan(plan, fallbackText = '') {
+    const source = plan && typeof plan === 'object' && !Array.isArray(plan) ? plan : {};
+
+    const rawFileEdits = Array.isArray(source.fileEdits) ? source.fileEdits : [];
+    const fileEdits = rawFileEdits
+        .map((item) => normalizeLineEdit(item))
+        .filter((edit) => edit.filePath && edit.newText);
+
+    const rawRenameCandidates = Array.isArray(source.renameCandidates) ? source.renameCandidates : [];
+    const renameCandidates = rawRenameCandidates
+        .map((item) => normalizeRenameCandidate(item))
+        .filter((item) => item.oldName && item.newName);
+
+    return {
+        summary: truncateText(source.summary || source.impactSummary || fallbackText, 1200),
+        warnings: toArray(source.warnings || source.risks).slice(0, 30),
+        renameCandidates,
+        fileEdits,
+    };
+}
+
+/**
+ * Generate detailed line-level impact and refactor suggestions, including related call-site edits.
+ * @param {Object} payload
+ * @returns {Object}
+ */
+export async function generateDetailedImpactRefactorPlan(payload = {}) {
+    if (!process.env.OPENAI_API_KEY) {
+        return {
+            status: 'skipped',
+            message: 'OpenAI API key not configured',
+            plan: {
+                summary: 'LLM is not configured; detailed line-level plan unavailable.',
+                warnings: [],
+                renameCandidates: [],
+                fileEdits: [],
+            },
+            model: DEFAULT_MODEL,
+        };
+    }
+
+    try {
+        const promptPayload = {
+            repoId: payload.repoId || '',
+            scanId: payload.scanId || null,
+            changedFilePath: payload.changedFilePath || '',
+            changedLines: Array.isArray(payload.changedLines) ? payload.changedLines.slice(0, 80) : [],
+            originalContentSnippet: truncateText(payload.originalContent || '', 4000),
+            updatedContentSnippet: truncateText(payload.updatedContent || '', 4000),
+            relationSummary: payload.relationSummary || {},
+            relatedFiles: Array.isArray(payload.relatedFiles)
+                ? payload.relatedFiles.slice(0, 12).map((fileItem) => ({
+                    filePath: fileItem.filePath,
+                    contentSnippet: truncateText(fileItem.content || '', 2500),
+                }))
+                : [],
+        };
+
+        const prompt = [
+            'You are a senior refactoring assistant specialized in dependency-safe renames and call-site updates.',
+            'Analyze the changed file and propose exact line-level edits for related files.',
+            'Return STRICT JSON only using this exact schema:',
+            '{',
+            '  "summary": "",',
+            '  "warnings": [""],',
+            '  "renameCandidates": [',
+            '    {"oldName": "", "newName": "", "reason": "", "confidence": "LOW|MEDIUM|HIGH"}',
+            '  ],',
+            '  "fileEdits": [',
+            '    {',
+            '      "filePath": "",',
+            '      "lineNumber": 0,',
+            '      "oldText": "",',
+            '      "newText": "",',
+            '      "editType": "replace|insert|delete",',
+            '      "symbol": "",',
+            '      "reason": "",',
+            '      "confidence": "LOW|MEDIUM|HIGH"',
+            '    }',
+            '  ]',
+            '}',
+            '',
+            'Rules:',
+            '- Only propose edits for files present in relatedFiles or the changed file itself.',
+            '- Be precise. Include lineNumber whenever possible.',
+            '- For rename propagation, include all high-confidence call-site updates.',
+            '- Do not invent imports/APIs not supported by provided snippets.',
+            '',
+            'Evidence payload:',
+            JSON.stringify(promptPayload),
+        ].join('\n');
+
+        const llmResult = await runLlmRequest(prompt, {
+            model: payload.model || DEFAULT_MODEL,
+            maxOutputTokens: 3200,
+        });
+
+        const parsed = extractFirstJsonObject(llmResult.text);
+        const normalizedPlan = normalizeDetailedImpactPlan(parsed, llmResult.text);
+
+        return {
+            status: 'completed',
+            message: 'Detailed refactor plan generated',
+            plan: normalizedPlan,
+            model: llmResult.model,
+            modeUsed: llmResult.modeUsed,
+            usageTokens: llmResult.usageTokens,
+        };
+    } catch (error) {
+        console.error('Detailed refactor plan generation error:', error);
+        return {
+            status: 'error',
+            message: error.message || 'Failed to generate detailed refactor plan',
+            plan: {
+                summary: error.message || 'Failed to generate detailed refactor plan',
+                warnings: ['LLM request failed; fallback to manual review.'],
+                renameCandidates: [],
+                fileEdits: [],
+            },
+            model: payload.model || DEFAULT_MODEL,
+        };
+    }
+}
+
 export default {
     analyzeDependenciesWithLLM,
     generatePerFileDependencyInsights,
     generateArchitectureSummary,
     inferImplicitDependencies,
+    generateDetailedImpactRefactorPlan,
 };

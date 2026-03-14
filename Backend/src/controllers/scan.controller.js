@@ -1,6 +1,7 @@
 import simpleGit from "simple-git";
 import path from "path";
 import fs from "fs";
+import crypto from "crypto";
 import { execFile } from "child_process";
 import { promisify } from "util";
 import {
@@ -19,14 +20,18 @@ import {
   generatePerFileDependencyInsights,
   generateArchitectureSummary,
   inferImplicitDependencies,
+  generateDetailedImpactRefactorPlan,
 } from "../services/llm.service.js";
 import { saveWebhookSubscription } from "../db/webhook.queries.js";
 import { registerWebhookForRepo } from "../services/github-webhook-registration.service.js";
+import { broadcast } from "../services/sse.service.js";
 import {
   AI_ENGINE_ENTRY,
+  AI_ENGINE_AGENT_ENTRY,
   PROJECT_ROOT,
   WORKSPACE_ROOT,
   REPOSITORIES_ROOT,
+  assertValidRepoId,
   buildSeedPayloadFromParser,
   buildUniqueRepoDir,
   createScanId,
@@ -76,6 +81,381 @@ function calculateChainDepth(symbolDependencies) {
   if (!edges.length) return 0;
   return 1;
 }
+
+const LOCAL_TEXT_FILE_EXTENSIONS = new Set([
+  ".js", ".jsx", ".ts", ".tsx", ".json", ".md", ".txt", ".css", ".scss", ".sass", ".less",
+  ".html", ".htm", ".xml", ".yml", ".yaml", ".env", ".properties", ".ini", ".toml",
+  ".py", ".java", ".go", ".rb", ".rs", ".php", ".cs", ".cpp", ".c", ".h", ".hpp",
+  ".sql", ".sh", ".bash", ".zsh", ".mjs", ".cjs", ".graphql",
+]);
+
+function normalizeRepoFilePath(filePath) {
+  return String(filePath || "")
+    .replace(/\\/g, "/")
+    .replace(/^\/+/, "")
+    .replace(/\/\.(?=\/|$)/g, "")
+    .trim();
+}
+
+function isLikelyTextFile(filePath) {
+  const extension = path.extname(String(filePath || "")).toLowerCase();
+  if (extension && LOCAL_TEXT_FILE_EXTENSIONS.has(extension)) {
+    return true;
+  }
+
+  const basename = path.basename(String(filePath || "")).toLowerCase();
+  return basename === "dockerfile" || basename === "makefile";
+}
+
+function resolveLocalRepoPath(repoId) {
+  assertValidRepoId(repoId);
+  const localPath = path.resolve(REPOSITORIES_ROOT, repoId);
+  if (!localPath.startsWith(path.resolve(REPOSITORIES_ROOT))) {
+    throw new Error("Invalid repository path");
+  }
+  if (!fs.existsSync(localPath) || !fs.statSync(localPath).isDirectory()) {
+    throw new Error(`Local repository not found for repoId: ${repoId}`);
+  }
+  return localPath;
+}
+
+function resolveFilePathWithinRepo(repoId, filePath) {
+  const normalizedFilePath = normalizeRepoFilePath(filePath);
+  if (!normalizedFilePath) {
+    throw new Error("filePath is required");
+  }
+
+  const localRepoPath = resolveLocalRepoPath(repoId);
+  const absoluteFilePath = path.resolve(localRepoPath, normalizedFilePath);
+
+  if (!absoluteFilePath.startsWith(localRepoPath)) {
+    throw new Error("filePath cannot escape the repository root");
+  }
+
+  return {
+    localRepoPath,
+    absoluteFilePath,
+    normalizedFilePath,
+  };
+}
+
+function createStableHash(input) {
+  return crypto.createHash("sha256").update(String(input || "")).digest("hex");
+}
+
+function computeLineDiffStats(originalContent, updatedContent) {
+  const originalLines = String(originalContent || "").split(/\r?\n/);
+  const updatedLines = String(updatedContent || "").split(/\r?\n/);
+  const maxLength = Math.max(originalLines.length, updatedLines.length);
+
+  let changedLineCount = 0;
+  let addedLineCount = 0;
+  let removedLineCount = 0;
+
+  for (let index = 0; index < maxLength; index += 1) {
+    const oldLine = originalLines[index];
+    const newLine = updatedLines[index];
+
+    if (oldLine === undefined && newLine !== undefined) {
+      addedLineCount += 1;
+      changedLineCount += 1;
+      continue;
+    }
+
+    if (oldLine !== undefined && newLine === undefined) {
+      removedLineCount += 1;
+      changedLineCount += 1;
+      continue;
+    }
+
+    if (oldLine !== newLine) {
+      changedLineCount += 1;
+    }
+  }
+
+  return {
+    changedLineCount,
+    addedLineCount,
+    removedLineCount,
+    originalLineCount: originalLines.length,
+    updatedLineCount: updatedLines.length,
+    changed: changedLineCount > 0,
+  };
+}
+
+function summarizeFileRelations(fileRelations) {
+  const incoming = fileRelations?.incoming || [];
+  const outgoing = fileRelations?.outgoing || [];
+  const staticIncoming = fileRelations?.staticIncoming || [];
+  const staticOutgoing = fileRelations?.staticOutgoing || [];
+  const runtimeIncoming = fileRelations?.runtimeIncoming || [];
+  const runtimeOutgoing = fileRelations?.runtimeOutgoing || [];
+
+  return {
+    incomingCount: incoming.length,
+    outgoingCount: outgoing.length,
+    staticIncomingCount: staticIncoming.length,
+    staticOutgoingCount: staticOutgoing.length,
+    runtimeIncomingCount: runtimeIncoming.length,
+    runtimeOutgoingCount: runtimeOutgoing.length,
+    totalRelatedFiles: new Set([...incoming, ...outgoing]).size,
+  };
+}
+
+function buildImpactAcknowledgementToken({ repoId, filePath, updatedContent, diffStats, relationSummary }) {
+  const payload = {
+    repoId,
+    filePath,
+    updatedContentHash: createStableHash(updatedContent),
+    diffStats,
+    relationSummary,
+  };
+
+  return createStableHash(JSON.stringify(payload));
+}
+
+async function runDependencyAgentForEditedContent({ localRepoPath, filePath, updatedContent, withLlm }) {
+  const absolutePath = path.resolve(localRepoPath, filePath);
+  const originalContent = fs.readFileSync(absolutePath, "utf8");
+
+  let stdout = "";
+  const args = [
+    AI_ENGINE_AGENT_ENTRY,
+    "--repo",
+    localRepoPath,
+    "--changed",
+    filePath,
+  ];
+
+  if (withLlm) {
+    args.push("--with-llm");
+  }
+
+  try {
+    fs.writeFileSync(absolutePath, updatedContent, "utf8");
+    const runResult = await execFileAsync(process.execPath, args, {
+      cwd: PROJECT_ROOT,
+      maxBuffer: 20 * 1024 * 1024,
+    });
+    stdout = runResult.stdout || "";
+  } finally {
+    fs.writeFileSync(absolutePath, originalContent, "utf8");
+  }
+
+  if (!stdout.trim()) {
+    return null;
+  }
+
+  try {
+    return JSON.parse(stdout);
+  } catch {
+    return {
+      status: "failed",
+      reason: "Unable to parse dependency agent output",
+      rawOutput: stdout,
+    };
+  }
+}
+
+async function runDependencyAgentFromDisk({ localRepoPath, filePath, withLlm }) {
+  const args = [
+    AI_ENGINE_AGENT_ENTRY,
+    "--repo",
+    localRepoPath,
+    "--changed",
+    filePath,
+  ];
+
+  if (withLlm) {
+    args.push("--with-llm");
+  }
+
+  const { stdout } = await execFileAsync(process.execPath, args, {
+    cwd: PROJECT_ROOT,
+    maxBuffer: 20 * 1024 * 1024,
+  });
+
+  if (!stdout?.trim()) {
+    return null;
+  }
+
+  try {
+    return JSON.parse(stdout);
+  } catch {
+    return {
+      status: "failed",
+      reason: "Unable to parse dependency agent output",
+      rawOutput: stdout,
+    };
+  }
+}
+
+function collectChangedLineSamples(originalContent, updatedContent, maxSamples = 60) {
+  const originalLines = String(originalContent || "").split(/\r?\n/);
+  const updatedLines = String(updatedContent || "").split(/\r?\n/);
+  const maxLength = Math.max(originalLines.length, updatedLines.length);
+  const samples = [];
+
+  for (let index = 0; index < maxLength; index += 1) {
+    const before = originalLines[index];
+    const after = updatedLines[index];
+
+    if (before === after) {
+      continue;
+    }
+
+    samples.push({
+      lineNumber: index + 1,
+      before: before ?? "",
+      after: after ?? "",
+    });
+
+    if (samples.length >= maxSamples) {
+      break;
+    }
+  }
+
+  return samples;
+}
+
+function readFileContentWithinRepo(localRepoPath, relativePath) {
+  const normalized = normalizeRepoFilePath(relativePath);
+  const absolute = path.resolve(localRepoPath, normalized);
+  if (!absolute.startsWith(localRepoPath)) {
+    return null;
+  }
+  if (!fs.existsSync(absolute) || !fs.statSync(absolute).isFile()) {
+    return null;
+  }
+
+  try {
+    return fs.readFileSync(absolute, "utf8");
+  } catch {
+    return null;
+  }
+}
+
+function collectRelatedFileContexts(localRepoPath, filePath, fileRelations, maxFiles = 12) {
+  const relationPaths = [
+    ...(fileRelations?.incoming || []),
+    ...(fileRelations?.outgoing || []),
+    ...(fileRelations?.staticIncoming || []),
+    ...(fileRelations?.staticOutgoing || []),
+    ...(fileRelations?.runtimeIncoming || []),
+    ...(fileRelations?.runtimeOutgoing || []),
+  ];
+
+  const uniquePaths = [...new Set(relationPaths.map((item) => normalizeRepoFilePath(item)).filter(Boolean))]
+    .filter((item) => item !== normalizeRepoFilePath(filePath))
+    .slice(0, maxFiles);
+
+  return uniquePaths
+    .map((relatedPath) => {
+      const content = readFileContentWithinRepo(localRepoPath, relatedPath);
+      if (typeof content !== "string") {
+        return null;
+      }
+
+      return {
+        filePath: relatedPath,
+        content,
+      };
+    })
+    .filter(Boolean);
+}
+
+function applyLineLevelEditToContent(content, edit) {
+  const lines = String(content || "").split(/\r?\n/);
+  const targetIndex = Number(edit.lineNumber || 0) - 1;
+  const oldText = String(edit.oldText || "");
+  const newText = String(edit.newText || "");
+
+  let applied = false;
+
+  if (targetIndex >= 0 && targetIndex < lines.length) {
+    if (oldText) {
+      if (lines[targetIndex].includes(oldText)) {
+        lines[targetIndex] = lines[targetIndex].replace(oldText, newText);
+        applied = true;
+      }
+    } else {
+      lines[targetIndex] = newText;
+      applied = true;
+    }
+  }
+
+  if (!applied && oldText) {
+    const joined = lines.join("\n");
+    if (joined.includes(oldText)) {
+      return {
+        content: joined.replace(oldText, newText),
+        applied: true,
+      };
+    }
+  }
+
+  return {
+    content: lines.join("\n"),
+    applied,
+  };
+}
+
+function applyDetailedFileEdits(localRepoPath, detailedPlan) {
+  const edits = Array.isArray(detailedPlan?.plan?.fileEdits) ? detailedPlan.plan.fileEdits : [];
+  const groupedByFile = new Map();
+
+  for (const edit of edits) {
+    const normalizedPath = normalizeRepoFilePath(edit.filePath);
+    if (!normalizedPath) {
+      continue;
+    }
+
+    if (!groupedByFile.has(normalizedPath)) {
+      groupedByFile.set(normalizedPath, []);
+    }
+
+    groupedByFile.get(normalizedPath).push(edit);
+  }
+
+  const appliedEdits = [];
+  const skippedEdits = [];
+
+  for (const [relativePath, fileEdits] of groupedByFile.entries()) {
+    const absolute = path.resolve(localRepoPath, relativePath);
+    if (!absolute.startsWith(localRepoPath) || !fs.existsSync(absolute) || !fs.statSync(absolute).isFile()) {
+      for (const edit of fileEdits) {
+        skippedEdits.push({ ...edit, reason: edit.reason || "File not found" });
+      }
+      continue;
+    }
+
+    let content = fs.readFileSync(absolute, "utf8");
+    let fileChanged = false;
+
+    for (const edit of fileEdits) {
+      const result = applyLineLevelEditToContent(content, edit);
+      if (result.applied) {
+        content = result.content;
+        fileChanged = true;
+        appliedEdits.push(edit);
+      } else {
+        skippedEdits.push({ ...edit, reason: edit.reason || "Exact text not found" });
+      }
+    }
+
+    if (fileChanged) {
+      fs.writeFileSync(absolute, content, "utf8");
+    }
+  }
+
+  return {
+    appliedCount: appliedEdits.length,
+    skippedCount: skippedEdits.length,
+    appliedEdits,
+    skippedEdits,
+  };
+}
+
 
 const STATIC_RELATIONSHIP_TYPES = new Set([
   "IMPORTS",
@@ -1152,6 +1532,402 @@ export const analyzeDependenciesWithIntelligence = async (req, res, next) => {
     });
   } catch (error) {
     console.error("Error in analyzeDependenciesWithIntelligence:", error);
+    next(error);
+  }
+};
+
+/**
+ * @desc    Read editable file content from cloned repository
+ * @route   GET /api/editor/file?repoId=...&filePath=...
+ * @access  Public
+ */
+export const getEditableFileContent = async (req, res, next) => {
+  try {
+    const repoId = String(req.query.repoId || "").trim();
+    const filePath = String(req.query.filePath || "").trim();
+
+    if (!repoId || !filePath) {
+      return res.status(400).json({
+        success: false,
+        message: "repoId and filePath are required",
+      });
+    }
+
+    if (!isLikelyTextFile(filePath)) {
+      return res.status(415).json({
+        success: false,
+        message: "Only text-like files are editable from this endpoint",
+      });
+    }
+
+    const { absoluteFilePath, normalizedFilePath } = resolveFilePathWithinRepo(repoId, filePath);
+
+    if (!fs.existsSync(absoluteFilePath) || !fs.statSync(absoluteFilePath).isFile()) {
+      return res.status(404).json({
+        success: false,
+        message: `File not found: ${normalizedFilePath}`,
+      });
+    }
+
+    const content = fs.readFileSync(absoluteFilePath, "utf8");
+    const stats = fs.statSync(absoluteFilePath);
+
+    return res.status(200).json({
+      success: true,
+      data: {
+        repoId,
+        filePath: normalizedFilePath,
+        content,
+        sizeBytes: stats.size,
+        updatedAt: stats.mtime.toISOString(),
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * @desc    Preview impact of edited content and generate dependency-agent recommendations
+ * @route   POST /api/editor/impact-preview
+ * @access  Public
+ */
+export const previewEditorImpact = async (req, res, next) => {
+  try {
+    const {
+      repoId,
+      scanId,
+      filePath,
+      updatedContent,
+      withLlm = false,
+    } = req.body || {};
+
+    if (!repoId || !filePath || typeof updatedContent !== "string") {
+      return res.status(400).json({
+        success: false,
+        message: "repoId, filePath and updatedContent are required",
+      });
+    }
+
+    if (!isLikelyTextFile(filePath)) {
+      return res.status(415).json({
+        success: false,
+        message: "Only text-like files are supported for impact preview",
+      });
+    }
+
+    const { localRepoPath, absoluteFilePath, normalizedFilePath } = resolveFilePathWithinRepo(repoId, filePath);
+
+    if (!fs.existsSync(absoluteFilePath) || !fs.statSync(absoluteFilePath).isFile()) {
+      return res.status(404).json({
+        success: false,
+        message: `File not found: ${normalizedFilePath}`,
+      });
+    }
+
+    const originalContent = fs.readFileSync(absoluteFilePath, "utf8");
+    const diffStats = computeLineDiffStats(originalContent, updatedContent);
+
+    let fileRelations = {
+      incoming: [],
+      outgoing: [],
+      staticIncoming: [],
+      staticOutgoing: [],
+      runtimeIncoming: [],
+      runtimeOutgoing: [],
+    };
+
+    let relationError = null;
+    if (scanId) {
+      try {
+        fileRelations = await getRelatedFilesByPath(scanId, normalizedFilePath);
+      } catch (error) {
+        relationError = error.message;
+      }
+    }
+
+    const relationSummary = summarizeFileRelations(fileRelations);
+
+    let agentRecommendations = null;
+    if (diffStats.changed) {
+      agentRecommendations = await runDependencyAgentForEditedContent({
+        localRepoPath,
+        filePath: normalizedFilePath,
+        updatedContent,
+        withLlm: Boolean(withLlm),
+      });
+    }
+
+    let llmDetailedImpact = {
+      status: "skipped",
+      message: "Detailed LLM plan is disabled",
+      plan: {
+        summary: "",
+        warnings: [],
+        renameCandidates: [],
+        fileEdits: [],
+      },
+    };
+
+    if (diffStats.changed && withLlm) {
+      const changedLines = collectChangedLineSamples(originalContent, updatedContent);
+      const relatedFiles = collectRelatedFileContexts(localRepoPath, normalizedFilePath, fileRelations);
+
+      llmDetailedImpact = await generateDetailedImpactRefactorPlan({
+        repoId,
+        scanId: scanId || null,
+        changedFilePath: normalizedFilePath,
+        changedLines,
+        originalContent,
+        updatedContent,
+        relationSummary,
+        relatedFiles,
+      });
+    }
+
+    const acknowledgementToken = buildImpactAcknowledgementToken({
+      repoId,
+      filePath: normalizedFilePath,
+      updatedContent,
+      diffStats,
+      relationSummary,
+    });
+
+    const preview = {
+      repoId,
+      scanId: scanId || null,
+      filePath: normalizedFilePath,
+      diffStats,
+      relationSummary,
+      fileRelations,
+      relationError,
+      agentRecommendations,
+      llmDetailedImpact,
+      acknowledgementToken,
+      generatedAt: new Date().toISOString(),
+    };
+
+    broadcast(repoId, {
+      type: "AGENT_IMPACT_PREVIEW",
+      repoId,
+      scanId: scanId || null,
+      filePath: normalizedFilePath,
+      changed: diffStats.changed,
+      changedLineCount: diffStats.changedLineCount,
+      relationSummary,
+      timestamp: new Date().toISOString(),
+    });
+
+    return res.status(200).json({ success: true, data: preview });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * @desc    Save edited file content after impact acknowledgment
+ * @route   POST /api/editor/file/save
+ * @access  Public
+ */
+export const saveEditedFileContent = async (req, res, next) => {
+  try {
+    const {
+      repoId,
+      scanId,
+      filePath,
+      updatedContent,
+      acknowledged,
+      acknowledgementToken,
+      withLlm = false,
+      autoApplyRelatedChanges = false,
+    } = req.body || {};
+
+    if (!repoId || !filePath || typeof updatedContent !== "string") {
+      return res.status(400).json({
+        success: false,
+        message: "repoId, filePath and updatedContent are required",
+      });
+    }
+
+    if (!acknowledged) {
+      return res.status(400).json({
+        success: false,
+        message: "Impact acknowledgement is required before saving",
+      });
+    }
+
+    if (!isLikelyTextFile(filePath)) {
+      return res.status(415).json({
+        success: false,
+        message: "Only text-like files are editable from this endpoint",
+      });
+    }
+
+    const { localRepoPath, absoluteFilePath, normalizedFilePath } = resolveFilePathWithinRepo(repoId, filePath);
+
+    if (!fs.existsSync(absoluteFilePath) || !fs.statSync(absoluteFilePath).isFile()) {
+      return res.status(404).json({
+        success: false,
+        message: `File not found: ${normalizedFilePath}`,
+      });
+    }
+
+    const originalContent = fs.readFileSync(absoluteFilePath, "utf8");
+    const diffStats = computeLineDiffStats(originalContent, updatedContent);
+
+    if (!diffStats.changed) {
+      return res.status(200).json({
+        success: true,
+        data: {
+          saved: false,
+          reason: "No content changes detected",
+          repoId,
+          filePath: normalizedFilePath,
+          diffStats,
+        },
+      });
+    }
+
+    let fileRelations = {
+      incoming: [],
+      outgoing: [],
+      staticIncoming: [],
+      staticOutgoing: [],
+      runtimeIncoming: [],
+      runtimeOutgoing: [],
+    };
+
+    if (scanId) {
+      try {
+        fileRelations = await getRelatedFilesByPath(scanId, normalizedFilePath);
+      } catch {
+        fileRelations = {
+          incoming: [],
+          outgoing: [],
+          staticIncoming: [],
+          staticOutgoing: [],
+          runtimeIncoming: [],
+          runtimeOutgoing: [],
+        };
+      }
+    }
+
+    const relationSummary = summarizeFileRelations(fileRelations);
+    const expectedToken = buildImpactAcknowledgementToken({
+      repoId,
+      filePath: normalizedFilePath,
+      updatedContent,
+      diffStats,
+      relationSummary,
+    });
+
+    if (!acknowledgementToken || acknowledgementToken !== expectedToken) {
+      return res.status(409).json({
+        success: false,
+        message: "Impact preview is outdated. Please preview impact again before saving.",
+        data: {
+          expectedAcknowledgementToken: expectedToken,
+        },
+      });
+    }
+
+    fs.writeFileSync(absoluteFilePath, updatedContent, "utf8");
+
+    const stats = fs.statSync(absoluteFilePath);
+    const agentRecommendations = await runDependencyAgentFromDisk({
+      localRepoPath,
+      filePath: normalizedFilePath,
+      withLlm: Boolean(withLlm),
+    });
+
+    let llmDetailedImpact = {
+      status: "skipped",
+      message: "Detailed LLM plan is disabled",
+      plan: {
+        summary: "",
+        warnings: [],
+        renameCandidates: [],
+        fileEdits: [],
+      },
+    };
+
+    let relatedAutoApply = {
+      enabled: Boolean(autoApplyRelatedChanges),
+      appliedCount: 0,
+      skippedCount: 0,
+      appliedEdits: [],
+      skippedEdits: [],
+    };
+
+    if (withLlm) {
+      const changedLines = collectChangedLineSamples(originalContent, updatedContent);
+      const relatedFiles = collectRelatedFileContexts(localRepoPath, normalizedFilePath, fileRelations);
+
+      llmDetailedImpact = await generateDetailedImpactRefactorPlan({
+        repoId,
+        scanId: scanId || null,
+        changedFilePath: normalizedFilePath,
+        changedLines,
+        originalContent,
+        updatedContent,
+        relationSummary,
+        relatedFiles,
+      });
+
+      if (autoApplyRelatedChanges && llmDetailedImpact?.status === "completed") {
+        relatedAutoApply = {
+          enabled: true,
+          ...applyDetailedFileEdits(localRepoPath, llmDetailedImpact),
+        };
+      }
+    }
+
+    broadcast(repoId, {
+      type: "EDITOR_FILE_SAVED",
+      repoId,
+      scanId: scanId || null,
+      filePath: normalizedFilePath,
+      changedLineCount: diffStats.changedLineCount,
+      timestamp: new Date().toISOString(),
+    });
+
+    broadcast(repoId, {
+      type: "AGENT_RECOMMENDATIONS",
+      repoId,
+      scanId: scanId || null,
+      filePath: normalizedFilePath,
+      summary: agentRecommendations?.summary || null,
+      timestamp: new Date().toISOString(),
+    });
+
+    if (relatedAutoApply.enabled) {
+      broadcast(repoId, {
+        type: "AGENT_RELATED_AUTOFIX",
+        repoId,
+        scanId: scanId || null,
+        filePath: normalizedFilePath,
+        appliedCount: relatedAutoApply.appliedCount,
+        skippedCount: relatedAutoApply.skippedCount,
+        timestamp: new Date().toISOString(),
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      data: {
+        saved: true,
+        repoId,
+        scanId: scanId || null,
+        filePath: normalizedFilePath,
+        updatedAt: stats.mtime.toISOString(),
+        diffStats,
+        relationSummary,
+        agentRecommendations,
+        llmDetailedImpact,
+        relatedAutoApply,
+      },
+    });
+  } catch (error) {
     next(error);
   }
 };

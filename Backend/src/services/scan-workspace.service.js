@@ -13,6 +13,7 @@ export const GRAPHS_ROOT = path.join(WORKSPACE_ROOT, "graphs");
 export const WEBHOOKS_ROOT = path.join(WORKSPACE_ROOT, "webhooks");
 export const WEBHOOK_JOBS_ROOT = path.join(WORKSPACE_ROOT, "webhook-jobs");
 export const AI_ENGINE_ENTRY = path.join(PROJECT_ROOT, "AI-Engine", "src", "index.js");
+export const AI_ENGINE_AGENT_ENTRY = path.join(PROJECT_ROOT, "AI-Engine", "src", "agent.js");
 
 export function ensureWorkspaceDirectories() {
   fs.mkdirSync(REPOSITORIES_ROOT, { recursive: true });

@@ -3,7 +3,12 @@ import { useSelector } from 'react-redux';
 import { useNavigate, useParams } from 'react-router-dom';
 import SyntaxHighlighter from 'react-syntax-highlighter';
 import { atomOneDark, atomOneLight } from 'react-syntax-highlighter/dist/esm/styles/hljs';
-import { useGetFileRelationsQuery } from '../store/slices/apiSlice';
+import {
+    useGetFileRelationsQuery,
+    useGetEditableFileQuery,
+    usePreviewEditorImpactMutation,
+    useSaveEditedFileMutation,
+} from '../store/slices/apiSlice';
 import {
     ArrowLeft,
     Github,
@@ -18,6 +23,9 @@ import {
     ArrowRight,
     X,
     ChevronDown,
+    Pencil,
+    Save,
+    AlertTriangle,
 } from 'lucide-react';
 
 // ─── helpers ────────────────────────────────────────────────────────────────
@@ -345,6 +353,10 @@ const DependencyPanel = ({
     relationsLoading,
     relationsError,
     staticRuntimeSummary,
+    agentPreview,
+    previewLoading,
+    activityEvents,
+    lastSaveResult,
     onClear,
 }) => {
     const impactedFiles = Array.isArray(dependencies) ? dependencies : [];
@@ -355,6 +367,10 @@ const DependencyPanel = ({
     const runtimeIncoming = fileRelations?.runtimeIncoming || [];
     const runtimeOutgoing = fileRelations?.runtimeOutgoing || [];
     const hasLiveFileData = Boolean(fileRelations?.hasLiveData);
+    const detailedPlan = agentPreview?.llmDetailedImpact?.plan || null;
+    const renameCandidates = Array.isArray(detailedPlan?.renameCandidates) ? detailedPlan.renameCandidates : [];
+    const detailedFileEdits = Array.isArray(detailedPlan?.fileEdits) ? detailedPlan.fileEdits : [];
+    const autoApplySummary = lastSaveResult?.relatedAutoApply || null;
 
     return (
         <div
@@ -369,7 +385,7 @@ const DependencyPanel = ({
         >
             {/* Header */}
             <div
-                className="flex-shrink-0 border-b flex items-center justify-between px-4 py-3"
+                className="shrink-0 border-b flex items-center justify-between px-4 py-3"
                 style={{ borderColor: 'var(--border)' }}
             >
                 <div className="flex items-center gap-2 min-w-0">
@@ -394,7 +410,7 @@ const DependencyPanel = ({
                 {selectedText && (
                     <button
                         onClick={onClear}
-                        className="p-1 rounded hover:bg-opacity-80 transition-all flex-shrink-0"
+                        className="p-1 rounded hover:bg-opacity-80 transition-all shrink-0"
                         style={{ background: 'var(--bg-muted)', color: 'var(--text-muted)' }}
                     >
                         <X size={14} />
@@ -522,6 +538,128 @@ const DependencyPanel = ({
                     )}
                 </div>
 
+                <div
+                    style={{
+                        border: '1px solid var(--border)',
+                        borderRadius: '0.5rem',
+                        padding: '0.75rem',
+                        marginBottom: '1rem',
+                        background: 'var(--bg-muted)',
+                    }}
+                >
+                    <div className="flex items-center gap-2" style={{ marginBottom: '0.5rem' }}>
+                        <AlertTriangle size={14} style={{ color: '#f59e0b' }} />
+                        <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: '#f59e0b' }}>
+                            Agentic AI impact preview
+                        </span>
+                        {previewLoading && <Loader2 size={12} className="animate-spin" style={{ color: 'var(--text-muted)' }} />}
+                    </div>
+
+                    {!agentPreview && !previewLoading && (
+                        <p className="text-xs" style={{ color: 'var(--text-muted)', margin: 0 }}>
+                            Preview code impact to view changed-line stats, affected files, and dependency-agent recommendations.
+                        </p>
+                    )}
+
+                    {agentPreview && (
+                        <div style={{ display: 'grid', gap: '0.35rem' }}>
+                            <div className="text-xs" style={{ color: 'var(--text)' }}>
+                                Changed lines: <strong>{agentPreview.diffStats?.changedLineCount || 0}</strong> ·
+                                Related files: <strong>{agentPreview.relationSummary?.totalRelatedFiles || 0}</strong>
+                            </div>
+                            <div className="text-xs" style={{ color: 'var(--text-muted)' }}>
+                                Static links: {agentPreview.relationSummary?.staticIncomingCount || 0}/{agentPreview.relationSummary?.staticOutgoingCount || 0} ·
+                                Runtime links: {agentPreview.relationSummary?.runtimeIncomingCount || 0}/{agentPreview.relationSummary?.runtimeOutgoingCount || 0}
+                            </div>
+                            {agentPreview.agentRecommendations?.summary && (
+                                <div className="text-xs" style={{ color: 'var(--text-muted)' }}>
+                                    Missing deps: {agentPreview.agentRecommendations.summary.missingDependencies || 0} ·
+                                    Removal candidates: {agentPreview.agentRecommendations.summary.removableCandidates || 0}
+                                </div>
+                            )}
+
+                            {renameCandidates.length > 0 && (
+                                <div style={{ marginTop: '0.35rem' }}>
+                                    <div className="text-xs" style={{ color: '#3b82f6', fontWeight: 600 }}>
+                                        Rename propagation candidates
+                                    </div>
+                                    <div style={{ display: 'grid', gap: '0.25rem', marginTop: '0.25rem' }}>
+                                        {renameCandidates.slice(0, 8).map((candidate, index) => (
+                                            <div key={`${candidate.oldName}-${candidate.newName}-${index}`} className="text-xs" style={{ color: 'var(--text-muted)' }}>
+                                                <span style={{ color: 'var(--text)' }}>{candidate.oldName}</span> → <span style={{ color: '#22c55e' }}>{candidate.newName}</span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+
+                            {detailedFileEdits.length > 0 && (
+                                <div style={{ marginTop: '0.35rem' }}>
+                                    <div className="text-xs" style={{ color: '#3b82f6', fontWeight: 600 }}>
+                                        Detailed line changes
+                                    </div>
+                                    <div style={{ display: 'grid', gap: '0.3rem', maxHeight: '170px', overflowY: 'auto', marginTop: '0.25rem' }}>
+                                        {detailedFileEdits.slice(0, 20).map((edit, index) => (
+                                            <div key={`${edit.filePath}-${edit.lineNumber}-${index}`} className="text-xs" style={{ color: 'var(--text-muted)' }}>
+                                                <div style={{ color: 'var(--text)' }}>{edit.filePath}{edit.lineNumber ? `:L${edit.lineNumber}` : ''}</div>
+                                                <div>Old: {String(edit.oldText || '').slice(0, 80) || '—'}</div>
+                                                <div style={{ color: '#22c55e' }}>New: {String(edit.newText || '').slice(0, 80) || '—'}</div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    )}
+                </div>
+
+                {autoApplySummary?.enabled && (
+                    <div
+                        style={{
+                            border: '1px solid var(--border)',
+                            borderRadius: '0.5rem',
+                            padding: '0.75rem',
+                            marginBottom: '1rem',
+                            background: 'var(--bg-muted)',
+                        }}
+                    >
+                        <div className="text-xs font-semibold uppercase tracking-wider" style={{ color: '#22c55e', marginBottom: '0.35rem' }}>
+                            Auto-applied related changes
+                        </div>
+                        <div className="text-xs" style={{ color: 'var(--text-muted)' }}>
+                            Applied: {autoApplySummary.appliedCount || 0} · Skipped: {autoApplySummary.skippedCount || 0}
+                        </div>
+                    </div>
+                )}
+
+                <div
+                    style={{
+                        border: '1px solid var(--border)',
+                        borderRadius: '0.5rem',
+                        padding: '0.75rem',
+                        marginBottom: '1rem',
+                        background: 'var(--bg-muted)',
+                    }}
+                >
+                    <div className="text-xs font-semibold uppercase tracking-wider" style={{ color: '#3b82f6', marginBottom: '0.5rem' }}>
+                        Agent activity
+                    </div>
+                    {(!activityEvents || activityEvents.length === 0) ? (
+                        <p className="text-xs" style={{ color: 'var(--text-muted)', margin: 0 }}>
+                            Waiting for webhook/agent events…
+                        </p>
+                    ) : (
+                        <div style={{ display: 'grid', gap: '0.35rem', maxHeight: '140px', overflowY: 'auto' }}>
+                            {activityEvents.slice(0, 10).map((eventItem) => (
+                                <div key={eventItem.id} className="text-xs" style={{ color: 'var(--text-muted)' }}>
+                                    <span style={{ color: 'var(--text)' }}>{eventItem.type}</span>
+                                    {eventItem.filePath ? ` · ${eventItem.filePath}` : ''}
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </div>
+
                 {!selectedText && (
                     <div className="text-center py-8">
                         <Search size={24} style={{ color: 'var(--text-muted)', margin: '0 auto 1rem' }} />
@@ -615,6 +753,7 @@ const FileViewerWithDependencies = () => {
     const isDark = useSelector((s) => s.theme?.isDark ?? true);
 
     const [code, setCode] = useState('');
+    const [draftCode, setDraftCode] = useState('');
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const [copied, setCopied] = useState(false);
@@ -623,7 +762,30 @@ const FileViewerWithDependencies = () => {
     const [staticRuntimeSummary, setStaticRuntimeSummary] = useState(null);
     const [depLoading, setDepLoading] = useState(false);
     const [depError, setDepError] = useState('');
+    const [isEditMode, setIsEditMode] = useState(false);
+    const [agentPreview, setAgentPreview] = useState(null);
+    const [impactAcknowledged, setImpactAcknowledged] = useState(false);
+    const [autoApplyRelatedChanges, setAutoApplyRelatedChanges] = useState(true);
+    const [lastSaveResult, setLastSaveResult] = useState(null);
+    const [editorError, setEditorError] = useState('');
+    const [activityEvents, setActivityEvents] = useState([]);
     const codeEditorRef = useRef(null);
+
+    const {
+        data: editableFileData,
+        isFetching: editableFileLoading,
+        error: editableFileError,
+    } = useGetEditableFileQuery(
+        { repoId: currentRepoId, filePath },
+        {
+            skip: !currentRepoId || !filePath,
+            refetchOnFocus: true,
+            refetchOnReconnect: true,
+        }
+    );
+
+    const [previewEditorImpact, { isLoading: previewImpactLoading }] = usePreviewEditorImpactMutation();
+    const [saveEditedFile, { isLoading: saveEditedFileLoading }] = useSaveEditedFileMutation();
 
     const rawUrl = useMemo(
         () => buildRawUrl(currentRepoUrl, currentRepoBranch, filePath),
@@ -659,36 +821,100 @@ const FileViewerWithDependencies = () => {
         hasLiveData: Boolean(currentScanId),
     }), [fileRelationsData, currentScanId]);
 
-    // Fetch file code
+    // Fetch editable file from backend first, then fallback to GitHub raw if needed
     useEffect(() => {
-        if (!rawUrl) {
-            setError('Cannot build GitHub raw URL — no repository URL stored.');
-            setLoading(false);
-            return;
-        }
+        let cancelled = false;
+
+        const loadFallbackFromGitHub = async () => {
+            if (!rawUrl) {
+                setError('Cannot build file source URL.');
+                setLoading(false);
+                return;
+            }
+
+            try {
+                const response = await fetch(rawUrl);
+                if (!response.ok) {
+                    throw new Error(`GitHub returned ${response.status} for this file.`);
+                }
+                const text = await response.text();
+                if (cancelled) return;
+                setCode(text);
+                setDraftCode(text);
+                setLoading(false);
+            } catch (err) {
+                if (cancelled) return;
+                setError(err.message || 'Failed to fetch file source.');
+                setLoading(false);
+            }
+        };
 
         setLoading(true);
         setError('');
-        setCode('');
+        setEditorError('');
 
-        fetch(rawUrl)
-            .then((res) => {
-                if (!res.ok) throw new Error(`GitHub returned ${res.status} for this file.`);
-                return res.text();
-            })
-            .then((text) => {
-                setCode(text);
-                setLoading(false);
-            })
-            .catch((err) => {
-                setError(err.message || 'Failed to fetch file from GitHub.');
-                setLoading(false);
-            });
-    }, [rawUrl]);
+        if (editableFileData?.content !== undefined) {
+            const text = String(editableFileData.content || '');
+            setCode(text);
+            setDraftCode(text);
+            setLoading(false);
+            return () => {
+                cancelled = true;
+            };
+        }
+
+        if (editableFileError) {
+            loadFallbackFromGitHub();
+            return () => {
+                cancelled = true;
+            };
+        }
+
+        if (!editableFileLoading) {
+            loadFallbackFromGitHub();
+        }
+
+        return () => {
+            cancelled = true;
+        };
+    }, [editableFileData, editableFileError, editableFileLoading, rawUrl]);
+
+    useEffect(() => {
+        if (!currentRepoId) {
+            setActivityEvents([]);
+            return undefined;
+        }
+
+        const API_URL = import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
+        const eventSource = new EventSource(`${API_URL}/events/${currentRepoId}`);
+
+        eventSource.onmessage = (event) => {
+            try {
+                const payload = JSON.parse(event.data || '{}');
+                setActivityEvents((prev) => [
+                    {
+                        id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+                        type: payload.type || 'EVENT',
+                        filePath: payload.filePath || '',
+                        timestamp: payload.timestamp || new Date().toISOString(),
+                    },
+                    ...prev,
+                ].slice(0, 20));
+            } catch {
+                // ignore malformed event payloads
+            }
+        };
+
+        return () => eventSource.close();
+    }, [currentRepoId]);
 
     // Handle text selection in code editor
     useEffect(() => {
         const handleTextSelection = () => {
+            if (isEditMode) {
+                return;
+            }
+
             const selection = window.getSelection();
             if (!selection || selection.rangeCount === 0) {
                 return;
@@ -712,7 +938,7 @@ const FileViewerWithDependencies = () => {
 
         document.addEventListener('mouseup', handleTextSelection);
         return () => document.removeEventListener('mouseup', handleTextSelection);
-    }, []);
+    }, [isEditMode]);
 
     // Query dependencies when text is selected
     useEffect(() => {
@@ -891,10 +1117,112 @@ const FileViewerWithDependencies = () => {
     }, [selectedText, currentRepoId, currentScanId, filePath, code]);
 
     const handleCopy = () => {
-        navigator.clipboard.writeText(code).then(() => {
+        navigator.clipboard.writeText(isEditMode ? draftCode : code).then(() => {
             setCopied(true);
             setTimeout(() => setCopied(false), 2000);
         });
+    };
+
+    const handleEditModeToggle = () => {
+        setIsEditMode(true);
+        setDraftCode(code);
+        setSelectedText('');
+        setDependencies([]);
+        setStaticRuntimeSummary(null);
+        setAgentPreview(null);
+        setImpactAcknowledged(false);
+        setLastSaveResult(null);
+        setEditorError('');
+    };
+
+    const handleCancelEdit = () => {
+        setDraftCode(code);
+        setIsEditMode(false);
+        setSelectedText('');
+        setDependencies([]);
+        setStaticRuntimeSummary(null);
+        setAgentPreview(null);
+        setImpactAcknowledged(false);
+        setLastSaveResult(null);
+        setEditorError('');
+    };
+
+    const handlePreviewImpact = async () => {
+        if (!currentRepoId || !filePath) {
+            setEditorError('Repository context is missing. Please rescan and try again.');
+            return;
+        }
+
+        if (draftCode === code) {
+            setEditorError('No editor changes detected.');
+            return;
+        }
+
+        try {
+            setEditorError('');
+            const preview = await previewEditorImpact({
+                repoId: currentRepoId,
+                scanId: currentScanId || undefined,
+                filePath,
+                updatedContent: draftCode,
+                withLlm: true,
+            }).unwrap();
+
+            setAgentPreview(preview);
+            setImpactAcknowledged(false);
+        } catch (err) {
+            setAgentPreview(null);
+            setImpactAcknowledged(false);
+            setEditorError(err?.data?.message || err?.message || 'Failed to preview impact.');
+        }
+    };
+
+    const handleSaveEditedFile = async () => {
+        if (!isEditMode) {
+            return;
+        }
+
+        if (draftCode === code) {
+            setEditorError('No changes to save.');
+            return;
+        }
+
+        if (!agentPreview?.acknowledgementToken) {
+            setEditorError('Preview impact before saving.');
+            return;
+        }
+
+        if (!impactAcknowledged) {
+            setEditorError('Please acknowledge impact before saving.');
+            return;
+        }
+
+        try {
+            setEditorError('');
+            const response = await saveEditedFile({
+                repoId: currentRepoId,
+                scanId: currentScanId || undefined,
+                filePath,
+                updatedContent: draftCode,
+                acknowledged: true,
+                acknowledgementToken: agentPreview.acknowledgementToken,
+                withLlm: true,
+                autoApplyRelatedChanges,
+            }).unwrap();
+
+            if (response?.saved) {
+                setLastSaveResult(response);
+                setCode(draftCode);
+                setIsEditMode(false);
+                setAgentPreview(null);
+                setImpactAcknowledged(false);
+                setSelectedText('');
+                setDependencies([]);
+                setStaticRuntimeSummary(null);
+            }
+        } catch (err) {
+            setEditorError(err?.data?.message || err?.message || 'Failed to save file.');
+        }
     };
 
     const handleClearSelection = () => {
@@ -903,8 +1231,18 @@ const FileViewerWithDependencies = () => {
         setStaticRuntimeSummary(null);
     };
 
-    const lineCount = code.split('\n').length;
-    const sizeKb = (new Blob([code]).size / 1024).toFixed(1);
+    useEffect(() => {
+        if (!isEditMode) {
+            return;
+        }
+
+        setAgentPreview(null);
+        setImpactAcknowledged(false);
+    }, [draftCode, isEditMode]);
+
+    const displayCode = isEditMode ? draftCode : code;
+    const lineCount = displayCode.split('\n').length;
+    const sizeKb = (new Blob([displayCode]).size / 1024).toFixed(1);
 
     return (
         <div className="max-w-full mx-auto space-y-4" style={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
@@ -940,7 +1278,7 @@ const FileViewerWithDependencies = () => {
             </div>
 
             {/* Header bar */}
-            <div className="flex-shrink-0 px-4" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap' }}>
+            <div className="shrink-0 px-4" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap' }}>
                 <div className="flex items-center gap-2 min-w-0">
                     <FileCode2 size={15} style={{ color: '#3b82f6', flexShrink: 0 }} />
                     <span className="font-semibold code-text text-sm truncate" style={{ color: 'var(--text)' }}>
@@ -953,7 +1291,65 @@ const FileViewerWithDependencies = () => {
                     )}
                 </div>
 
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2 flex-wrap justify-end">
+                    {!loading && !error && !isEditMode && (
+                        <button
+                            onClick={handleEditModeToggle}
+                            className="flex items-center gap-1.5 text-xs px-2.5 py-1.5 rounded-md transition-all"
+                            style={{
+                                background: 'rgba(59,130,246,0.1)',
+                                color: '#3b82f6',
+                                border: '1px solid rgba(59,130,246,0.3)',
+                            }}
+                        >
+                            <Pencil size={12} /> Edit
+                        </button>
+                    )}
+
+                    {!loading && !error && isEditMode && (
+                        <>
+                            <button
+                                onClick={handleCancelEdit}
+                                className="flex items-center gap-1.5 text-xs px-2.5 py-1.5 rounded-md transition-all"
+                                style={{
+                                    background: 'var(--bg-muted)',
+                                    color: 'var(--text-muted)',
+                                    border: '1px solid var(--border)',
+                                }}
+                            >
+                                <X size={12} /> Cancel
+                            </button>
+
+                            <button
+                                onClick={handlePreviewImpact}
+                                disabled={previewImpactLoading || saveEditedFileLoading || draftCode === code}
+                                className="flex items-center gap-1.5 text-xs px-2.5 py-1.5 rounded-md transition-all disabled:opacity-50"
+                                style={{
+                                    background: 'rgba(245,158,11,0.1)',
+                                    color: '#f59e0b',
+                                    border: '1px solid rgba(245,158,11,0.3)',
+                                }}
+                            >
+                                {previewImpactLoading ? <Loader2 size={12} className="animate-spin" /> : <AlertTriangle size={12} />}
+                                Preview Impact
+                            </button>
+
+                            <button
+                                onClick={handleSaveEditedFile}
+                                disabled={saveEditedFileLoading || previewImpactLoading || !impactAcknowledged || !agentPreview?.acknowledgementToken}
+                                className="flex items-center gap-1.5 text-xs px-2.5 py-1.5 rounded-md transition-all disabled:opacity-50"
+                                style={{
+                                    background: '#1e3a8a',
+                                    color: '#93c5fd',
+                                    border: '1px solid rgba(59,130,246,0.3)',
+                                }}
+                            >
+                                {saveEditedFileLoading ? <Loader2 size={12} className="animate-spin" /> : <Save size={12} />}
+                                Save
+                            </button>
+                        </>
+                    )}
+
                     {!loading && !error && (
                         <button
                             onClick={handleCopy}
@@ -989,6 +1385,21 @@ const FileViewerWithDependencies = () => {
                 </div>
             </div>
 
+            {editorError && (
+                <div className="px-4">
+                    <div
+                        className="text-xs px-3 py-2 rounded-md"
+                        style={{
+                            background: 'rgba(239,68,68,0.1)',
+                            color: '#ef4444',
+                            border: '1px solid rgba(239,68,68,0.3)',
+                        }}
+                    >
+                        {editorError}
+                    </div>
+                </div>
+            )}
+
             {/* Split pane container */}
             <div
                 className="flex-1 flex overflow-hidden px-4 pb-4 gap-4"
@@ -1007,7 +1418,7 @@ const FileViewerWithDependencies = () => {
                 >
                     {/* Language badge bar */}
                     <div
-                        className="flex-shrink-0 flex items-center justify-between px-4 py-2"
+                        className="shrink-0 flex items-center justify-between px-4 py-2"
                         style={{
                             borderBottom: '1px solid var(--border)',
                             background: 'var(--bg-muted)',
@@ -1019,18 +1430,58 @@ const FileViewerWithDependencies = () => {
                         >
                             {lang}
                         </span>
-                        {rawUrl && (
-                            <span className="text-xs code-text truncate max-w-xs hidden sm:block" style={{ color: 'var(--text-muted)' }}>
-                                {rawUrl}
-                            </span>
-                        )}
+                        <div className="flex items-center gap-2">
+                            {isEditMode && (
+                                <span className="text-xs px-2 py-0.5 rounded" style={{ background: 'rgba(59,130,246,0.12)', color: '#3b82f6' }}>
+                                    Editing
+                                </span>
+                            )}
+                            {rawUrl && (
+                                <span className="text-xs code-text truncate max-w-xs hidden sm:block" style={{ color: 'var(--text-muted)' }}>
+                                    {rawUrl}
+                                </span>
+                            )}
+                        </div>
                     </div>
+
+                    {isEditMode && (
+                        <div
+                            className="shrink-0 px-4 py-2"
+                            style={{ borderBottom: '1px solid var(--border)', background: 'var(--card)' }}
+                        >
+                            <label className="flex items-start gap-2 text-xs" style={{ color: 'var(--text-muted)' }}>
+                                <input
+                                    type="checkbox"
+                                    checked={impactAcknowledged}
+                                    disabled={!agentPreview?.acknowledgementToken}
+                                    onChange={(event) => setImpactAcknowledged(event.target.checked)}
+                                    style={{ marginTop: '2px' }}
+                                />
+                                <span>
+                                    I acknowledge the predicted impact before applying this code change.
+                                    {!agentPreview?.acknowledgementToken ? ' (Run “Preview Impact” first)' : ''}
+                                </span>
+                            </label>
+
+                            <label className="flex items-start gap-2 text-xs mt-2" style={{ color: 'var(--text-muted)' }}>
+                                <input
+                                    type="checkbox"
+                                    checked={autoApplyRelatedChanges}
+                                    onChange={(event) => setAutoApplyRelatedChanges(event.target.checked)}
+                                    style={{ marginTop: '2px' }}
+                                />
+                                <span>
+                                    Auto-apply related call-site updates suggested by LLM after save.
+                                </span>
+                            </label>
+                        </div>
+                    )}
 
                     {/* Loading */}
                     {loading && (
                         <div className="flex-1 flex items-center justify-center gap-2 text-sm" style={{ color: 'var(--text-muted)' }}>
                             <Loader2 size={16} className="animate-spin" />
-                            Fetching from GitHub…
+                            Loading file content…
                         </div>
                     )}
 
@@ -1055,32 +1506,55 @@ const FileViewerWithDependencies = () => {
 
                     {/* Code */}
                     {!loading && !error && (
-                        <div className="flex-1 overflow-auto" ref={codeEditorRef}>
-                            <SyntaxHighlighter
-                                language={lang}
-                                style={isDark ? atomOneDark : atomOneLight}
-                                showLineNumbers
-                                lineNumberStyle={{
-                                    minWidth: '3.5em',
-                                    paddingRight: '1.5em',
-                                    color: isDark ? '#4b5563' : '#9ca3af',
-                                    userSelect: 'none',
-                                    fontSize: '0.75rem',
-                                    textAlign: 'right',
-                                }}
-                                customStyle={{
-                                    margin: 0,
-                                    padding: '1rem 0',
-                                    background: 'var(--card)',
-                                    fontSize: '0.8125rem',
-                                    lineHeight: '1.6',
-                                    fontFamily: "'JetBrains Mono', 'Courier New', monospace",
-                                }}
-                                wrapLongLines={false}
-                            >
-                                {code}
-                            </SyntaxHighlighter>
-                        </div>
+                        isEditMode ? (
+                            <div className="flex-1" style={{ background: 'var(--card)' }}>
+                                <textarea
+                                    value={draftCode}
+                                    onChange={(event) => {
+                                        setDraftCode(event.target.value);
+                                        setEditorError('');
+                                    }}
+                                    className="w-full h-full resize-none p-4 code-text"
+                                    style={{
+                                        background: 'var(--card)',
+                                        color: 'var(--text)',
+                                        border: 'none',
+                                        outline: 'none',
+                                        fontSize: '0.8125rem',
+                                        lineHeight: 1.6,
+                                        fontFamily: "'JetBrains Mono', 'Courier New', monospace",
+                                    }}
+                                    spellCheck={false}
+                                />
+                            </div>
+                        ) : (
+                            <div className="flex-1 overflow-auto" ref={codeEditorRef}>
+                                <SyntaxHighlighter
+                                    language={lang}
+                                    style={isDark ? atomOneDark : atomOneLight}
+                                    showLineNumbers
+                                    lineNumberStyle={{
+                                        minWidth: '3.5em',
+                                        paddingRight: '1.5em',
+                                        color: isDark ? '#4b5563' : '#9ca3af',
+                                        userSelect: 'none',
+                                        fontSize: '0.75rem',
+                                        textAlign: 'right',
+                                    }}
+                                    customStyle={{
+                                        margin: 0,
+                                        padding: '1rem 0',
+                                        background: 'var(--card)',
+                                        fontSize: '0.8125rem',
+                                        lineHeight: '1.6',
+                                        fontFamily: "'JetBrains Mono', 'Courier New', monospace",
+                                    }}
+                                    wrapLongLines={false}
+                                >
+                                    {code}
+                                </SyntaxHighlighter>
+                            </div>
+                        )
                     )}
                 </div>
 
@@ -1093,6 +1567,10 @@ const FileViewerWithDependencies = () => {
                         relationsLoading={relationsLoading}
                         relationsError={relationsError}
                         staticRuntimeSummary={staticRuntimeSummary}
+                        agentPreview={agentPreview}
+                        previewLoading={previewImpactLoading || saveEditedFileLoading}
+                        activityEvents={activityEvents}
+                        lastSaveResult={lastSaveResult}
                         loading={depLoading}
                         error={depError}
                         onClear={handleClearSelection}
