@@ -1,0 +1,15 @@
+{
+  "testEnvironment": "node",
+  "transform": {},
+  "testMatch": ["**/tests/**/*.test.js"],
+  "collectCoverageFrom": [
+    "src/**/*.js",
+    "!src/config/**",
+    "!src/**/*.route.js"
+  ],
+  "coveragePathIgnorePatterns": [
+    "/node_modules/"
+  ],
+  "testTimeout": 30000,
+  "verbose": true
+}
