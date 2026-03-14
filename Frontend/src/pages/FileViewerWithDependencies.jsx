@@ -145,6 +145,8 @@ const DependencySnippet = ({ file, snippet, selectedText }) => {
         : [];
 
     const riskLevel = String(personalizedInsight?.riskLevel || '').toUpperCase() || 'UNKNOWN';
+    const impactCategoryRaw = String(personalizedInsight?.impactCategory || '').toUpperCase().replace(/\s+/g, '_');
+    const impactCategory = impactCategoryRaw === 'IMPACT_JAIL' ? 'IMPACT_JAIL' : '';
     const getRiskColor = (risk) => {
         const colors = {
             LOW: '#10b981',
@@ -155,7 +157,7 @@ const DependencySnippet = ({ file, snippet, selectedText }) => {
         return colors[String(risk || '').toUpperCase()] || '#3b82f6';
     };
 
-    const accentColor = getRiskColor(riskLevel);
+    const accentColor = impactCategory === 'IMPACT_JAIL' ? '#ef4444' : getRiskColor(riskLevel);
 
     // Render code with highlighted matches
     const renderHighlightedCode = () => {
@@ -243,7 +245,7 @@ const DependencySnippet = ({ file, snippet, selectedText }) => {
                                 flexShrink: 0,
                             }}
                         >
-                            {riskLevel}
+                            {impactCategory === 'IMPACT_JAIL' ? 'IMPACT JAIL' : riskLevel}
                         </span>
                     )}
                 </div>
