@@ -12,13 +12,6 @@ import {
   seedParsedGraph,
 } from "../db/neo4j.queries.js";
 
-// In-memory storage for the latest scanned graph
-let latestGraphData = {
-  nodes: [],
-  edges: [],
-  summary: null,
-};
-
 const execFileAsync = promisify(execFile);
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -230,15 +223,6 @@ export const postScan = async (req, res, next) => {
 export const getGraph = async (req, res, next) => {
   try {
     const { repoId } = req.params;
-
-    // Backward compatibility: If no repoId, return latestGraphData
-    if (!repoId) {
-      return res.status(200).json({
-        success: true,
-        data: latestGraphData,
-      });
-    }
-
     const graphFilePath = getGraphFilePath(repoId);
 
     if (!fs.existsSync(graphFilePath)) {
@@ -377,73 +361,29 @@ export const getMetrics = async (req, res, next) => {
  */
 export const getImpact = async (req, res, next) => {
   try {
-    const nodeId = req.query.nodeId || req.query.node;
-    const scanId = req.query.scanId || null;
+    const node = _req.query.node;
+    const scanId = _req.query.scanId || null;
 
-    if (!nodeId || typeof nodeId !== "string") {
+    if (!node || typeof node !== "string") {
       return res.status(400).json({
         success: false,
-        message: "Query param 'nodeId' (or 'node') is required",
+        message: "Query param 'node' is required",
       });
     }
 
-    // Try Neo4j first if scanId is provided or implied
-    if (scanId) {
-      const impactedNodesRaw = await getImpactedNodesByNode(nodeId, scanId);
-      const impactedNodes = impactedNodesRaw.map((item) => ({
-        ...item,
-        hops: normalizeNeo4jNumber(item.hops),
-      }));
-
-      return res.status(200).json({
-        success: true,
-        data: {
-          node: nodeId,
-          scanId,
-          count: impactedNodes.length,
-          impactedNodes,
-        },
-      });
-    }
-
-    // Fallback to in-memory BFS on latestGraphData
-    const { edges } = latestGraphData;
-    const directImpact = new Set();
-
-    edges.forEach((edge) => {
-      if (edge.source === nodeId) directImpact.add(edge.target);
-      if (edge.target === nodeId) directImpact.add(edge.source);
-    });
-
-    const visited = new Set([nodeId, ...directImpact]);
-    const queue = [...directImpact];
-    const transitiveImpact = new Set();
-
-    while (queue.length > 0) {
-      const current = queue.shift();
-      edges.forEach((edge) => {
-        const neighbor =
-          edge.source === current
-            ? edge.target
-            : edge.target === current
-            ? edge.source
-            : null;
-
-        if (neighbor && !visited.has(neighbor)) {
-          visited.add(neighbor);
-          transitiveImpact.add(neighbor);
-          queue.push(neighbor);
-        }
-      });
-    }
+    const impactedNodesRaw = await getImpactedNodesByNode(node, scanId);
+    const impactedNodes = impactedNodesRaw.map((item) => ({
+      ...item,
+      hops: normalizeNeo4jNumber(item.hops),
+    }));
 
     res.status(200).json({
       success: true,
       data: {
-        node: nodeId,
-        directImpact: [...directImpact],
-        transitiveImpact: [...transitiveImpact],
-        summary: `Impact analysis for node ${nodeId} completed across ${directImpact.size} direct and ${transitiveImpact.size} transitive connections.`,
+        node,
+        scanId,
+        count: impactedNodes.length,
+        impactedNodes,
       },
     });
   } catch (error) {

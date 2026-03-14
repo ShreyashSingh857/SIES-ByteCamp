@@ -241,3 +241,130 @@ export async function getApiContracts(scanId) {
     await session.close();
   }
 }
+
+// Get all CALLS_API edges for a scan
+export async function getApiCalls(scanId) {
+  const session = getSession();
+  try {
+    const result = await session.run(
+      `MATCH (caller)-[:CALLS_API]->(api:API)
+       WHERE caller.scanId = $scanId
+       RETURN caller.id AS callerId, caller.name AS callerName,
+              api.id AS apiId, api.name AS apiName`,
+      { scanId }
+    );
+    return result.records.map(r => r.toObject());
+  } finally {
+    await session.close();
+  }
+}
+
+// Get all READS_DB edges for a scan
+export async function getDbReads(scanId) {
+  const session = getSession();
+  try {
+    const result = await session.run(
+      `MATCH (reader)-[:READS_DB]->(field:DBField)
+       WHERE reader.scanId = $scanId
+       RETURN reader.id AS readerId, reader.name AS readerName,
+              field.id AS fieldId, field.fieldName AS fieldName`,
+      { scanId }
+    );
+    return result.records.map(r => r.toObject());
+  } finally {
+    await session.close();
+  }
+}
+
+// Generic impact query by node identity text (name/fieldName/tableName/path)
+export async function getImpactedNodesByNode(node, scanId) {
+  const session = getSession();
+  try {
+    const result = await session.run(
+      `MATCH (m)
+       WHERE (m.id = $node OR m.name = $node OR m.fieldName = $node OR m.tableName = $node OR m.path = $node)
+         AND ($scanId IS NULL OR m.scanId = $scanId)
+       WITH DISTINCT m
+       MATCH path = (n)-[*1..6]->(m)
+       WHERE ($scanId IS NULL OR n.scanId = $scanId)
+         AND NOT n:Scan
+       RETURN n.id AS id,
+              COALESCE(n.name, n.fieldName, n.tableName, n.path, n.id) AS name,
+              labels(n)[0] AS type,
+              min(length(path)) AS hops
+       ORDER BY hops ASC
+       LIMIT 200`,
+      { node, scanId: scanId || null }
+    );
+    return result.records.map((r) => r.toObject());
+  } finally {
+    await session.close();
+  }
+}
+
+export async function getGraphMetrics(scanId) {
+  const session = getSession();
+  try {
+    const dependencyRelTypes = ["IMPORTS", "CALLS", "CONSUMES_API", "USES_TABLE", "USES_FIELD", "EXPOSES_API"];
+    const result = await session.run(
+      `CALL {
+         WITH $scanId AS scanId
+         MATCH (:Service {scanId: scanId})
+         RETURN count(*) AS totalServices
+       }
+       CALL {
+         WITH $scanId AS scanId, $dependencyRelTypes AS dependencyRelTypes
+         MATCH (a)-[r]->(b)
+         WHERE a.scanId = scanId AND b.scanId = scanId AND type(r) IN dependencyRelTypes
+         RETURN count(r) AS totalDependencies
+       }
+       RETURN totalServices, totalDependencies`,
+      { scanId, dependencyRelTypes }
+    );
+    return result.records[0]?.toObject() || { totalServices: 0, totalDependencies: 0 };
+  } finally {
+    await session.close();
+  }
+}
+
+export async function seedParsedGraph({ scanNode, serviceNode, files, functions, containsEdges, dependencyEdges }) {
+  const session = getSession();
+  try {
+    await session.executeWrite(async (tx) => {
+      await tx.run(
+        `MERGE (scan:Scan {id: $scan.id})
+         SET scan.status = $scan.status,
+             scan.repoUrls = $scan.repoUrls,
+             scan.fileCount = $scan.fileCount,
+             scan.nodeCount = $scan.nodeCount,
+             scan.edgeCount = $scan.edgeCount,
+             scan.durationMs = $scan.durationMs,
+             scan.userId = $scan.userId,
+             scan.createdAt = datetime($scan.createdAt),
+             scan.completedAt = datetime($scan.completedAt)
+         MERGE (svc:Service {id: $service.id})
+         SET svc += $service
+         MERGE (scan)-[:CONTAINS]->(svc)`,
+        { scan: scanNode, service: serviceNode }
+      );
+
+      await tx.run(`UNWIND $files AS f MERGE (node:File {id: f.id}) SET node += f`, { files });
+      await tx.run(`UNWIND $functions AS f MERGE (node:Function {id: f.id}) SET node += f`, { functions });
+      await tx.run(
+        `UNWIND $containsEdges AS e
+         MATCH (a {id: e.fromId}), (b {id: e.toId})
+         MERGE (a)-[:CONTAINS]->(b)`,
+        { containsEdges }
+      );
+      await tx.run(
+        `UNWIND $dependencyEdges AS e
+         MATCH (a {id: e.fromId}), (b {id: e.toId})
+         FOREACH (_ IN CASE WHEN e.type = 'IMPORTS' THEN [1] ELSE [] END | MERGE (a)-[:IMPORTS]->(b))
+         FOREACH (_ IN CASE WHEN e.type = 'CALLS' THEN [1] ELSE [] END | MERGE (a)-[:CALLS]->(b))`,
+        { dependencyEdges }
+      );
+    });
+  } finally {
+    await session.close();
+  }
+}
