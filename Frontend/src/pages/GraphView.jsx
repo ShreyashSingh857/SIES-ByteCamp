@@ -6,13 +6,13 @@ import { Filter, RefreshCw, ZoomIn, ZoomOut, Maximize2, Info, Search } from 'luc
 import { setSelectedNode, clearSelection, setGraphData, setFilterLangs, setFilterTypes } from '../store/index';
 import { useGetGraphQuery } from '../store/slices/apiSlice';
 import { EDGE_TYPE_CONFIG } from '../assets/mockdata';
-import serviceIcon from '../assets/Icons/Service.png';
-import fileIcon from '../assets/Icons/File.png';
-import functionIcon from '../assets/Icons/Function.png';
-import apiEndpointIcon from '../assets/Icons/APIEndpoint.png';
-import dbTableIcon from '../assets/Icons/DBTable.png';
-import dbFieldIcon from '../assets/Icons/DBField.png';
-import apiContractIcon from '../assets/Icons/APIContract.png';
+import serviceIcon from '../assets/Icons/Service.svg';
+import fileIcon from '../assets/Icons/File.svg';
+import functionIcon from '../assets/Icons/Function.svg';
+import apiEndpointIcon from '../assets/Icons/APIEndpoint.svg';
+import dbTableIcon from '../assets/Icons/DBTable.svg';
+import dbFieldIcon from '../assets/Icons/DBField.svg';
+import apiContractIcon from '../assets/Icons/APIContract.svg';
 import { buildDisplayGraph, computeNodeSizesByDepth, getDefaultVisibleTypes, normalizeEdgeType, normalizeNodeType } from './graphViewUtils';
 
 const GRAPH_NODE_TYPE_CONFIG = {
@@ -107,6 +107,7 @@ const GraphView = () => {
   const layoutKeyRef = useRef('');
 
   const selectedNode      = useSelector((s) => s.graph.selectedNode);
+  const themeMode         = useSelector((s) => s.theme.mode);
   const filterTypes       = useSelector((s) => s.graph.filterTypes);
   const filterLangs       = useSelector((s) => s.graph.filterLangs);
   const currentRepoId     = useSelector((s) => s.graph.currentRepoId);
@@ -236,21 +237,23 @@ const GraphView = () => {
     const z = Math.max(0.2, Math.min(3, viewportZoom));
     const major = Math.max(36, Math.round(80 * z));
     const minor = Math.max(10, Math.round(20 * z));
-    const majorAlpha = Math.min(0.14, 0.05 + z * 0.02);
-    const minorAlpha = Math.min(0.08, 0.02 + z * 0.015);
+    const isDark = themeMode === 'dark';
+    const majorAlpha = isDark ? Math.min(0.14, 0.05 + z * 0.02) : Math.min(0.22, 0.08 + z * 0.03);
+    const minorAlpha = isDark ? Math.min(0.08, 0.02 + z * 0.015) : Math.min(0.12, 0.04 + z * 0.02);
+    const gridRgb = isDark ? '59,130,246' : '148,163,184';
 
     return {
-      backgroundColor: '#020817',
+      backgroundColor: isDark ? '#020817' : '#f8fafc',
       backgroundImage:
-        `linear-gradient(rgba(59,130,246,${majorAlpha}) 1px, transparent 1px), ` +
-        `linear-gradient(90deg, rgba(59,130,246,${majorAlpha}) 1px, transparent 1px), ` +
-        `linear-gradient(rgba(59,130,246,${minorAlpha}) 1px, transparent 1px), ` +
-        `linear-gradient(90deg, rgba(59,130,246,${minorAlpha}) 1px, transparent 1px)`,
+        `linear-gradient(rgba(${gridRgb},${majorAlpha}) 1px, transparent 1px), ` +
+        `linear-gradient(90deg, rgba(${gridRgb},${majorAlpha}) 1px, transparent 1px), ` +
+        `linear-gradient(rgba(${gridRgb},${minorAlpha}) 1px, transparent 1px), ` +
+        `linear-gradient(90deg, rgba(${gridRgb},${minorAlpha}) 1px, transparent 1px)`,
       backgroundSize: `${major}px ${major}px, ${major}px ${major}px, ${minor}px ${minor}px, ${minor}px ${minor}px`,
-      border: '1px solid #1e293b',
+      border: isDark ? '1px solid #1e293b' : '1px solid #cbd5e1',
       minHeight: 0,
     };
-  }, [viewportZoom]);
+  }, [viewportZoom, themeMode]);
 
 
   useEffect(() => {
