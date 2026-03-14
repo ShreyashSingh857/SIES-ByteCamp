@@ -423,3 +423,192 @@ export async function seedParsedGraph({ scanNode, serviceNode, files, functions,
     await session.close();
   }
 }
+
+/**
+ * @desc Find all nodes in Neo4j that match a symbol/text
+ * @param symbolOrText The text/symbol to search for
+ * @param scanId The scan ID
+ * @returns Array of matching nodes with their properties
+ */
+export async function findSymbolOccurrences(symbolOrText, scanId) {
+  const session = getSession();
+  try {
+    const result = await session.run(
+      `MATCH (n)
+       WHERE n.scanId = $scanId
+         AND (
+           toLower(n.name) CONTAINS toLower($search)
+           OR toLower(n.path) CONTAINS toLower($search)
+           OR toLower(n.fieldName) CONTAINS toLower($search)
+           OR toLower(n.tableName) CONTAINS toLower($search)
+           OR toLower(n.qualifiedName) CONTAINS toLower($search)
+           OR toLower(n.importPath) CONTAINS toLower($search)
+         )
+       RETURN 
+         n.id AS id,
+         COALESCE(n.name, n.fieldName, n.tableName, n.path, n.qualifiedName) AS displayName,
+         labels(n)[0] AS type,
+         n.scanId AS scanId,
+         n.fileId AS fileId,
+         n.path AS filePath,
+         n.lineStart AS lineNumber,
+         COALESCE(n.importPath, n.method, '') AS context,
+         properties(n) AS properties
+       LIMIT 100`,
+      { search: symbolOrText, scanId }
+    );
+    return result.records.map(r => r.toObject());
+  } finally {
+    await session.close();
+  }
+}
+
+/**
+ * @desc Get all dependencies (incoming and outgoing) for a specific node
+ * @param nodeId The node ID
+ * @param scanId The scan ID
+ * @returns Object with incoming and outgoing dependencies
+ */
+export async function getNodeDependencies(nodeId, scanId) {
+  const session = getSession();
+  try {
+    // Get outgoing dependencies
+    const outgoingResult = await session.run(
+      `MATCH (n {id: $nodeId})-[r]->(target)
+       WHERE n.scanId = $scanId AND target.scanId = $scanId
+       RETURN 
+         n.id AS sourceId,
+         COALESCE(n.name, n.path) AS sourceName,
+         labels(n)[0] AS sourceType,
+         type(r) AS relationshipType,
+         target.id AS targetId,
+         COALESCE(target.name, target.path, target.fieldName, target.tableName) AS targetName,
+         labels(target)[0] AS targetType,
+         properties(r) AS relationshipProps`,
+      { nodeId, scanId }
+    );
+
+    // Get incoming dependencies  
+    const incomingResult = await session.run(
+      `MATCH (source)-[r]->(n {id: $nodeId})
+       WHERE source.scanId = $scanId AND n.scanId = $scanId
+       RETURN 
+         source.id AS sourceId,
+         COALESCE(source.name, source.path) AS sourceName,
+         labels(source)[0] AS sourceType,
+         type(r) AS relationshipType,
+         n.id AS targetId,
+         COALESCE(n.name, n.path, n.fieldName, n.tableName) AS targetName,
+         labels(n)[0] AS targetType,
+         properties(r) AS relationshipProps`,
+      { nodeId, scanId }
+    );
+
+    return {
+      outgoing: outgoingResult.records.map(r => r.toObject()),
+      incoming: incomingResult.records.map(r => r.toObject()),
+    };
+  } finally {
+    await session.close();
+  }
+}
+
+/**
+ * @desc Get the complete dependency chain/impact of a symbol
+ * @param symbolName The symbol to trace
+ * @param scanId The scan ID
+ * @param maxDepth Maximum depth to traverse (default 5)
+ * @returns Complete dependency graph with nodes and edges
+ */
+export async function traceSymbolDependencies(symbolName, scanId, maxDepth = 5) {
+  const session = getSession();
+  try {
+    // Find all occurrences of the symbol
+    const symbolResult = await session.run(
+      `MATCH (n)
+       WHERE n.scanId = $scanId
+         AND (toLower(n.name) = toLower($search)
+           OR toLower(n.fieldName) = toLower($search))
+       RETURN COLLECT(n.id) AS nodeIds`,
+      { search: symbolName, scanId }
+    );
+
+    const nodeIds = symbolResult.records[0]?.get('nodeIds') || [];
+
+    if (nodeIds.length === 0) {
+      return { nodes: [], edges: [] };
+    }
+
+    // Get complete dependency chain for all found nodes
+    // Note: maxDepth must be a literal number, not a parameter
+    const depthValue = Math.min(Math.max(1, maxDepth), 10); // Limit to 1-10
+    const chainResult = await session.run(
+      `MATCH (n)-[r*1..${depthValue}]-(m)
+       WHERE n.id IN $nodeIds AND n.scanId = $scanId AND m.scanId = $scanId
+       WITH DISTINCT m, r
+       RETURN COLLECT(DISTINCT m) AS relatedNodes, COLLECT(DISTINCT r) AS relationships`,
+      { nodeIds, scanId }
+    );
+
+    if (chainResult.records.length === 0) {
+      return { nodes: [], edges: [] };
+    }
+
+    const record = chainResult.records[0];
+    const nodes = record.get('relatedNodes').map(n => ({
+      id: n.identity.toString(),
+      name: n.properties.name || n.properties.path,
+      type: n.labels[0],
+      properties: n.properties,
+    }));
+
+    const relationships = record.get('relationships') || [];
+    const edges = relationships.map(r => ({
+      id: r.identity.toString(),
+      source: r.start.toString(),
+      target: r.end.toString(),
+      type: r.type,
+      properties: r.properties,
+    }));
+
+    return { nodes, edges };
+  } finally {
+    await session.close();
+  }
+}
+
+/**
+ * @desc Get file and function references that use a specific symbol
+ * @param symbolName The symbol name to search for
+ * @param scanId The scan ID
+ * @returns Array of files and functions that reference this symbol
+ */
+export async function getSymbolReferences(symbolName, scanId) {
+  const session = getSession();
+  try {
+    const result = await session.run(
+      `MATCH (file:File)<-[:CONTAINS]-(func:Function)
+       WHERE file.scanId = $scanId
+         AND (
+           func.name CONTAINS $search
+           OR file.path CONTAINS $search
+         )
+       RETURN DISTINCT
+         file.path AS filePath,
+         file.id AS fileId,
+         COLLECT(DISTINCT {
+           name: func.name,
+           id: func.id,
+           lineStart: func.lineStart,
+           lineEnd: func.lineEnd,
+           qualifiedName: func.qualifiedName
+         }) AS functions,
+         COUNT(DISTINCT func) AS functionCount
+       ORDER BY functionCount DESC`,
+      { search: symbolName, scanId }
+    );
+    return result.records.map(r => r.toObject());
+  } finally {
+    await session.close();
+  }
+}

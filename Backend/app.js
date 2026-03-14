@@ -16,6 +16,7 @@ if (isNeo4jConfigured) {
 // Route imports
 import helpRouter from "./src/routes/help.routes.js";
 import scanRouter from "./src/routes/scan.routes.js";
+import importRouter from "./src/routes/import.routes.js";
 
 const app = express();
 
@@ -33,6 +34,7 @@ app.use(cookieParser());
 // ─── Routes ───────────────────────────────────────────────────────────────────
 app.use("/api/help", helpRouter);
 app.use("/api", scanRouter);
+app.use("/api/import", importRouter);
 
 // ─── Health check ─────────────────────────────────────────────────────────────
 app.get("/", (_req, res) => {

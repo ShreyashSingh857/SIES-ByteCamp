@@ -79,7 +79,22 @@ const buildRawUrl = (repoUrl, branch, filePath) => {
 
 const DependencySnippet = ({ file, snippet, isDark, selectedText }) => {
     const [expanded, setExpanded] = useState(true);
-    const lang = getLanguage(file.path);
+    const lang = getLanguage(file.path || '');
+
+    // Get badge color based on dependency type
+    const getTypeColor = (type) => {
+        const typeColors = {
+            'CALLS': '#8b5cf6',
+            'IMPORTS': '#06b6d4',
+            'USES_TABLE': '#f59e0b',
+            'USES_FIELD': '#ec4899',
+            'CONSUMES_API': '#10b981',
+            'llm-insight': '#3b82f6',
+            'file-occurrence': '#6366f1',
+            'dependency': '#a78bfa',
+        };
+        return typeColors[type] || '#6b7280';
+    };
 
     // Render code with highlighted matches
     const renderHighlightedCode = () => {
@@ -88,7 +103,6 @@ const DependencySnippet = ({ file, snippet, isDark, selectedText }) => {
         }
 
         try {
-            // Split snippet into lines
             const lines = snippet.split('\n');
 
             return lines.map((line, idx) => {
@@ -129,7 +143,7 @@ const DependencySnippet = ({ file, snippet, isDark, selectedText }) => {
         <div
             className="border-l-2 transition-all"
             style={{
-                borderColor: '#3b82f6',
+                borderColor: getTypeColor(file.type),
                 background: 'var(--bg-muted)',
                 borderRadius: '0.375rem',
                 overflow: 'hidden',
@@ -149,13 +163,25 @@ const DependencySnippet = ({ file, snippet, isDark, selectedText }) => {
                 onMouseLeave={(e) => { e.currentTarget.style.background = 'var(--card)'; }}
             >
                 <div className="flex items-center gap-2 min-w-0">
-                    <FileCode2 size={14} style={{ color: '#3b82f6', flexShrink: 0 }} />
+                    <FileCode2 size={14} style={{ color: getTypeColor(file.type), flexShrink: 0 }} />
                     <code className="text-xs truncate" style={{ color: 'var(--text)', fontFamily: "'JetBrains Mono'" }}>
-                        {file.path}
+                        {file.displayName || file.path}
                     </code>
-                    {file.lineNumber && (
-                        <span className="text-xs px-1.5 py-0.5 rounded" style={{ background: 'var(--bg-muted)', color: '#3b82f6' }}>
+                    {file.lineNumber > 0 && (
+                        <span className="text-xs px-1.5 py-0.5 rounded" style={{ background: 'var(--bg-muted)', color: getTypeColor(file.type) }}>
                             L{file.lineNumber}
+                        </span>
+                    )}
+                    {file.type && (
+                        <span
+                            className="text-xs px-2 py-0.5 rounded font-mono"
+                            style={{
+                                background: getTypeColor(file.type),
+                                color: '#fff',
+                                fontSize: '0.65rem',
+                            }}
+                        >
+                            {file.type}
                         </span>
                     )}
                 </div>
@@ -186,13 +212,26 @@ const DependencySnippet = ({ file, snippet, isDark, selectedText }) => {
                         style={{
                             margin: 0,
                             padding: '0.75rem',
-                            color: 'var(--text)',
+                            color: file.type === 'llm-insight' ? '#3b82f6' : 'var(--text)',
                             whiteSpace: 'pre-wrap',
                             wordBreak: 'break-word',
                             fontFamily: "'JetBrains Mono', 'Courier New', monospace",
                         }}
                     >
-                        {renderHighlightedCode()}
+                        {file.type === 'llm-insight' && snippet.startsWith('{') ? (
+                            <div style={{ color: 'var(--text)' }}>
+                                {Object.entries(JSON.parse(snippet)).map(([key, value]) => (
+                                    <div key={key} style={{ marginBottom: '0.5rem' }}>
+                                        <strong style={{ color: '#3b82f6' }}>{key}:</strong>
+                                        <div style={{ marginLeft: '1rem', color: 'var(--text-muted)' }}>
+                                            {typeof value === 'string' ? value : JSON.stringify(value, null, 2)}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        ) : (
+                            renderHighlightedCode()
+                        )}
                     </pre>
                 </div>
             )}
@@ -411,33 +450,105 @@ const FileViewerWithDependencies = () => {
             try {
                 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
-                // Query the backend to find where this text appears
-                const response = await fetch(`${API_URL}/analyze/dependencies`, {
+                // Try to get scanId for LLM-enhanced analysis
+                let scanId = localStorage.getItem('currentScanId');
+
+                if (!scanId) {
+                    // Fallback: use basic file-based analysis
+                    const response = await fetch(`${API_URL}/analyze/dependencies`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            repoId: currentRepoId,
+                            currentFile: filePath,
+                            selectedText: selectedText,
+                        }),
+                    });
+
+                    if (!response.ok) {
+                        throw new Error('Failed to analyze dependencies');
+                    }
+
+                    const result = await response.json();
+                    const deps = result.data?.dependencies || [];
+
+                    setDependencies(
+                        deps.map((dep) => ({
+                            path: dep.filePath,
+                            lineNumber: dep.lineNumber,
+                            snippet: dep.codeSnippet || '',
+                            type: 'file-occurrence',
+                        }))
+                    );
+                    return;
+                }
+
+                // Use LLM-enhanced analysis with Neo4j
+                const response = await fetch(`${API_URL}/analyze/dependencies-llm`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         repoId: currentRepoId,
+                        scanId: scanId,
                         currentFile: filePath,
                         selectedText: selectedText,
-                        context: 'file-analysis',
+                        withLLM: true,
                     }),
                 });
 
                 if (!response.ok) {
-                    throw new Error('Failed to analyze dependencies');
+                    throw new Error('Failed to analyze dependencies with LLM');
                 }
 
                 const result = await response.json();
-                const deps = result.data?.dependencies || [];
+                const data = result.data || {};
 
-                // Format dependencies for display
-                const formatted = deps.map((dep) => ({
-                    path: dep.filePath,
-                    lineNumber: dep.lineNumber,
-                    snippet: dep.codeSnippet || '',
-                }));
+                // Format enriched dependencies
+                const enrichedDeps = [];
 
-                setDependencies(formatted);
+                // Add symbol occurrences
+                if (data.symbolOccurrences) {
+                    enrichedDeps.push(
+                        ...data.symbolOccurrences.map((occ) => ({
+                            id: occ.id,
+                            path: occ.filePath,
+                            lineNumber: occ.lineNumber,
+                            type: occ.type,
+                            displayName: occ.displayName,
+                            snippet: `Located at ${occ.context || 'this location'}`,
+                        }))
+                    );
+                }
+
+                // Add dependencies
+                if (data.dependencies?.perNode) {
+                    Object.entries(data.dependencies.perNode).forEach(([nodeId, deps]) => {
+                        [...deps.incoming, ...deps.outgoing].forEach(dep => {
+                            enrichedDeps.push({
+                                id: `${nodeId}-${dep.targetId}`,
+                                path: dep.targetName,
+                                lineNumber: 0,
+                                type: 'dependency',
+                                displayName: `${dep.relationshipType}: ${dep.targetName}`,
+                                snippet: `${dep.sourceType} → [${dep.relationshipType}] → ${dep.targetType}`,
+                            });
+                        });
+                    });
+                }
+
+                // Add LLM insights
+                if (data.llmAnalysis?.analysis) {
+                    enrichedDeps.push({
+                        id: 'llm-analysis',
+                        path: 'AI Analysis',
+                        lineNumber: 0,
+                        type: 'llm-insight',
+                        displayName: 'LLM Dependency Analysis',
+                        snippet: JSON.stringify(data.llmAnalysis.analysis, null, 2),
+                    });
+                }
+
+                setDependencies(enrichedDeps);
             } catch (err) {
                 setDepError(err.message || 'Error analyzing dependencies');
                 setDependencies([]);
@@ -446,7 +557,7 @@ const FileViewerWithDependencies = () => {
             }
         };
 
-        const timer = setTimeout(queryDependencies, 300); // debounce
+        const timer = setTimeout(queryDependencies, 300);
         return () => clearTimeout(timer);
     }, [selectedText, currentRepoId, filePath]);
 

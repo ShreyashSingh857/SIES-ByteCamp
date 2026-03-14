@@ -3208,7 +3208,7 @@
   ],
   "llmInsights": {
     "status": "ok",
-    "generatedAt": "2026-03-14T17:28:32.618Z",
+    "generatedAt": "2026-03-14T18:04:39.652Z",
     "model": "Qwen/Qwen3-0.6B",
     "modeUsed": "chat",
     "contextMeta": {
@@ -3220,110 +3220,151 @@
         "from": "file:eslint.config.js",
         "to": "module:@eslint/js",
         "type": "IMPORTS",
-        "reason": "eslint is a core ESLint plugin that provides linting capabilities",
+        "reason": "eslint.config.js is a file that imports @eslint/js and other modules",
+        "confidence": 0
+      },
+      {
+        "from": "file:eslint.config.js",
+        "to": "module:globals",
+        "type": "IMPORTS",
+        "reason": "eslint.config.js imports the 'globals' module",
         "confidence": 0
       },
       {
         "from": "module:@eslint/js",
-        "to": "module:globals",
+        "to": "module:eslint-plugin-react-hooks",
         "type": "IMPORTS",
-        "reason": "eslint is a global tool that can be used across multiple files",
+        "reason": "eslint-plugin-react-hooks is a dependency that imports @eslint/js",
         "confidence": 0
       },
       {
-        "from": "module:eslint-plugin-react-hooks",
+        "from": "module:eslint-plugin-react-refresh",
         "to": "module:eslint/config",
         "type": "IMPORTS",
-        "reason": "eslint is used in the 'eslint/config' module for configuration",
-        "confidence": 0
-      },
-      {
-        "from": "symbol:defineConfig",
-        "to": "module:@eslint/js",
-        "type": "CALLS",
-        "reason": "eslint is called in the 'defineConfig' function",
+        "reason": "eslint-plugin-react-refresh is a dependency that imports eslint/config",
         "confidence": 0
       }
     ],
     "apiContracts": [
       {
-        "consumer": "eslint",
-        "endpoint": "eslint",
-        "provider": "eslint",
-        "reason": "eslint is used to lint code",
+        "consumer": "file:src/lib/utils.js",
+        "endpoint": "module:clsx",
+        "provider": "module:tailwind-merge",
+        "reason": "clsx is a module that uses tailwind-merge",
         "confidence": 0
       },
       {
-        "consumer": "axios",
-        "endpoint": "axios",
-        "provider": "axios",
-        "reason": "axios is a library for making HTTP requests",
+        "consumer": "module:clsx",
+        "endpoint": "symbol:twMerge",
+        "provider": "symbol:clsx",
+        "reason": "twMerge is a symbol that uses clsx",
+        "confidence": 0
+      },
+      {
+        "consumer": "module:tailwind-merge",
+        "endpoint": "symbol:twMerge",
+        "provider": "symbol:clsx",
+        "reason": "twMerge is a symbol that uses clsx",
         "confidence": 0
       }
     ],
     "databaseLineage": [
       {
-        "apiOrService": "eslint",
-        "dbEntity": "eslint",
-        "field": "import",
+        "apiOrService": "module:@reduxjs/toolkit",
+        "dbEntity": "store",
+        "field": "store",
         "relationship": "READS",
-        "reason": "eslint is imported from a database module",
+        "reason": "store is a database that reads from the Redux store",
         "confidence": 0
       },
       {
-        "apiOrService": "axios",
-        "dbEntity": "axios",
-        "field": "import",
-        "relationship": "READS",
-        "reason": "axios is imported from a database module",
+        "apiOrService": "module:@reduxjs/toolkit",
+        "dbEntity": "store",
+        "field": "store",
+        "relationship": "USES",
+        "reason": "store uses the Redux store to manage the state",
+        "confidence": 0
+      },
+      {
+        "apiOrService": "module:@reduxjs/toolkit",
+        "dbEntity": "store",
+        "field": "store",
+        "relationship": "USES",
+        "reason": "store uses the Redux store to manage the state",
+        "confidence": 0
+      },
+      {
+        "apiOrService": "module:@reduxjs/toolkit",
+        "dbEntity": "store",
+        "field": "store",
+        "relationship": "USES",
+        "reason": "store uses the Redux store to manage the state",
         "confidence": 0
       }
     ],
     "impactPredictions": [
       {
-        "changeNode": "file:eslint.config.js",
-        "impacted": [],
-        "impact": "The configuration file may affect linting rules",
-        "reason": "eslint is used in the configuration file",
+        "changeNode": "function:src/store/slices/graphSlice.js#computeImpact",
+        "impacted": [
+          "graphSlice"
+        ],
+        "impact": "The change in the graph slice affects the graph's data processing",
+        "reason": "The function computeImpact is called in the graph slice, indicating a change in the graph's logic",
+        "confidence": 0
+      },
+      {
+        "changeNode": "function:src/store/slices/graphSlice.js#setSelectedNode",
+        "impacted": [
+          "graphSlice"
+        ],
+        "impact": "The change in the selected node affects the graph's visual representation",
+        "reason": "The function setSelectedNode is called in the graph slice, indicating a change in the graph's visual state",
         "confidence": 0
       }
     ],
     "serviceRelationshipAnalysis": [
       {
-        "service": "axios",
+        "service": "module:axios",
         "dependsOn": [
-          "eslint",
-          "eslint-plugin-react-hooks",
-          "eslint-plugin-react-refresh"
+          "module:@reduxjs/toolkit/query/react"
         ],
         "usedBy": [
-          "module:axios",
-          "symbol:use",
-          "symbol:getItem"
+          "module:@reduxjs/toolkit"
         ],
         "criticality": "LOW",
-        "reason": "axios is a library and not a service"
+        "reason": "The axios module depends on the Redux store, which is a low-criticality service"
+      },
+      {
+        "service": "symbol:use",
+        "dependsOn": [
+          "symbol:use"
+        ],
+        "usedBy": [
+          "symbol:use"
+        ],
+        "criticality": "LOW",
+        "reason": "The use symbol depends on the use symbol, indicating a low-criticality relationship"
       }
     ],
     "explanations": [
       {
         "nodeId": "file:eslint.config.js",
-        "text": "eslint is a core tool used for code linting"
-      }
-    ],
-    "architectureSummary": "The architecture includes the ESLint configuration, axios library, and various modules for handling dependencies and services. The impact predictions suggest that changes to these modules may affect the application's functionality.",
-    "assumptions": [
-      "The dependencies are inferred from the graph context",
-      "The API contracts are based on the graph's imports"
-    ],
-    "suggestedNewEdges": [
+        "text": "eslint.config.js is a file that imports @eslint/js and other modules, indicating its role as a dependency"
+      },
       {
-        "from": "symbol:defineConfig",
-        "to": "module:@eslint/js",
-        "type": "CALLS",
-        "reason": "eslint is called in the 'defineConfig' function",
-        "confidence": 0
+        "nodeId": "module:@eslint/js",
+        "text": "eslint-plugin-react-hooks is a dependency that imports @eslint/js, indicating its role as a dependency"
+      },
+      {
+        "nodeId": "symbol:twMerge",
+        "text": "twMerge is a symbol that uses clsx, indicating its role as a dependency"
       }
-    ]
+    ],
+    "architectureSummary": "The architecture includes dependencies such as @eslintjs, @reduxjs/toolkit, and @tailwindcss. The database is managed through the Redux store, and the graph logic is influenced by the computeImpact and setSelectedNode functions.",
+    "assumptions": [
+      "Certain relationships are inferred based on the provided graph but may require additional validation",
+      "Some dependencies and relationships are assumed to be present based on the graph structure"
+    ],
+    "suggestedNewEdges": []
   }
 }

@@ -11,7 +11,16 @@ import {
   getGraphMetrics,
   setupDatabaseSchema,
   seedParsedGraph,
+  findSymbolOccurrences,
+  getNodeDependencies,
+  traceSymbolDependencies,
+  getSymbolReferences,
 } from "../db/neo4j.queries.js";
+import {
+  analyzeDependenciesWithLLM,
+  generateArchitectureSummary,
+  inferImplicitDependencies,
+} from "../services/llm.service.js";
 
 const execFileAsync = promisify(execFile);
 const __filename = fileURLToPath(import.meta.url);
@@ -598,6 +607,129 @@ export const analyzeDependencies = async (req, res, next) => {
       },
     });
   } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * @desc    Analyze dependencies using Neo4j + LLM intelligence
+ * @route   POST /api/analyze/dependencies-llm
+ * @access  Public
+ */
+export const analyzeDependenciesWithIntelligence = async (req, res, next) => {
+  try {
+    const { repoId, scanId, currentFile, selectedText, withLLM = true } = req.body;
+
+    if (!selectedText) {
+      return res.status(400).json({
+        success: false,
+        message: "selectedText is required",
+      });
+    }
+
+    if (!scanId) {
+      return res.status(400).json({
+        success: false,
+        message: "scanId is required for Neo4j analysis",
+      });
+    }
+
+    // Step 1: Find symbol occurrences in Neo4j
+    let symbolOccurrences = [];
+    try {
+      symbolOccurrences = await findSymbolOccurrences(selectedText, scanId);
+    } catch (err) {
+      console.warn("Neo4j symbol search failed:", err.message);
+      // Continue with empty results if Neo4j query fails
+    }
+
+    if (symbolOccurrences.length === 0) {
+      return res.status(200).json({
+        success: true,
+        data: {
+          selectedText,
+          scanId,
+          symbolOccurrences: [],
+          dependencies: [],
+          llmAnalysis: withLLM ? { status: 'skipped', message: 'No occurrences found' } : null,
+          message: "No symbol occurrences found in database",
+        },
+      });
+    }
+
+    // Step 2: Get dependencies for each occurrence
+    const dependencyMap = {};
+    for (const occurrence of symbolOccurrences) {
+      try {
+        const deps = await getNodeDependencies(occurrence.id, scanId);
+        dependencyMap[occurrence.id] = deps;
+      } catch (err) {
+        console.warn(`Failed to get dependencies for ${occurrence.id}:`, err.message);
+        dependencyMap[occurrence.id] = { incoming: [], outgoing: [] };
+      }
+    }
+
+    // Step 3: Trace complete dependency chains
+    let symbolDependencies = {};
+    try {
+      symbolDependencies = await traceSymbolDependencies(selectedText, scanId, 4);
+    } catch (err) {
+      console.warn("Failed to trace symbol dependencies:", err.message);
+      symbolDependencies = { nodes: [], edges: [] };
+    }
+
+    // Step 4: Get symbol references
+    let references = [];
+    try {
+      references = await getSymbolReferences(selectedText, scanId);
+    } catch (err) {
+      console.warn("Failed to get symbol references:", err.message);
+    }
+
+    // Step 5: Use LLM to analyze if requested
+    let llmAnalysis = null;
+    if (withLLM) {
+      const graphContext = {
+        nodes: symbolDependencies.nodes,
+        edges: symbolDependencies.edges,
+      };
+
+      llmAnalysis = await analyzeDependenciesWithLLM(
+        selectedText,
+        graphContext,
+        symbolOccurrences
+      );
+    }
+
+    res.status(200).json({
+      success: true,
+      data: {
+        selectedText,
+        scanId,
+        summary: {
+          occurrencesFound: symbolOccurrences.length,
+          uniqueFiles: [...new Set(symbolOccurrences.map(o => o.filePath))].length,
+          relationshipsFound: Object.keys(dependencyMap).length,
+          chainDepth: Math.max(...symbolDependencies.edges.map(e => e.type === 'CALLS' ? 2 : 1), 0),
+        },
+        symbolOccurrences: symbolOccurrences.map(o => ({
+          id: o.id,
+          displayName: o.displayName,
+          type: o.type,
+          filePath: o.filePath,
+          lineNumber: o.lineNumber,
+          context: o.context,
+        })),
+        dependencies: {
+          perNode: dependencyMap,
+          chain: symbolDependencies,
+        },
+        references: references,
+        llmAnalysis: llmAnalysis,
+      },
+    });
+  } catch (error) {
+    console.error("Error in analyzeDependenciesWithIntelligence:", error);
     next(error);
   }
 };

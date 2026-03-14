@@ -9,6 +9,7 @@ import {
 	seedSchema,
 	seedGraphToDb,
 	analyzeDependencies,
+	analyzeDependenciesWithIntelligence,
 } from "../controllers/scan.controller.js";
 
 const router = Router();
@@ -37,7 +38,10 @@ router.get("/impact", getImpact);
 // GET /api/impact/files?scanId=...&filePath=... → related files for a file path
 router.get("/impact/files", getFileRelations);
 
-// POST /api/analyze/dependencies → analyze dependencies for selected text
+// POST /api/analyze/dependencies → analyze dependencies for selected text (basic file scan)
 router.post("/analyze/dependencies", analyzeDependencies);
+
+// POST /api/analyze/dependencies-llm → analyze dependencies with LLM + Neo4j (advanced)
+router.post("/analyze/dependencies-llm", analyzeDependenciesWithIntelligence);
 
 export default router;
