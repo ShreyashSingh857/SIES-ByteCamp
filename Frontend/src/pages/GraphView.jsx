@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import cytoscape from 'cytoscape';
 import { Filter, RefreshCw, ZoomIn, ZoomOut, Maximize2, Info } from 'lucide-react';
-import { setSelectedNode, clearSelection } from '../store/index';
+import { setSelectedNode, clearSelection, setGraphData } from '../store/index';
 import { useGetGraphQuery } from '../store/slices/apiSlice';
 import { NODE_TYPE_CONFIG, EDGE_TYPE_CONFIG } from '../assets/mockdata';
 
@@ -96,10 +96,13 @@ const GraphView = () => {
   const cyRef        = useRef(null);
   const containerRef = useRef(null);
 
-  const selectedNode   = useSelector((s) => s.graph.selectedNode);
-  const filterTypes    = useSelector((s) => s.graph.filterTypes);
-  const filterLangs    = useSelector((s) => s.graph.filterLangs);
-  const currentRepoId  = useSelector((s) => s.graph.currentRepoId);
+  const selectedNode      = useSelector((s) => s.graph.selectedNode);
+  const filterTypes       = useSelector((s) => s.graph.filterTypes);
+  const filterLangs       = useSelector((s) => s.graph.filterLangs);
+  const currentRepoId     = useSelector((s) => s.graph.currentRepoId);
+  // Wire up BFS results computed by graphSlice so the canvas highlighting is live
+  const directImpact      = useSelector((s) => s.graph.directImpact);
+  const transitiveImpact  = useSelector((s) => s.graph.transitiveImpact);
 
   // Fetch graph using the repoId from scan result
   const { data: fetchedGraphData, isLoading } = useGetGraphQuery(currentRepoId, {
@@ -110,7 +113,14 @@ const GraphView = () => {
   const [showLegend, setShowLegend]   = useState(false);
   const [showFilters, setShowFilters] = useState(false);
   const [activeTypes, setActiveTypes] = useState([]);
-  const [impactedIds, setImpactedIds] = useState(new Set());
+
+  // Keep Redux graphData in sync with the RTK Query result so setSelectedNode
+  // fallback BFS always has real data even if graphData isn't passed explicitly.
+  useEffect(() => {
+    if (fetchedGraphData) {
+      dispatch(setGraphData(fetchedGraphData));
+    }
+  }, [fetchedGraphData, dispatch]);
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -143,7 +153,8 @@ const GraphView = () => {
       if (id === selectedNode) {
         dispatch(clearSelection());
       } else {
-        dispatch(setSelectedNode({ id }));
+        // Pass graphData so computeImpact in graphSlice has real nodes/edges
+        dispatch(setSelectedNode({ id, graphData }));
       }
     });
 
@@ -166,12 +177,19 @@ const GraphView = () => {
 
     if (!selectedNode) return;
 
+    // Build O(1) lookup sets from Redux BFS results
+    const directSet     = new Set(directImpact);
+    const transitiveSet = new Set(transitiveImpact);
+    const allImpacted   = new Set([...directImpact, ...transitiveImpact]);
+
     cy.nodes().forEach((node) => {
       const id = node.id();
       if (id === selectedNode) {
         node.addClass('selected');
-      } else if (impactedIds.has(id)) {
+      } else if (directSet.has(id)) {
         node.addClass('direct-impact');
+      } else if (transitiveSet.has(id)) {
+        node.addClass('transitive-impact');
       } else {
         node.addClass('dimmed');
       }
@@ -180,11 +198,16 @@ const GraphView = () => {
     cy.edges().forEach((edge) => {
       const s = edge.data('source');
       const t = edge.data('target');
-      if (s !== selectedNode && t !== selectedNode && !impactedIds.has(s) && !impactedIds.has(t)) {
+      if (
+        s !== selectedNode &&
+        t !== selectedNode &&
+        !allImpacted.has(s) &&
+        !allImpacted.has(t)
+      ) {
         edge.addClass('dimmed');
       }
     });
-  }, [selectedNode, impactedIds]);
+  }, [selectedNode, directImpact, transitiveImpact]);
 
   const handleZoomIn  = () => cyRef.current?.zoom(cyRef.current.zoom() * 1.25);
   const handleZoomOut = () => cyRef.current?.zoom(cyRef.current.zoom() * 0.8);
