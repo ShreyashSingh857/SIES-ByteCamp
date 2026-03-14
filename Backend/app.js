@@ -17,6 +17,9 @@ if (isNeo4jConfigured) {
 import helpRouter from "./src/routes/help.routes.js";
 import scanRouter from "./src/routes/scan.routes.js";
 import importRouter from "./src/routes/import.routes.js";
+import webhookRouter from "./src/routes/webhook.routes.js";
+import sseRouter from "./src/routes/sse.routes.js";
+import { startWebhookWorker } from "./src/workers/webhook.worker.js";
 
 const app = express();
 
@@ -27,7 +30,16 @@ app.use(
     credentials: true,
   })
 );
-app.use(express.json({ limit: "16kb" }));
+app.use(
+  express.json({
+    limit: "512kb",
+    verify: (req, _res, buf) => {
+      if (req.originalUrl?.startsWith("/api/webhook/github")) {
+        req.rawBody = Buffer.from(buf);
+      }
+    },
+  })
+);
 app.use(express.urlencoded({ extended: true, limit: "16kb" }));
 app.use(cookieParser());
 
@@ -35,6 +47,10 @@ app.use(cookieParser());
 app.use("/api/help", helpRouter);
 app.use("/api", scanRouter);
 app.use("/api/import", importRouter);
+app.use("/api/webhook", webhookRouter);
+app.use("/api/events", sseRouter);
+
+startWebhookWorker();
 
 // ─── Health check ─────────────────────────────────────────────────────────────
 app.get("/", (_req, res) => {

@@ -48,6 +48,7 @@ const graphSlice = createSlice({
     scanStatus: 'idle', // 'idle' | 'scanning' | 'done' | 'error'
     scanProgress: 0,
     graphData: { nodes: [], edges: [] },
+    graphDataRepoId: localStorage.getItem('currentRepoId') || null,
     selectedNode: null,
     directImpact: [],
     transitiveImpact: [],
@@ -106,7 +107,47 @@ const graphSlice = createSlice({
     // Persist the last fetched graph data into Redux state so any setSelectedNode
     // dispatch that omits graphData can still fall back to real nodes/edges.
     setGraphData(state, action) {
-      state.graphData = action.payload || { nodes: [], edges: [] };
+      const payload = action.payload || {};
+      state.graphData = payload.graphData || payload || { nodes: [], edges: [] };
+      if (payload.repoId !== undefined) {
+        state.graphDataRepoId = payload.repoId;
+      }
+    },
+    applyGraphPatch(state, action) {
+      const payload = action.payload || {};
+      const patch = payload.patch || payload;
+
+      if (payload.repoId && state.graphDataRepoId && payload.repoId !== state.graphDataRepoId) {
+        return;
+      }
+
+      if (patch.graphData) {
+        state.graphData = patch.graphData;
+        if (payload.repoId !== undefined) {
+          state.graphDataRepoId = payload.repoId;
+        }
+      } else {
+        const nextGraphData = {
+          nodes: patch.nodes || state.graphData.nodes || [],
+          edges: patch.edges || state.graphData.edges || [],
+          summary: patch.summary || state.graphData.summary || null,
+        };
+        state.graphData = nextGraphData;
+      }
+
+      const removedIds = new Set(patch.removedNodeIds || []);
+      if (state.selectedNode && removedIds.has(state.selectedNode)) {
+        state.selectedNode = null;
+        state.directImpact = [];
+        state.transitiveImpact = [];
+        return;
+      }
+
+      if (state.selectedNode) {
+        const impact = computeImpact(state.graphData, state.selectedNode);
+        state.directImpact = impact.directImpact;
+        state.transitiveImpact = impact.transitiveImpact;
+      }
     },
     // Set the active repoId + scanId + repoUrl + branch after a successful scan+seed cycle
     setCurrentRepoInfo(state, action) {
@@ -137,6 +178,7 @@ export const {
   setFilterLangs,
   setFilterTypes,
   setGraphData,
+  applyGraphPatch,
   setCurrentRepoInfo,
 } = graphSlice.actions;
 

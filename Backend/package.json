@@ -9,6 +9,7 @@
   "scripts": {
     "start": "node index.js",
     "dev": "nodemon index.js",
+    "worker": "node src/workers/webhook.worker.js",
     "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
     "test:verbose": "node --experimental-vm-modules node_modules/jest/bin/jest.js --verbose",
     "test:watch": "node --experimental-vm-modules node_modules/jest/bin/jest.js --watch",
@@ -23,6 +24,7 @@
     "express": "^5.2.1",
     "jsonwebtoken": "^9.0.3",
     "neo4j-driver": "^6.0.1",
+    "ngrok": "^5.0.0-beta.2",
     "openai": "^6.29.0",
     "simple-git": "^3.33.0",
     "uuid": "^13.0.0"

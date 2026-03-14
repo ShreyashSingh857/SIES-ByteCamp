@@ -11,6 +11,7 @@ import {
   setFilterLangs,
   setFilterTypes,
   setGraphData,
+  applyGraphPatch,
   setCurrentRepoInfo,
 } from "./slices/graphSlice.js";
 
@@ -27,6 +28,7 @@ export {
   setFilterLangs,
   setFilterTypes,
   setGraphData,
+  applyGraphPatch,
   setCurrentRepoInfo,
 };
 export { default as store } from "./store.js";

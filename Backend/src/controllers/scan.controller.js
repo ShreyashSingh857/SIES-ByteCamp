@@ -1,10 +1,8 @@
 import simpleGit from "simple-git";
 import path from "path";
 import fs from "fs";
-import { fileURLToPath } from "url";
 import { execFile } from "child_process";
 import { promisify } from "util";
-import { randomUUID } from "crypto";
 import {
   getImpactedNodesByNode,
   getRelatedFilesByPath,
@@ -22,38 +20,24 @@ import {
   generateArchitectureSummary,
   inferImplicitDependencies,
 } from "../services/llm.service.js";
+import { saveWebhookSubscription } from "../db/webhook.queries.js";
+import { registerWebhookForRepo } from "../services/github-webhook-registration.service.js";
+import {
+  AI_ENGINE_ENTRY,
+  PROJECT_ROOT,
+  WORKSPACE_ROOT,
+  REPOSITORIES_ROOT,
+  buildSeedPayloadFromParser,
+  buildUniqueRepoDir,
+  createScanId,
+  extractRepoFullName,
+  getGraphFilePath,
+  getRepoIdFromCloneDir,
+  normalizeParserEdge,
+  writeStoredGraph,
+} from "../services/scan-workspace.service.js";
 
 const execFileAsync = promisify(execFile);
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-const PROJECT_ROOT = path.resolve(__dirname, "../../..");
-const WORKSPACE_ROOT = path.join(PROJECT_ROOT, "workspace");
-const REPOSITORIES_ROOT = path.join(WORKSPACE_ROOT, "repositories");
-const GRAPHS_ROOT = path.join(WORKSPACE_ROOT, "graphs");
-const AI_ENGINE_ENTRY = path.join(PROJECT_ROOT, "AI-Engine", "src", "index.js");
-
-function buildUniqueRepoDir(repoUrl) {
-  const baseName = path.basename(repoUrl).replace(/\.git$/i, "") || "repo";
-  const safe = baseName.toLowerCase().replace(/[^a-z0-9-_]/g, "-");
-  const suffix = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
-  return path.join(REPOSITORIES_ROOT, `${safe}-${suffix}`);
-}
-
-function getRepoIdFromCloneDir(cloneDir) {
-  return path.basename(cloneDir);
-}
-
-function assertValidRepoId(repoId) {
-  if (!repoId || !/^[a-zA-Z0-9-_]+$/.test(repoId)) {
-    throw new Error("Invalid repoId format");
-  }
-}
-
-function getGraphFilePath(repoId) {
-  assertValidRepoId(repoId);
-  return path.join(GRAPHS_ROOT, `${repoId}.json`);
-}
 
 function normalizeNeo4jNumber(value) {
   if (typeof value === "number") return value;
@@ -358,145 +342,6 @@ function buildLlmGraphContext(symbolOccurrences, dependencyMap, symbolDependenci
   };
 }
 
-function buildSeedPayloadFromParser(repoId, parserResult, scanId) {
-  const nowIso = new Date().toISOString();
-  const serviceId = `svc:${scanId}:${repoId}`;
-  const idMap = new Map();
-
-  const fileNodes = (parserResult?.nodes || []).filter((n) => n.type === "FILE");
-  const functionNodes = (parserResult?.nodes || []).filter((n) => n.type === "FUNCTION");
-  const filePathToRawId = new Map(fileNodes.map((n) => [n.name, n.id]));
-
-  const resolveImportedFileRawId = (sourceRawFileId, moduleSpecifier) => {
-    if (!sourceRawFileId || !moduleSpecifier || !moduleSpecifier.startsWith(".")) return null;
-
-    const sourcePath = sourceRawFileId.replace(/^file:/, "");
-    const sourceDir = path.posix.dirname(sourcePath);
-    const baseResolved = path.posix.normalize(path.posix.join(sourceDir, moduleSpecifier));
-
-    const candidates = [];
-    const hasExt = Boolean(path.posix.extname(baseResolved));
-
-    if (hasExt) {
-      candidates.push(baseResolved);
-    } else {
-      const exts = [".js", ".jsx", ".ts", ".tsx", ".mjs", ".cjs", ".json"];
-      for (const ext of exts) {
-        candidates.push(`${baseResolved}${ext}`);
-        candidates.push(path.posix.join(baseResolved, `index${ext}`));
-      }
-    }
-
-    for (const candidate of candidates) {
-      const matchedRawId = filePathToRawId.get(candidate);
-      if (matchedRawId) return matchedRawId;
-    }
-
-    return null;
-  };
-
-  const files = fileNodes.map((n) => {
-    const id = `file:${scanId}:${n.id}`;
-    idMap.set(n.id, id);
-    return {
-      id,
-      serviceId,
-      scanId,
-      path: n.name,
-      language: n.language || "unknown",
-      extension: path.extname(n.name || "") || "",
-      lineCount: 0,
-      importCount: 0,
-      exportCount: 0,
-      parsedAt: nowIso,
-    };
-  });
-
-  const functions = functionNodes.map((n) => {
-    const id = `fn:${scanId}:${n.id}`;
-    idMap.set(n.id, id);
-    return {
-      id,
-      fileId: `file:${scanId}:file:${n.file}`,
-      serviceId,
-      scanId,
-      name: n.name || "anonymous",
-      qualifiedName: `${n.file || "unknown"}.${n.name || "anonymous"}`,
-      isExported: false,
-      isAsync: false,
-      visibility: "default",
-      lineStart: n.line || 0,
-      lineEnd: n.line || 0,
-      paramTypes: [],
-      returnType: "unknown",
-    };
-  });
-
-  const containsEdges = [
-    ...files.map((f) => ({ fromId: serviceId, toId: f.id })),
-    ...functions.map((fn) => ({ fromId: fn.fileId, toId: fn.id })),
-  ];
-
-  const dependencyEdges = (parserResult?.edges || [])
-    .filter((e) => ["IMPORTS", "CALLS"].includes(e.type))
-    .map((e) => {
-      let fromRawId = e.from;
-      let toRawId = e.to;
-
-      if (
-        e.type === "IMPORTS" &&
-        typeof e.from === "string" &&
-        e.from.startsWith("file:") &&
-        typeof e.to === "string" &&
-        e.to.startsWith("module:")
-      ) {
-        const moduleSpecifier = e.to.slice("module:".length);
-        const resolvedRawFileId = resolveImportedFileRawId(e.from, moduleSpecifier);
-        if (resolvedRawFileId) {
-          toRawId = resolvedRawFileId;
-          fromRawId = e.from;
-        }
-      }
-
-      return {
-        fromId: idMap.get(fromRawId),
-        toId: idMap.get(toRawId),
-        type: e.type,
-      };
-    })
-    .filter((e) => e.fromId && e.toId);
-
-  return {
-    scanNode: {
-      id: scanId,
-      status: "COMPLETE",
-      repoUrls: [],
-      fileCount: files.length,
-      nodeCount: files.length + functions.length + 2,
-      edgeCount: containsEdges.length + dependencyEdges.length,
-      durationMs: 0,
-      userId: "system",
-      createdAt: nowIso,
-      completedAt: nowIso,
-    },
-    serviceNode: {
-      id: serviceId,
-      scanId,
-      name: repoId,
-      language: parserResult?.summary?.languages?.[0] || "unknown",
-      repoUrl: "",
-      rootPath: "/",
-      framework: "none",
-      fileCount: files.length,
-      detectedAt: nowIso,
-    },
-    files,
-    functions,
-    containsEdges,
-    dependencyEdges,
-  };
-}
-
 /**
  * @desc    Clone a public repo and return scan result
  * @route   POST /api/scan
@@ -504,7 +349,7 @@ function buildSeedPayloadFromParser(repoId, parserResult, scanId) {
  * @access  Public
  */
 export const postScan = async (req, res, next) => {
-  const { repoUrl } = req.body;
+  const { repoUrl, githubToken, branch } = req.body;
 
   if (!repoUrl || typeof repoUrl !== "string") {
     return res.status(400).json({ success: false, message: "repoUrl is required" });
@@ -522,10 +367,22 @@ export const postScan = async (req, res, next) => {
 
   const cloneDir = buildUniqueRepoDir(repoUrl);
   const repoId = getRepoIdFromCloneDir(cloneDir);
+  const scanId = createScanId();
+  const requestedBranch = typeof branch === "string" && branch.trim() ? branch.trim() : "main";
 
   try {
     fs.mkdirSync(REPOSITORIES_ROOT, { recursive: true });
-    await simpleGit().clone(repoUrl, cloneDir);
+    const cloneArgs = isLocalAbsolutePath
+      ? []
+      : ["--branch", requestedBranch, "--single-branch"];
+    try {
+      await simpleGit().clone(repoUrl, cloneDir, cloneArgs);
+    } catch (cloneError) {
+      if (isLocalAbsolutePath || !requestedBranch) {
+        throw cloneError;
+      }
+      await simpleGit().clone(repoUrl, cloneDir);
+    }
 
     const { stdout } = await execFileAsync(
       process.execPath,
@@ -543,15 +400,42 @@ export const postScan = async (req, res, next) => {
       parserResult = { raw: stdout };
     }
 
-    fs.mkdirSync(GRAPHS_ROOT, { recursive: true });
-    fs.writeFileSync(getGraphFilePath(repoId), JSON.stringify(parserResult, null, 2), "utf8");
+    writeStoredGraph(repoId, parserResult);
+
+    let webhookInfo = null;
+    const repoFullName = extractRepoFullName(repoUrl);
+    const effectiveGithubToken = githubToken || process.env.GITHUB_TOKEN || "";
+    if (repoFullName && effectiveGithubToken) {
+      try {
+        const { hookId, secret } = await registerWebhookForRepo(repoFullName, effectiveGithubToken);
+        await saveWebhookSubscription({
+          repoId,
+          scanId,
+          repoFullName,
+          repoUrl,
+          branch: requestedBranch,
+          localPath: cloneDir,
+          hookId,
+          secret,
+        });
+        webhookInfo = { registered: true, repoFullName, hookId };
+      } catch (webhookError) {
+        webhookInfo = {
+          registered: false,
+          repoFullName,
+          message: webhookError.message,
+        };
+      }
+    }
 
     res.status(200).json({
       success: true,
       message: "Repository cloned and parsed successfully",
       data: {
         repoId,
+        scanId,
         repoUrl,
+        branch: requestedBranch,
         workspaceDir: WORKSPACE_ROOT,
         repositoriesDir: REPOSITORIES_ROOT,
         clonedRepoPath: cloneDir,
@@ -559,6 +443,7 @@ export const postScan = async (req, res, next) => {
         graphPath: getGraphFilePath(repoId),
         graphApi: `/api/graph/${repoId}`,
         parserSummary: parserResult?.summary || null,
+        webhook: webhookInfo,
       },
     });
   } catch (error) {
@@ -574,14 +459,7 @@ export const postScan = async (req, res, next) => {
  * Also passes through edges that already use source/target (future-proofing).
  */
 function normalizeEdge(edge, index) {
-  const source = edge.source ?? edge.from ?? null;
-  const target = edge.target ?? edge.to ?? null;
-  return {
-    id: edge.id || `edge-${index}`,
-    source,
-    target,
-    type: edge.type || "UNKNOWN",
-  };
+  return normalizeParserEdge(edge, index);
 }
 
 /**
@@ -680,7 +558,7 @@ export const seedGraphToDb = async (req, res, next) => {
     }
 
     const parserResult = JSON.parse(fs.readFileSync(graphFilePath, "utf8"));
-    const scanId = req.body?.scanId || `scan-${randomUUID()}`;
+    const scanId = req.body?.scanId || createScanId();
     const payload = buildSeedPayloadFromParser(repoId, parserResult, scanId);
     payload.scanNode.repoUrls = [req.body?.repoUrl || ""];
     payload.serviceNode.repoUrl = req.body?.repoUrl || "";
