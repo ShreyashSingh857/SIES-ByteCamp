@@ -109,7 +109,7 @@ const UploadRepo = () => {
         }
 
         // Store the active context for Graph/Impact panels to use
-        dispatch(setCurrentRepoInfo({ repoId, scanId }));
+        dispatch(setCurrentRepoInfo({ repoId, scanId, repoUrl: repo.url, branch: repo.branch || 'main' }));
 
         currentProgress += perRepoProgress * 0.4;
         dispatch(setScanProgress(currentProgress));

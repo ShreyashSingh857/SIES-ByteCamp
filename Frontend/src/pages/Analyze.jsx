@@ -137,13 +137,26 @@ const Analyze = () => {
       {currentRepoId && !isLoading && cards.length > 0 && (
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
           {cards.map((card) => (
-            <div key={card.root} className="card space-y-2">
+            <button
+              key={card.root}
+              onClick={() => navigate(`/analyze/dir/${encodeURIComponent(card.root)}`)}
+              className="card space-y-2 text-left transition-all"
+              style={{ cursor: 'pointer' }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.borderColor = '#3b82f6';
+                e.currentTarget.style.boxShadow = '0 0 0 3px rgba(59,130,246,0.10)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.borderColor = '';
+                e.currentTarget.style.boxShadow = '';
+              }}
+            >
               <div>
                 <h3 className="font-display font-semibold text-sm" style={{ color: 'var(--text)' }}>
                   {card.root}
                 </h3>
                 <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
-                  {card.fileCount} file{card.fileCount > 1 ? 's' : ''}
+                  {card.fileCount} file{card.fileCount > 1 ? 's' : ''} · click to explore
                 </p>
               </div>
               <pre
@@ -158,7 +171,7 @@ const Analyze = () => {
 {card.root}/
 {card.treePreview.join('\n')}
               </pre>
-            </div>
+            </button>
           ))}
         </div>
       )}

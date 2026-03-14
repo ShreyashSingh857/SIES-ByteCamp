@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import ThemeProvider from './components/theme/ThemeProvider.jsx';
 import Layout from './components/layout/Layout';
-import { Landing, Login, Signup, Home, UploadRepo, Analyze, GraphView, ImpactPanel } from './pages/index';
+import { Landing, Login, Signup, Home, UploadRepo, Analyze, GraphView, ImpactPanel, DirListView, FileViewer } from './pages/index';
 
 const Spinner = () => (
   <div className="min-h-screen flex items-center justify-center" style={{ background: 'var(--bg)' }}>
@@ -39,6 +39,8 @@ function AppRoutes() {
         <Route path="home"   element={<Home        />} />
         <Route path="upload" element={<UploadRepo  />} />
         <Route path="analyze" element={<Analyze    />} />
+        <Route path="analyze/dir/:dirName" element={<DirListView />} />
+        <Route path="analyze/dir/:dirName/file/*" element={<FileViewer />} />
         <Route path="graph"  element={<GraphView   />} />
         <Route path="impact" element={<ImpactPanel />} />
         <Route path="*"      element={<Navigate to="/home" replace />} />
