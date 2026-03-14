@@ -13,9 +13,45 @@ const LANGUAGE_BY_EXTENSION = {
     key: 'javascript',
     wasmPath: require.resolve('tree-sitter-wasms/out/tree-sitter-javascript.wasm'),
   },
+  '.jsx': {
+    key: 'javascript',
+    wasmPath: require.resolve('tree-sitter-wasms/out/tree-sitter-javascript.wasm'),
+  },
   '.py': {
     key: 'python',
     wasmPath: require.resolve('tree-sitter-wasms/out/tree-sitter-python.wasm'),
+  },
+  '.ts': {
+    key: 'typescript',
+    wasmPath: require.resolve('tree-sitter-wasms/out/tree-sitter-typescript.wasm'),
+  },
+  '.tsx': {
+    key: 'tsx',
+    wasmPath: require.resolve('tree-sitter-wasms/out/tree-sitter-tsx.wasm'),
+  },
+  '.java': {
+    key: 'java',
+    wasmPath: require.resolve('tree-sitter-wasms/out/tree-sitter-java.wasm'),
+  },
+  '.sql': {
+    key: 'sql',
+    wasmPath: null,
+  },
+  '.psql': {
+    key: 'postgresql',
+    wasmPath: null,
+  },
+  '.pgsql': {
+    key: 'postgresql',
+    wasmPath: null,
+  },
+  '.ddl': {
+    key: 'sql',
+    wasmPath: null,
+  },
+  '.dml': {
+    key: 'sql',
+    wasmPath: null,
   },
 };
 

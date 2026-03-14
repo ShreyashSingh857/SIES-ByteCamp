@@ -1,4 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit';
+import { normalizeRepoUrl } from '../../lib/utils';
 
 // BFS to compute directly and transitively impacted nodes from a selected node
 function computeImpact(graphData, selectedNodeId) {
@@ -55,6 +56,8 @@ const graphSlice = createSlice({
     // Phase 2: track active scan context
     currentRepoId: localStorage.getItem('currentRepoId') || null,
     currentScanId: localStorage.getItem('currentScanId') || null,
+    currentRepoUrl: normalizeRepoUrl(localStorage.getItem('currentRepoUrl') || null) || null,
+    currentRepoBranch: localStorage.getItem('currentRepoBranch') || 'main',
   },
   reducers: {
     setSelectedNode(state, action) {
@@ -105,15 +108,20 @@ const graphSlice = createSlice({
     setGraphData(state, action) {
       state.graphData = action.payload || { nodes: [], edges: [] };
     },
-    // Set the active repoId + scanId after a successful scan+seed cycle
+    // Set the active repoId + scanId + repoUrl + branch after a successful scan+seed cycle
     setCurrentRepoInfo(state, action) {
-      const { repoId, scanId } = action.payload;
+      const { repoId, scanId, repoUrl, branch } = action.payload;
+      const normalizedRepoUrl = normalizeRepoUrl(repoUrl);
       state.currentRepoId = repoId;
       state.currentScanId = scanId;
+      if (normalizedRepoUrl) { state.currentRepoUrl = normalizedRepoUrl; localStorage.setItem('currentRepoUrl', normalizedRepoUrl); }
+      else localStorage.removeItem('currentRepoUrl');
       if (repoId) localStorage.setItem('currentRepoId', repoId);
       else localStorage.removeItem('currentRepoId');
       if (scanId) localStorage.setItem('currentScanId', scanId);
       else localStorage.removeItem('currentScanId');
+      if (branch) { state.currentRepoBranch = branch; localStorage.setItem('currentRepoBranch', branch); }
+      else localStorage.removeItem('currentRepoBranch');
     },
   },
 });

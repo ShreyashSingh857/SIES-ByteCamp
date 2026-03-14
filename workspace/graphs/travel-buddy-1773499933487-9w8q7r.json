@@ -1,0 +1,437 @@
+{
+  "repositoryPath": "C:\\Users\\singh\\OneDrive\\Desktop\\SIES-ByteCamp\\SIES-ByteCamp\\workspace\\repositories\\travel-buddy-1773499933487-9w8q7r",
+  "summary": {
+    "scannedFiles": 4,
+    "parsedFiles": 4,
+    "nodes": 43,
+    "edges": 40,
+    "languages": [
+      "javascript"
+    ]
+  },
+  "nodes": [
+    {
+      "id": "file:eslint.config.js",
+      "type": "FILE",
+      "name": "eslint.config.js",
+      "language": "javascript"
+    },
+    {
+      "id": "module:@eslint/js",
+      "type": "MODULE",
+      "name": "@eslint/js"
+    },
+    {
+      "id": "module:globals",
+      "type": "MODULE",
+      "name": "globals"
+    },
+    {
+      "id": "module:eslint-plugin-react-hooks",
+      "type": "MODULE",
+      "name": "eslint-plugin-react-hooks"
+    },
+    {
+      "id": "module:eslint-plugin-react-refresh",
+      "type": "MODULE",
+      "name": "eslint-plugin-react-refresh"
+    },
+    {
+      "id": "module:eslint/config",
+      "type": "MODULE",
+      "name": "eslint/config"
+    },
+    {
+      "id": "symbol:defineConfig",
+      "type": "SYMBOL",
+      "name": "defineConfig"
+    },
+    {
+      "id": "symbol:globalIgnores",
+      "type": "SYMBOL",
+      "name": "globalIgnores"
+    },
+    {
+      "id": "file:src/features/store.js",
+      "type": "FILE",
+      "name": "src/features/store.js",
+      "language": "javascript"
+    },
+    {
+      "id": "module:@reduxjs/toolkit",
+      "type": "MODULE",
+      "name": "@reduxjs/toolkit"
+    },
+    {
+      "id": "module:./travelSlice",
+      "type": "MODULE",
+      "name": "./travelSlice"
+    },
+    {
+      "id": "symbol:configureStore",
+      "type": "SYMBOL",
+      "name": "configureStore"
+    },
+    {
+      "id": "file:src/features/travelSlice.js",
+      "type": "FILE",
+      "name": "src/features/travelSlice.js",
+      "language": "javascript"
+    },
+    {
+      "id": "function:src/features/travelSlice.js#fetchCityData",
+      "type": "FUNCTION",
+      "name": "fetchCityData",
+      "file": "src/features/travelSlice.js",
+      "line": 127
+    },
+    {
+      "id": "module:react-toastify",
+      "type": "MODULE",
+      "name": "react-toastify"
+    },
+    {
+      "id": "symbol:createSlice",
+      "type": "SYMBOL",
+      "name": "createSlice"
+    },
+    {
+      "id": "symbol:dispatch",
+      "type": "SYMBOL",
+      "name": "dispatch"
+    },
+    {
+      "id": "symbol:fetchCityDataStart",
+      "type": "SYMBOL",
+      "name": "fetchCityDataStart"
+    },
+    {
+      "id": "symbol:encodeURIComponent",
+      "type": "SYMBOL",
+      "name": "encodeURIComponent"
+    },
+    {
+      "id": "symbol:fetch",
+      "type": "SYMBOL",
+      "name": "fetch"
+    },
+    {
+      "id": "service:fetch",
+      "type": "EXTERNAL_SERVICE",
+      "name": "fetch"
+    },
+    {
+      "id": "symbol:json",
+      "type": "SYMBOL",
+      "name": "json"
+    },
+    {
+      "id": "symbol:fetchCityDataSuccess",
+      "type": "SYMBOL",
+      "name": "fetchCityDataSuccess"
+    },
+    {
+      "id": "symbol:error",
+      "type": "SYMBOL",
+      "name": "error"
+    },
+    {
+      "id": "symbol:fetchCityWeatherDataStart",
+      "type": "SYMBOL",
+      "name": "fetchCityWeatherDataStart"
+    },
+    {
+      "id": "symbol:fetchCityWeatherDataSuccess",
+      "type": "SYMBOL",
+      "name": "fetchCityWeatherDataSuccess"
+    },
+    {
+      "id": "symbol:getCurrentPosition",
+      "type": "SYMBOL",
+      "name": "getCurrentPosition"
+    },
+    {
+      "id": "symbol:updateCurrentLocationData",
+      "type": "SYMBOL",
+      "name": "updateCurrentLocationData"
+    },
+    {
+      "id": "symbol:getState",
+      "type": "SYMBOL",
+      "name": "getState"
+    },
+    {
+      "id": "symbol:updateToLocationData",
+      "type": "SYMBOL",
+      "name": "updateToLocationData"
+    },
+    {
+      "id": "symbol:fetchCountryData",
+      "type": "SYMBOL",
+      "name": "fetchCountryData"
+    },
+    {
+      "id": "symbol:keys",
+      "type": "SYMBOL",
+      "name": "keys"
+    },
+    {
+      "id": "symbol:fetchtoCountryData",
+      "type": "SYMBOL",
+      "name": "fetchtoCountryData"
+    },
+    {
+      "id": "symbol:fetchExcchangeRateData",
+      "type": "SYMBOL",
+      "name": "fetchExcchangeRateData"
+    },
+    {
+      "id": "symbol:fetchToTimezoneData",
+      "type": "SYMBOL",
+      "name": "fetchToTimezoneData"
+    },
+    {
+      "id": "symbol:loadingComplete",
+      "type": "SYMBOL",
+      "name": "loadingComplete"
+    },
+    {
+      "id": "symbol:fetchCityDataFailure",
+      "type": "SYMBOL",
+      "name": "fetchCityDataFailure"
+    },
+    {
+      "id": "file:vite.config.js",
+      "type": "FILE",
+      "name": "vite.config.js",
+      "language": "javascript"
+    },
+    {
+      "id": "module:vite",
+      "type": "MODULE",
+      "name": "vite"
+    },
+    {
+      "id": "module:@vitejs/plugin-react",
+      "type": "MODULE",
+      "name": "@vitejs/plugin-react"
+    },
+    {
+      "id": "module:@tailwindcss/vite",
+      "type": "MODULE",
+      "name": "@tailwindcss/vite"
+    },
+    {
+      "id": "symbol:tailwindcss",
+      "type": "SYMBOL",
+      "name": "tailwindcss"
+    },
+    {
+      "id": "symbol:react",
+      "type": "SYMBOL",
+      "name": "react"
+    }
+  ],
+  "edges": [
+    {
+      "from": "file:eslint.config.js",
+      "to": "module:@eslint/js",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "file:eslint.config.js",
+      "to": "module:globals",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "file:eslint.config.js",
+      "to": "module:eslint-plugin-react-hooks",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "file:eslint.config.js",
+      "to": "module:eslint-plugin-react-refresh",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "file:eslint.config.js",
+      "to": "module:eslint/config",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "file:eslint.config.js",
+      "to": "symbol:defineConfig",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:eslint.config.js",
+      "to": "symbol:globalIgnores",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:src/features/store.js",
+      "to": "module:@reduxjs/toolkit",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "file:src/features/store.js",
+      "to": "module:./travelSlice",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "file:src/features/store.js",
+      "to": "symbol:configureStore",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:src/features/travelSlice.js",
+      "to": "module:@reduxjs/toolkit",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "file:src/features/travelSlice.js",
+      "to": "module:react-toastify",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "file:src/features/travelSlice.js",
+      "to": "symbol:createSlice",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/features/travelSlice.js#fetchCityData",
+      "to": "symbol:dispatch",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/features/travelSlice.js#fetchCityData",
+      "to": "symbol:fetchCityDataStart",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/features/travelSlice.js#fetchCityData",
+      "to": "symbol:encodeURIComponent",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/features/travelSlice.js#fetchCityData",
+      "to": "symbol:fetch",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/features/travelSlice.js#fetchCityData",
+      "to": "service:fetch",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/features/travelSlice.js#fetchCityData",
+      "to": "symbol:json",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/features/travelSlice.js#fetchCityData",
+      "to": "symbol:fetchCityDataSuccess",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/features/travelSlice.js#fetchCityData",
+      "to": "symbol:error",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/features/travelSlice.js#fetchCityData",
+      "to": "symbol:fetchCityWeatherDataStart",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/features/travelSlice.js#fetchCityData",
+      "to": "symbol:fetchCityWeatherDataSuccess",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/features/travelSlice.js#fetchCityData",
+      "to": "symbol:getCurrentPosition",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/features/travelSlice.js#fetchCityData",
+      "to": "symbol:updateCurrentLocationData",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/features/travelSlice.js#fetchCityData",
+      "to": "symbol:getState",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/features/travelSlice.js#fetchCityData",
+      "to": "symbol:updateToLocationData",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/features/travelSlice.js#fetchCityData",
+      "to": "symbol:fetchCountryData",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/features/travelSlice.js#fetchCityData",
+      "to": "symbol:keys",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/features/travelSlice.js#fetchCityData",
+      "to": "symbol:fetchtoCountryData",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/features/travelSlice.js#fetchCityData",
+      "to": "symbol:fetchExcchangeRateData",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/features/travelSlice.js#fetchCityData",
+      "to": "symbol:fetchToTimezoneData",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/features/travelSlice.js#fetchCityData",
+      "to": "symbol:loadingComplete",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/features/travelSlice.js#fetchCityData",
+      "to": "symbol:fetchCityDataFailure",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:vite.config.js",
+      "to": "module:vite",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "file:vite.config.js",
+      "to": "module:@vitejs/plugin-react",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "file:vite.config.js",
+      "to": "module:@tailwindcss/vite",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "file:vite.config.js",
+      "to": "symbol:defineConfig",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:vite.config.js",
+      "to": "symbol:tailwindcss",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:vite.config.js",
+      "to": "symbol:react",
+      "type": "CALLS"
+    }
+  ]
+}

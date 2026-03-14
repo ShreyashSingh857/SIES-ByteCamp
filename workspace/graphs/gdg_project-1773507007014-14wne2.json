@@ -1,0 +1,722 @@
+{
+  "repositoryPath": "C:\\Users\\adity\\Desktop\\SIES-ByteCamp2\\workspace\\repositories\\gdg_project-1773507007014-14wne2",
+  "summary": {
+    "scannedFiles": 6,
+    "parsedFiles": 6,
+    "nodes": 67,
+    "edges": 73,
+    "languages": [
+      "javascript"
+    ]
+  },
+  "nodes": [
+    {
+      "id": "file:frontend/Admin/eslint.config.js",
+      "type": "FILE",
+      "name": "frontend/Admin/eslint.config.js",
+      "language": "javascript"
+    },
+    {
+      "id": "module:@eslint/js",
+      "type": "MODULE",
+      "name": "@eslint/js"
+    },
+    {
+      "id": "module:globals",
+      "type": "MODULE",
+      "name": "globals"
+    },
+    {
+      "id": "module:eslint-plugin-react-hooks",
+      "type": "MODULE",
+      "name": "eslint-plugin-react-hooks"
+    },
+    {
+      "id": "module:eslint-plugin-react-refresh",
+      "type": "MODULE",
+      "name": "eslint-plugin-react-refresh"
+    },
+    {
+      "id": "module:typescript-eslint",
+      "type": "MODULE",
+      "name": "typescript-eslint"
+    },
+    {
+      "id": "module:eslint/config",
+      "type": "MODULE",
+      "name": "eslint/config"
+    },
+    {
+      "id": "symbol:defineConfig",
+      "type": "SYMBOL",
+      "name": "defineConfig"
+    },
+    {
+      "id": "symbol:globalIgnores",
+      "type": "SYMBOL",
+      "name": "globalIgnores"
+    },
+    {
+      "id": "file:frontend/Admin/tailwind.config.js",
+      "type": "FILE",
+      "name": "frontend/Admin/tailwind.config.js",
+      "language": "javascript"
+    },
+    {
+      "id": "file:frontend/Patient/eslint.config.js",
+      "type": "FILE",
+      "name": "frontend/Patient/eslint.config.js",
+      "language": "javascript"
+    },
+    {
+      "id": "file:functions/check_models.js",
+      "type": "FILE",
+      "name": "functions/check_models.js",
+      "language": "javascript"
+    },
+    {
+      "id": "module:https",
+      "type": "MODULE",
+      "name": "https"
+    },
+    {
+      "id": "module:dotenv",
+      "type": "MODULE",
+      "name": "dotenv"
+    },
+    {
+      "id": "symbol:config",
+      "type": "SYMBOL",
+      "name": "config"
+    },
+    {
+      "id": "symbol:error",
+      "type": "SYMBOL",
+      "name": "error"
+    },
+    {
+      "id": "symbol:exit",
+      "type": "SYMBOL",
+      "name": "exit"
+    },
+    {
+      "id": "symbol:on",
+      "type": "SYMBOL",
+      "name": "on"
+    },
+    {
+      "id": "service:https",
+      "type": "EXTERNAL_SERVICE",
+      "name": "https"
+    },
+    {
+      "id": "symbol:get",
+      "type": "SYMBOL",
+      "name": "get"
+    },
+    {
+      "id": "symbol:parse",
+      "type": "SYMBOL",
+      "name": "parse"
+    },
+    {
+      "id": "symbol:log",
+      "type": "SYMBOL",
+      "name": "log"
+    },
+    {
+      "id": "symbol:map",
+      "type": "SYMBOL",
+      "name": "map"
+    },
+    {
+      "id": "symbol:forEach",
+      "type": "SYMBOL",
+      "name": "forEach"
+    },
+    {
+      "id": "symbol:includes",
+      "type": "SYMBOL",
+      "name": "includes"
+    },
+    {
+      "id": "symbol:filter",
+      "type": "SYMBOL",
+      "name": "filter"
+    },
+    {
+      "id": "file:functions/index.js",
+      "type": "FILE",
+      "name": "functions/index.js",
+      "language": "javascript"
+    },
+    {
+      "id": "module:firebase-functions",
+      "type": "MODULE",
+      "name": "firebase-functions"
+    },
+    {
+      "id": "module:firebase-admin",
+      "type": "MODULE",
+      "name": "firebase-admin"
+    },
+    {
+      "id": "symbol:initializeApp",
+      "type": "SYMBOL",
+      "name": "initializeApp"
+    },
+    {
+      "id": "symbol:onCreate",
+      "type": "SYMBOL",
+      "name": "onCreate"
+    },
+    {
+      "id": "symbol:document",
+      "type": "SYMBOL",
+      "name": "document"
+    },
+    {
+      "id": "symbol:data",
+      "type": "SYMBOL",
+      "name": "data"
+    },
+    {
+      "id": "symbol:sendToTopic",
+      "type": "SYMBOL",
+      "name": "sendToTopic"
+    },
+    {
+      "id": "symbol:messaging",
+      "type": "SYMBOL",
+      "name": "messaging"
+    },
+    {
+      "id": "symbol:slice",
+      "type": "SYMBOL",
+      "name": "slice"
+    },
+    {
+      "id": "symbol:add",
+      "type": "SYMBOL",
+      "name": "add"
+    },
+    {
+      "id": "symbol:collection",
+      "type": "SYMBOL",
+      "name": "collection"
+    },
+    {
+      "id": "symbol:firestore",
+      "type": "SYMBOL",
+      "name": "firestore"
+    },
+    {
+      "id": "symbol:serverTimestamp",
+      "type": "SYMBOL",
+      "name": "serverTimestamp"
+    },
+    {
+      "id": "module:express",
+      "type": "MODULE",
+      "name": "express"
+    },
+    {
+      "id": "module:cors",
+      "type": "MODULE",
+      "name": "cors"
+    },
+    {
+      "id": "module:@google/generative-ai",
+      "type": "MODULE",
+      "name": "@google/generative-ai"
+    },
+    {
+      "id": "symbol:express",
+      "type": "SYMBOL",
+      "name": "express"
+    },
+    {
+      "id": "symbol:use",
+      "type": "SYMBOL",
+      "name": "use"
+    },
+    {
+      "id": "symbol:cors",
+      "type": "SYMBOL",
+      "name": "cors"
+    },
+    {
+      "id": "symbol:json",
+      "type": "SYMBOL",
+      "name": "json"
+    },
+    {
+      "id": "symbol:warn",
+      "type": "SYMBOL",
+      "name": "warn"
+    },
+    {
+      "id": "symbol:post",
+      "type": "SYMBOL",
+      "name": "post"
+    },
+    {
+      "id": "symbol:status",
+      "type": "SYMBOL",
+      "name": "status"
+    },
+    {
+      "id": "symbol:isArray",
+      "type": "SYMBOL",
+      "name": "isArray"
+    },
+    {
+      "id": "symbol:getGenerativeModel",
+      "type": "SYMBOL",
+      "name": "getGenerativeModel"
+    },
+    {
+      "id": "symbol:startChat",
+      "type": "SYMBOL",
+      "name": "startChat"
+    },
+    {
+      "id": "database:Database",
+      "type": "DATABASE",
+      "name": "Database"
+    },
+    {
+      "id": "symbol:sendMessage",
+      "type": "SYMBOL",
+      "name": "sendMessage"
+    },
+    {
+      "id": "symbol:text",
+      "type": "SYMBOL",
+      "name": "text"
+    },
+    {
+      "id": "symbol:String",
+      "type": "SYMBOL",
+      "name": "String"
+    },
+    {
+      "id": "symbol:push",
+      "type": "SYMBOL",
+      "name": "push"
+    },
+    {
+      "id": "symbol:join",
+      "type": "SYMBOL",
+      "name": "join"
+    },
+    {
+      "id": "symbol:onRequest",
+      "type": "SYMBOL",
+      "name": "onRequest"
+    },
+    {
+      "id": "file:scripts/merge-dist.js",
+      "type": "FILE",
+      "name": "scripts/merge-dist.js",
+      "language": "javascript"
+    },
+    {
+      "id": "module:fs",
+      "type": "MODULE",
+      "name": "fs"
+    },
+    {
+      "id": "module:path",
+      "type": "MODULE",
+      "name": "path"
+    },
+    {
+      "id": "symbol:resolve",
+      "type": "SYMBOL",
+      "name": "resolve"
+    },
+    {
+      "id": "symbol:rmSync",
+      "type": "SYMBOL",
+      "name": "rmSync"
+    },
+    {
+      "id": "symbol:mkdirSync",
+      "type": "SYMBOL",
+      "name": "mkdirSync"
+    },
+    {
+      "id": "symbol:cpSync",
+      "type": "SYMBOL",
+      "name": "cpSync"
+    }
+  ],
+  "edges": [
+    {
+      "from": "file:frontend/Admin/eslint.config.js",
+      "to": "module:@eslint/js",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "file:frontend/Admin/eslint.config.js",
+      "to": "module:globals",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "file:frontend/Admin/eslint.config.js",
+      "to": "module:eslint-plugin-react-hooks",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "file:frontend/Admin/eslint.config.js",
+      "to": "module:eslint-plugin-react-refresh",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "file:frontend/Admin/eslint.config.js",
+      "to": "module:typescript-eslint",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "file:frontend/Admin/eslint.config.js",
+      "to": "module:eslint/config",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "file:frontend/Admin/eslint.config.js",
+      "to": "symbol:defineConfig",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:frontend/Admin/eslint.config.js",
+      "to": "symbol:globalIgnores",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:frontend/Patient/eslint.config.js",
+      "to": "module:@eslint/js",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "file:frontend/Patient/eslint.config.js",
+      "to": "module:globals",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "file:frontend/Patient/eslint.config.js",
+      "to": "module:eslint-plugin-react-hooks",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "file:frontend/Patient/eslint.config.js",
+      "to": "module:eslint-plugin-react-refresh",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "file:frontend/Patient/eslint.config.js",
+      "to": "module:typescript-eslint",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "file:frontend/Patient/eslint.config.js",
+      "to": "module:eslint/config",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "file:frontend/Patient/eslint.config.js",
+      "to": "symbol:defineConfig",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:frontend/Patient/eslint.config.js",
+      "to": "symbol:globalIgnores",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:functions/check_models.js",
+      "to": "module:https",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "file:functions/check_models.js",
+      "to": "module:dotenv",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "file:functions/check_models.js",
+      "to": "symbol:config",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:functions/check_models.js",
+      "to": "symbol:error",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:functions/check_models.js",
+      "to": "symbol:exit",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:functions/check_models.js",
+      "to": "symbol:on",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:functions/check_models.js",
+      "to": "service:https",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:functions/check_models.js",
+      "to": "symbol:get",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:functions/check_models.js",
+      "to": "symbol:parse",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:functions/check_models.js",
+      "to": "symbol:log",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:functions/check_models.js",
+      "to": "symbol:map",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:functions/check_models.js",
+      "to": "symbol:forEach",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:functions/check_models.js",
+      "to": "symbol:includes",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:functions/check_models.js",
+      "to": "symbol:filter",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:functions/index.js",
+      "to": "module:firebase-functions",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "file:functions/index.js",
+      "to": "module:firebase-admin",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "file:functions/index.js",
+      "to": "symbol:initializeApp",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:functions/index.js",
+      "to": "symbol:onCreate",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:functions/index.js",
+      "to": "symbol:document",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:functions/index.js",
+      "to": "symbol:data",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:functions/index.js",
+      "to": "symbol:log",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:functions/index.js",
+      "to": "symbol:sendToTopic",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:functions/index.js",
+      "to": "symbol:messaging",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:functions/index.js",
+      "to": "symbol:slice",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:functions/index.js",
+      "to": "symbol:add",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:functions/index.js",
+      "to": "symbol:collection",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:functions/index.js",
+      "to": "symbol:firestore",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:functions/index.js",
+      "to": "symbol:serverTimestamp",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:functions/index.js",
+      "to": "module:express",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "file:functions/index.js",
+      "to": "module:cors",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "file:functions/index.js",
+      "to": "module:@google/generative-ai",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "file:functions/index.js",
+      "to": "symbol:express",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:functions/index.js",
+      "to": "symbol:use",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:functions/index.js",
+      "to": "symbol:cors",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:functions/index.js",
+      "to": "symbol:json",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:functions/index.js",
+      "to": "symbol:config",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:functions/index.js",
+      "to": "symbol:warn",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:functions/index.js",
+      "to": "symbol:post",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:functions/index.js",
+      "to": "symbol:status",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:functions/index.js",
+      "to": "symbol:isArray",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:functions/index.js",
+      "to": "symbol:getGenerativeModel",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:functions/index.js",
+      "to": "symbol:startChat",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:functions/index.js",
+      "to": "database:Database",
+      "type": "READS"
+    },
+    {
+      "from": "file:functions/index.js",
+      "to": "symbol:sendMessage",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:functions/index.js",
+      "to": "symbol:text",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:functions/index.js",
+      "to": "symbol:String",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:functions/index.js",
+      "to": "symbol:push",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:functions/index.js",
+      "to": "symbol:join",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:functions/index.js",
+      "to": "symbol:onRequest",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:scripts/merge-dist.js",
+      "to": "module:fs",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "file:scripts/merge-dist.js",
+      "to": "module:path",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "file:scripts/merge-dist.js",
+      "to": "symbol:resolve",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:scripts/merge-dist.js",
+      "to": "symbol:rmSync",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:scripts/merge-dist.js",
+      "to": "symbol:mkdirSync",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:scripts/merge-dist.js",
+      "to": "symbol:cpSync",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:scripts/merge-dist.js",
+      "to": "symbol:join",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:scripts/merge-dist.js",
+      "to": "symbol:log",
+      "type": "CALLS"
+    }
+  ]
+}

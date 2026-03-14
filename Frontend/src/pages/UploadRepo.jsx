@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { Github, Plus, GitBranch, Loader2, CheckCircle2, Trash2, AlertCircle } from 'lucide-react';
 import { addRepo, removeRepo, updateRepoStatus, setScanStatus, setScanProgress, setCurrentRepoInfo } from '../store/index';
 import { useScanRepoMutation, useSeedGraphMutation } from '../store/slices/apiSlice';
+import { normalizeRepoUrl } from '../lib/utils';
 
 const LANG_COLORS = {
   Java:       '#f59e0b',
@@ -47,15 +48,16 @@ const UploadRepo = () => {
   const handleAdd = () => {
     setError('');
     const trimmed = url.trim();
-    if (!trimmed)                   { setError('Please enter a repository URL.'); return; }
-    if (!isValidGitUrl(trimmed))    { setError('Enter a valid GitHub / GitLab / Bitbucket URL.'); return; }
-    if (repos.some((r) => r.url === trimmed)) { setError('This repository has already been added.'); return; }
+    const normalizedUrl = normalizeRepoUrl(trimmed);
+    if (!trimmed)                         { setError('Please enter a repository URL.'); return; }
+    if (!isValidGitUrl(trimmed))          { setError('Enter a valid GitHub / GitLab / Bitbucket URL.'); return; }
+    if (repos.some((r) => normalizeRepoUrl(r.url) === normalizedUrl)) { setError('This repository has already been added.'); return; }
 
-    const name = trimmed.split('/').slice(-1)[0].replace(/\.git$/, '');
+    const name = normalizedUrl.split('/').slice(-1)[0].replace(/\.git$/, '');
     dispatch(addRepo({
       id: Date.now(),
       name,
-      url: trimmed,
+      url: normalizedUrl,
       branch: branch || 'main',
       langs: [],
       status: 'pending',
@@ -76,7 +78,7 @@ const UploadRepo = () => {
 
   const scanRepos = async () => {
     const pending = repos.filter((r) => r.status === 'pending');
-    if (pending.length === 0) { navigate('/graph'); return; }
+    if (pending.length === 0) { navigate('/analyze'); return; }
 
     dispatch(setScanStatus('scanning'));
     dispatch(setScanProgress(0));
@@ -109,7 +111,7 @@ const UploadRepo = () => {
         }
 
         // Store the active context for Graph/Impact panels to use
-        dispatch(setCurrentRepoInfo({ repoId, scanId }));
+        dispatch(setCurrentRepoInfo({ repoId, scanId, repoUrl: repo.url, branch: repo.branch || 'main' }));
 
         currentProgress += perRepoProgress * 0.4;
         dispatch(setScanProgress(currentProgress));
@@ -122,7 +124,7 @@ const UploadRepo = () => {
       }
 
       dispatch(setScanStatus('done'));
-      navigate('/graph');
+      navigate('/analyze');
     } catch (err) {
       console.error('Scan error:', err);
       setError(err?.data?.message || err?.message || 'Failed to scan repository.');
@@ -275,7 +277,7 @@ const UploadRepo = () => {
           {scanning ? (
             <><Loader2 size={15} className="animate-spin" /> Scanning…</>
           ) : (
-            <><GitBranch size={15} /> {pendingCount > 0 ? 'Scan & Build Graph' : 'View Graph'}</>
+            <><GitBranch size={15} /> {pendingCount > 0 ? 'Scan & Build Graph' : 'View Analyze'}</>
           )}
         </button>
       </div>
