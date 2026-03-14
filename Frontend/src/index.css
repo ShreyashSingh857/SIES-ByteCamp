@@ -121,3 +121,66 @@ body {
         color: var(--text-muted);
     }
 }
+/* CYTOSCAPE GRAPH CANVAS */
+.cy-canvas-container {
+  width: 100%;
+  height: 100%;
+}
+
+/* NODE TYPE BADGES */
+.node-badge-service  { background: rgba(59,130,246,0.15); color: #3b82f6; border: 1px solid rgba(59,130,246,0.3); }
+.node-badge-schema   { background: rgba(245,158,11,0.15); color: #f59e0b; border: 1px solid rgba(245,158,11,0.3); }
+.node-badge-api      { background: rgba(34,197,94,0.15);  color: #22c55e; border: 1px solid rgba(34,197,94,0.3);  }
+.node-badge-frontend { background: rgba(168,85,247,0.15); color: #a855f7; border: 1px solid rgba(168,85,247,0.3); }
+
+/* IMPACT HIGHLIGHT ANIMATION */
+@keyframes pulse-ring {
+  0%   { box-shadow: 0 0 0 0 rgba(239,68,68,0.35); }
+  70%  { box-shadow: 0 0 0 10px rgba(239,68,68,0); }
+  100% { box-shadow: 0 0 0 0 rgba(239,68,68,0); }
+}
+.impact-pulse { animation: pulse-ring 1.6s ease infinite; }
+
+/* SCAN PROGRESS BAR */
+.scan-bar {
+  height: 3px;
+  background: linear-gradient(90deg, #3b82f6 0%, #8b5cf6 100%);
+  transition: width 0.3s ease;
+}
+
+/* SIDEBAR NAV LINK */
+.nav-link {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  transition: background 0.15s, color 0.15s;
+}
+.nav-link:hover { background: var(--bg-muted); color: var(--text); }
+.nav-link.active { background: var(--bg-muted); color: var(--primary-500); }
+
+/* REPO CARD */
+.repo-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 0.75rem;
+  padding: 1.25rem;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.repo-card:hover {
+  border-color: var(--primary-500);
+  box-shadow: 0 0 0 3px rgba(59,130,246,0.08);
+}
+
+/* CODE MONO */
+.code-text { font-family: 'JetBrains Mono', 'Courier New', monospace; font-size: 0.8rem; }
+
+/* SCROLLBAR */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 9999px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
