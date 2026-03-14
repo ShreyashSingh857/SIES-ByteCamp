@@ -3,7 +3,6 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Mail, Lock, AlertCircle, Loader2 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import Logo from '../components/Logo';
-import ThemeToggle from '../components/theme/ThemeToggle';
 
 const Login = () => {
   const navigate = useNavigate();
@@ -34,11 +33,6 @@ const Login = () => {
       className="min-h-screen flex flex-col items-center justify-center px-4"
       style={{ background: 'var(--bg)' }}
     >
-      {/* Theme toggle top-right */}
-      <div className="absolute top-4 right-4">
-        <ThemeToggle />
-      </div>
-
       <div className="w-full max-w-sm space-y-6">
         {/* Logo */}
         <div className="flex justify-center">

@@ -69,14 +69,6 @@ export const apiSlice = createApi({
       transformResponse: (response) => response.data,
     }),
 
-    // GET /api/impact?node={nodeIdentifier}&scanId={scanId} — Neo4j BFS impact analysis
-    // Returns { data: { node, scanId, count, impactedNodes: [{ id, name, type, hops }] } }
-    getImpactAnalysis: builder.query({
-      query: ({ node, scanId }) =>
-        `/impact?node=${encodeURIComponent(node)}${scanId ? `&scanId=${encodeURIComponent(scanId)}` : ''}`,
-      transformResponse: (response) => response.data,
-    }),
-
     // GET /api/impact/files?scanId={scanId}&filePath={filePath} — live related files from Neo4j
     getFileRelations: builder.query({
       query: ({ scanId, filePath }) =>
@@ -116,7 +108,6 @@ export const {
   useSeedSchemaMutation,
   useSeedGraphMutation,
   useGetMetricsQuery,
-  useGetImpactAnalysisQuery,
   useGetFileRelationsQuery,
   useGetHealthQuery,
   useGetHelpTopicsQuery,

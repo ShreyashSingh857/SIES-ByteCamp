@@ -42,8 +42,7 @@ Thumbs.db
 # ===============================
 coverage/
 tmp-mixed-repo
-workspace/repositories/
-
+workspace/
 # ===============================
 # Misc
 # ===============================

@@ -660,15 +660,6 @@ const GraphView = () => {
               {scope === 'local' ? 'Back to overview' : 'Open local graph'}
             </button>
           )}
-          {!selectedData?.isSynthetic && (
-            <button
-              onClick={() => navigate('/impact')}
-              className="text-xs font-medium px-3 py-1 rounded-lg transition-all shrink-0"
-              style={{ background: '#ef4444', color: '#fff' }}
-            >
-              View Impact →
-            </button>
-          )}
         </div>
       )}
 

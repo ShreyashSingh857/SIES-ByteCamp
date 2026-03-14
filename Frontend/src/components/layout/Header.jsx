@@ -1,14 +1,12 @@
 import React from 'react';
 import { useLocation } from 'react-router-dom';
 import { Menu, GitBranch } from 'lucide-react';
-import ThemeToggle from '../theme/ThemeToggle';
 import { useSelector } from 'react-redux';
 
 const PAGE_TITLES = {
   '/home':   { label: 'Dashboard',    sub: 'Overview of your scanned repositories' },
   '/upload': { label: 'Upload Repos', sub: 'Connect GitHub repositories to scan'   },
   '/graph':  { label: 'Graph View',   sub: 'Interactive dependency graph explorer'  },
-  '/impact': { label: 'Impact Panel', sub: 'Simulate change propagation'            },
 };
 
 const Header = ({ toggleSidebar }) => {
@@ -58,8 +56,6 @@ const Header = ({ toggleSidebar }) => {
           Graph ready
         </div>
       )}
-
-      <ThemeToggle />
     </header>
   );
 };

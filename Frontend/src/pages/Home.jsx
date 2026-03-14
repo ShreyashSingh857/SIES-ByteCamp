@@ -73,7 +73,7 @@ const Home = () => {
         <h3 className="text-xs font-semibold uppercase tracking-wider mb-3" style={{ color: 'var(--text-muted)' }}>
           Quick Actions
         </h3>
-        <div className="grid sm:grid-cols-3 gap-3">
+        <div className="grid sm:grid-cols-2 gap-3">
           <QuickAction
             icon={Upload}     label="Upload Repos"   sub="Connect a GitHub repo to scan"
             to="/upload"      color="#3b82f6"        navigate={navigate}
@@ -81,10 +81,6 @@ const Home = () => {
           <QuickAction
             icon={GitBranch}  label="View Graph"     sub="Explore the dependency graph"
             to="/graph"       color="#22c55e"        navigate={navigate}
-          />
-          <QuickAction
-            icon={Zap}        label="Impact Sim"     sub="Select a node and trace ripples"
-            to="/impact"      color="#f59e0b"        navigate={navigate}
           />
         </div>
       </div>

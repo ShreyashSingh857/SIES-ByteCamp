@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, FolderTree, Loader2 } from 'lucide-react';
 import { useGetGraphQuery } from '../store/slices/apiSlice';
 
-const MAX_TREE_LINES = 16;
+const MAX_TREE_LINES = 14;
 const MAX_TREE_DEPTH = 4;
 
 const normalizePath = (value) => (value || '').replace(/\\/g, '/').replace(/^\/+/, '');
@@ -20,12 +20,14 @@ const buildTreePreviewLines = (node, depth = 0, prefix = '', lines = []) => {
     if (lines.length >= MAX_TREE_LINES) return;
     const isLast = index === entries.length - 1;
     const connector = isLast ? '└── ' : '├── ';
-    lines.push(`${prefix}${connector}${name}${Object.keys(child.children || {}).length > 0 ? '/' : ''}`);
+    const isDir = Object.keys(child.children || {}).length > 0;
+    
+    lines.push({ prefix: `${prefix}${connector}`, name, isDir });
     buildTreePreviewLines(child, depth + 1, `${prefix}${isLast ? '    ' : '│   '}`, lines);
   });
 
   if (depth === 0 && entries.length === 0) {
-    lines.push('└── (empty)');
+    lines.push({ prefix: '└── ', name: '(empty)', isDir: false });
   }
 
   return lines;
@@ -70,12 +72,12 @@ const buildDirectoryCards = (nodes = []) => {
       return {
         root: entry.root,
         fileCount: entry.fileCount,
-        treePreview: clipped ? [...lines.slice(0, MAX_TREE_LINES - 1), '└── …'] : lines,
+        treePreview: clipped ? [...lines.slice(0, MAX_TREE_LINES - 1), { prefix: '└── ', name: '…', isDir: false }] : lines,
       };
     });
 };
 
-const Analyze = () => {
+export default function Analyze() {
   const navigate = useNavigate();
   const currentRepoId = useSelector((s) => s.graph.currentRepoId);
 
@@ -89,94 +91,100 @@ const Analyze = () => {
   }, [fetchedGraphData]);
 
   return (
-    <div className="max-w-6xl mx-auto space-y-5">
-      <button
-        onClick={() => navigate('/upload')}
-        className="flex items-center gap-1.5 text-xs transition-colors"
-        style={{ color: 'var(--text-muted)' }}
-      >
-        <ArrowLeft size={13} /> Back to Upload
-      </button>
-
-      <div className="card">
-        <div className="flex items-center gap-2">
-          <FolderTree size={16} style={{ color: '#3b82f6' }} />
-          <h2 className="font-display font-semibold text-sm" style={{ color: 'var(--text)' }}>
-            Analyze Repository Structure
-          </h2>
-        </div>
-        <p className="text-xs mt-1" style={{ color: 'var(--text-muted)' }}>
-          Top-level directories from your scanned repository with tree previews.
-        </p>
-      </div>
-
-      {!currentRepoId && (
-        <div className="card text-center py-8">
-          <p className="font-medium text-sm" style={{ color: 'var(--text)' }}>No repository scanned yet</p>
-          <button onClick={() => navigate('/upload')} className="text-xs mt-2" style={{ color: '#3b82f6' }}>
-            Upload and scan a repo →
+    <div className="min-h-screen bg-[#FCFCFC] text-slate-900 font-sans -m-4 sm:-m-6">
+      <div className="max-w-6xl mx-auto py-12 px-4 flex flex-col gap-10">
+        
+        {/* The Header Area */}
+        <div className="flex flex-col items-center text-center space-y-4">
+          <button
+            onClick={() => navigate('/upload')}
+            className="flex items-center gap-2 text-sm font-medium text-slate-500 hover:text-slate-900 transition-colors"
+          >
+            <ArrowLeft className="w-4 h-4" /> Back to Upload
           </button>
+          
+          <div className="space-y-2">
+            <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Analyze Repository Structure</h1>
+            <p className="text-base text-slate-600 font-medium">Top-level directories from your scanned repository</p>
+          </div>
         </div>
-      )}
 
-      {currentRepoId && isLoading && (
-        <div className="card flex items-center gap-2 text-sm" style={{ color: 'var(--text-muted)' }}>
-          <Loader2 size={14} className="animate-spin" /> Loading directory structure…
-        </div>
-      )}
-
-      {currentRepoId && !isLoading && cards.length === 0 && (
-        <div className="card text-center py-8">
-          <p className="font-medium text-sm" style={{ color: 'var(--text)' }}>No directory data found</p>
-          <p className="text-xs mt-1" style={{ color: 'var(--text-muted)' }}>
-            Scan output does not include file paths yet.
-          </p>
-        </div>
-      )}
-
-      {currentRepoId && !isLoading && cards.length > 0 && (
-        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-          {cards.map((card) => (
+        {/* Loading / Empty States */}
+        {!currentRepoId && (
+          <div className="bg-white border border-slate-200 rounded-lg py-16 px-4 text-center max-w-2xl mx-auto w-full">
+            <p className="text-base font-semibold text-slate-900 mb-2">No repository active</p>
+            <p className="text-sm text-slate-500 mb-6">Upload and scan a repository to start analyzing the dependency graph.</p>
             <button
-              key={card.root}
-              onClick={() => navigate(`/analyze/dir/${encodeURIComponent(card.root)}`)}
-              className="card space-y-2 text-left transition-all"
-              style={{ cursor: 'pointer' }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.borderColor = '#3b82f6';
-                e.currentTarget.style.boxShadow = '0 0 0 3px rgba(59,130,246,0.10)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.borderColor = '';
-                e.currentTarget.style.boxShadow = '';
-              }}
+              onClick={() => navigate('/upload')}
+              className="inline-flex items-center justify-center bg-indigo-700 hover:bg-indigo-800 text-white px-6 py-2.5 rounded text-sm font-medium transition-colors"
             >
-              <div>
-                <h3 className="font-display font-semibold text-sm" style={{ color: 'var(--text)' }}>
-                  {card.root}
-                </h3>
-                <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
-                  {card.fileCount} file{card.fileCount > 1 ? 's' : ''} · click to explore
-                </p>
-              </div>
-              <pre
-                className="text-xs code-text rounded-lg p-2 overflow-auto"
-                style={{
-                  background: 'var(--bg-muted)',
-                  color: 'var(--text-muted)',
-                  border: '1px solid var(--border)',
-                  maxHeight: '16rem',
-                }}
-              >
-{card.root}/
-{card.treePreview.join('\n')}
-              </pre>
+              Go to Upload
             </button>
-          ))}
-        </div>
-      )}
+          </div>
+        )}
+
+        {currentRepoId && isLoading && (
+          <div className="flex flex-col items-center justify-center py-20 text-slate-500">
+            <Loader2 className="w-8 h-8 animate-spin text-indigo-600 mb-4" />
+            <p className="text-sm font-medium">Extracting directory structure...</p>
+          </div>
+        )}
+
+        {currentRepoId && !isLoading && cards.length === 0 && (
+          <div className="bg-white border border-slate-200 rounded-lg py-16 px-4 text-center max-w-2xl mx-auto w-full">
+            <p className="text-base font-semibold text-slate-900 mb-2">No directory data found</p>
+            <p className="text-sm text-slate-500">
+              The scan completed but did not output structured file paths. Try re-scanning.
+            </p>
+          </div>
+        )}
+
+        {/* The Three-Column Grid */}
+        {currentRepoId && !isLoading && cards.length > 0 && (
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 w-full max-w-7xl mx-auto">
+            {cards.map((card) => (
+              <button
+                key={card.root}
+                onClick={() => navigate(`/analyze/dir/${encodeURIComponent(card.root)}`)}
+                className="bg-white border border-slate-200 rounded-xl p-6 flex flex-col text-left relative transition-all duration-300 ease-out hover:scale-[1.03] hover:z-10 hover:border-indigo-600 hover:shadow-md will-change-transform outline-none"
+              >
+                {/* Status Badge */}
+                <div className="absolute top-6 right-6">
+                  <span className="inline-flex items-center px-2 py-0.5 bg-emerald-50 text-emerald-700 text-[10px] font-bold tracking-wider uppercase border border-emerald-200 rounded">
+                    Ready
+                  </span>
+                </div>
+
+                <div className="mb-4 pr-16 w-full">
+                  <div className="flex items-center gap-2 mb-1.5 w-full">
+                    <FolderTree className="w-5 h-5 text-indigo-600 flex-shrink-0" />
+                    <h3 className="text-lg font-bold text-slate-900 truncate">
+                      {card.root}
+                    </h3>
+                  </div>
+                  <p className="text-sm text-slate-500 font-medium">
+                    {card.fileCount} file{card.fileCount !== 1 ? 's' : ''} • click to explore
+                  </p>
+                </div>
+
+                <div className="w-full bg-slate-50 border border-slate-200 rounded-md p-4 overflow-hidden mt-auto">
+                  <div className="text-[13px] font-mono leading-relaxed whitespace-pre overflow-x-auto min-h-[5rem]">
+                    <div className="font-bold text-slate-900">{card.root}/</div>
+                    {card.treePreview.map((line, idx) => (
+                      <div key={idx} className="flex min-w-full">
+                        <span className="text-slate-400 select-none pointer-events-none pr-1">{line.prefix.replace(/ /g, '\u00A0')}</span>
+                        <span className={`${line.isDir ? 'font-bold text-slate-900' : 'text-slate-600'}`}>
+                          {line.name}{line.isDir ? '/' : ''}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
-};
-
-export default Analyze;
+}

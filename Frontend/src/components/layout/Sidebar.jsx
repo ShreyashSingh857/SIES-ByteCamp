@@ -9,7 +9,6 @@ const NAV_ITEMS = [
   { to: '/upload',        icon: Upload,     label: 'Upload Repos' },
   { to: '/analyze',       icon: LayoutGrid, label: 'Analyze'      },
   { to: '/graph',         icon: GitBranch,  label: 'Graph View'   },
-  { to: '/impact',        icon: Zap,        label: 'Impact Panel' },
 ];
 
 const Sidebar = ({ isOpen, onClose, isCollapsed, toggleCollapse }) => {
