@@ -13,7 +13,7 @@ import apiEndpointIcon from '../assets/Icons/APIEndpoint.png';
 import dbTableIcon from '../assets/Icons/DBTable.png';
 import dbFieldIcon from '../assets/Icons/DBField.png';
 import apiContractIcon from '../assets/Icons/APIContract.png';
-import { buildDisplayGraph, computeNodeSizesByDepth, getDefaultVisibleTypes, normalizeNodeType } from './graphViewUtils';
+import { buildDisplayGraph, computeNodeSizesByDepth, getDefaultVisibleTypes, normalizeEdgeType, normalizeNodeType } from './graphViewUtils';
 
 const GRAPH_NODE_TYPE_CONFIG = {
   service: { label: 'Service', color: '#1d4ed8', border: '#3b82f6', shape: 'round-rectangle', icon: serviceIcon },
@@ -27,9 +27,9 @@ const GRAPH_NODE_TYPE_CONFIG = {
 };
 
 const NODE_TYPES = ['service', 'file', 'function', 'api_endpoint', 'db_table', 'db_field', 'api_contract'];
-const EDGE_TYPES  = Object.keys(EDGE_TYPE_CONFIG);
+const EDGE_PALETTE = ['#3b82f6', '#f59e0b', '#22c55e', '#a855f7', '#14b8a6', '#ef4444', '#0ea5e9', '#f97316'];
 
-const buildCyStyle = (nodeTypes) => [
+const buildCyStyle = (nodeTypes, edgeConfig) => [
   {
     selector: 'node',
     style: {
@@ -80,8 +80,8 @@ const buildCyStyle = (nodeTypes) => [
       'opacity': 0.55,
     },
   },
-  ...EDGE_TYPES.map((type) => {
-    const cfg = EDGE_TYPE_CONFIG[type] || {};
+  ...Object.keys(edgeConfig).map((type) => {
+    const cfg = edgeConfig[type] || {};
     return {
       selector: `edge[edgeType = "${type}"]`,
       style: {
@@ -155,11 +155,15 @@ const GraphView = () => {
         isSynthetic: false,
       };
     });
-    const edges = (graphData.edges || []).filter((edge) => edge.source !== edge.target).map((edge, index) => ({
+    const edges = (graphData.edges || []).map((edge) => ({
+      ...edge,
+      source: edge.source ?? edge.from,
+      target: edge.target ?? edge.to,
+    })).filter((edge) => edge.source && edge.target && edge.source !== edge.target).map((edge, index) => ({
       id: edge.id || `edge-${index}`,
       source: edge.source,
       target: edge.target,
-      edgeType: edge.type,
+      edgeType: normalizeEdgeType(edge.type ?? edge.edgeType ?? edge.label),
       count: 1,
     }));
     const sizes = computeNodeSizesByDepth(nodes, edges);
@@ -193,6 +197,20 @@ const GraphView = () => {
       links: base.links.filter((edge) => ids.has(edge.source) && ids.has(edge.target)),
     };
   }, [graphData, scope, perspective, selectedNode, localDepth, expandedFolders, expandedFiles, effectiveFilterTypes, hideLeafNodes, filterLangs, rawGraph]);
+  const edgeConfig = useMemo(() => {
+    const present = new Set(displayGraph.links.map((edge) => edge.edgeType || 'RELATED'));
+    const merged = { ...EDGE_TYPE_CONFIG };
+    [...present].forEach((type, index) => {
+      if (!merged[type]) {
+        merged[type] = {
+          color: EDGE_PALETTE[index % EDGE_PALETTE.length],
+          style: 'solid',
+          label: type.replace(/_/g, ' ').toLowerCase().replace(/\b\w/g, (m) => m.toUpperCase()),
+        };
+      }
+    });
+    return merged;
+  }, [displayGraph.links]);
   const searchMatches = useMemo(() => {
     const query = searchText.trim().toLowerCase();
     if (!query) return [];
@@ -266,7 +284,7 @@ const GraphView = () => {
     const cy = cytoscape({
       container: containerRef.current,
       elements: [],
-      style: buildCyStyle(['folder', ...nodeTypes]),
+      style: buildCyStyle(['folder', ...nodeTypes], edgeConfig),
       boxSelectionEnabled: false,
       minZoom: 0.2,
       maxZoom: 3,
@@ -305,7 +323,7 @@ const GraphView = () => {
       cy.destroy();
       cyRef.current = null;
     };
-  }, [dispatch, graphData, nodeTypes, selectedNode, showAllLabels]);
+  }, [dispatch, graphData, nodeTypes, selectedNode, showAllLabels, edgeConfig]);
 
   useEffect(() => {
     const cy = cyRef.current;
@@ -575,8 +593,8 @@ const GraphView = () => {
             })}
           </div>
           <div className="flex flex-wrap gap-3">
-            {EDGE_TYPES.map((type) => {
-              const cfg = EDGE_TYPE_CONFIG[type] || {};
+            {Object.keys(edgeConfig).map((type) => {
+              const cfg = edgeConfig[type] || {};
               return (
                 <div key={type} className="flex items-center gap-1.5 text-xs" style={{ color: 'var(--text-muted)' }}>
                   <span className="inline-block w-5" style={{ borderTop: `2px ${cfg.style || 'solid'} ${cfg.color || '#475569'}` }} />

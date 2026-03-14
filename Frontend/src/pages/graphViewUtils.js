@@ -19,6 +19,13 @@ export const normalizeNodeType = (value) => {
   return aliases[type] || 'file';
 };
 
+export const normalizeEdgeType = (value) =>
+  String(value || 'RELATED')
+    .trim()
+    .replace(/\s+/g, '_')
+    .replace(/-/g, '_')
+    .toUpperCase();
+
 const getNodePath = (node) => node.path || node.file || node.name || node.id;
 
 const getDirectory = (value) => {
@@ -109,7 +116,14 @@ export const buildDisplayGraph = (graphData, options) => {
     };
   });
   const nodeMap = new Map(normalizedNodes.map((node) => [node.id, node]));
-  const rawEdges = (graphData.edges || []).filter((edge) => edge.source !== edge.target && nodeMap.has(edge.source) && nodeMap.has(edge.target));
+  const rawEdges = (graphData.edges || [])
+    .map((edge) => ({
+      ...edge,
+      source: edge.source ?? edge.from,
+      target: edge.target ?? edge.to,
+      type: edge.type ?? edge.edgeType ?? edge.label,
+    }))
+    .filter((edge) => edge.source && edge.target && edge.source !== edge.target && nodeMap.has(edge.source) && nodeMap.has(edge.target));
   const baseTypes = options.scope === 'local'
     ? DEFAULT_TYPE_GROUPS.all
     : options.activeTypes?.length
@@ -152,8 +166,9 @@ export const buildDisplayGraph = (graphData, options) => {
     const sourceId = mapNodeId(nodeMap.get(edge.source));
     const targetId = mapNodeId(nodeMap.get(edge.target));
     if (!sourceId || !targetId || sourceId === targetId) return;
-    const key = `${sourceId}->${targetId}:${edge.type || 'RELATED'}`;
-    const current = edgeMap.get(key) || { id: key, source: sourceId, target: targetId, edgeType: edge.type || 'RELATED', count: 0 };
+    const edgeType = normalizeEdgeType(edge.type);
+    const key = `${sourceId}->${targetId}:${edgeType}`;
+    const current = edgeMap.get(key) || { id: key, source: sourceId, target: targetId, edgeType, count: 0 };
     current.count += 1;
     edgeMap.set(key, current);
   });
