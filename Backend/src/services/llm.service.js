@@ -98,6 +98,28 @@ function normalizeRiskLevel(value) {
     return 'UNKNOWN';
 }
 
+function normalizeImpactCategory(value) {
+    const normalized = String(value ?? '').toUpperCase().replace(/\s+/g, '_');
+    if (normalized === 'IMPACT_JAIL' || normalized === 'JAIL') return 'IMPACT_JAIL';
+    if (normalized.includes('HIGH')) return 'HIGH';
+    if (normalized.includes('MEDIUM')) return 'MEDIUM';
+    if (normalized.includes('LOW')) return 'LOW';
+    return '';
+}
+
+function computeImpactCategory({ riskLevel, staticDependencies, runtimeDependencies }) {
+    const risk = normalizeRiskLevel(riskLevel);
+    const staticCount = Array.isArray(staticDependencies) ? staticDependencies.length : 0;
+    const runtimeCount = Array.isArray(runtimeDependencies) ? runtimeDependencies.length : 0;
+
+    // "Impact jail" is reserved for cross-cutting, runtime-heavy, high-risk files.
+    if (risk === 'HIGH' && runtimeCount >= 2 && staticCount >= 2) {
+        return 'IMPACT_JAIL';
+    }
+
+    return risk === 'UNKNOWN' ? 'MEDIUM' : risk;
+}
+
 function normalizeConfidence(value) {
     const normalized = String(value ?? '').toUpperCase();
     if (normalized === 'HIGH' || normalized === 'MEDIUM' || normalized === 'LOW') {
@@ -118,13 +140,22 @@ function normalizeFileInsight(rawInsight, fallbackFilePath = '') {
         ''
     ).trim();
 
+    const staticDependencies = toArray(source.staticDependencies || source.staticDeps);
+    const runtimeDependencies = toArray(source.runtimeDependencies || source.runtimeDeps);
+    const requestedImpactCategory = normalizeImpactCategory(source.impactCategory || source.impact_category || source.severity);
+
     return {
         filePath,
         whyRelated: truncateText(source.whyRelated || source.relationSummary || source.reason || '', 500),
-        staticDependencies: toArray(source.staticDependencies || source.staticDeps),
-        runtimeDependencies: toArray(source.runtimeDependencies || source.runtimeDeps),
+        staticDependencies,
+        runtimeDependencies,
         impactSummary: truncateText(source.impactSummary || source.impactAnalysis || source.impact || '', 700),
         riskLevel: normalizeRiskLevel(source.riskLevel || source.riskAssessment),
+        impactCategory: requestedImpactCategory || computeImpactCategory({
+            riskLevel: source.riskLevel || source.riskAssessment,
+            staticDependencies,
+            runtimeDependencies,
+        }),
         recommendedActions: toArray(source.recommendedActions || source.recommendations),
         confidence: normalizeConfidence(source.confidence),
     };
@@ -153,6 +184,12 @@ function buildFallbackFileInsight(fileContext, selectedText, implicitDependencie
         ? (staticDependencies.length > 2 ? 'HIGH' : 'MEDIUM')
         : (staticDependencies.length > 2 ? 'MEDIUM' : 'LOW');
 
+    const impactCategory = computeImpactCategory({
+        riskLevel,
+        staticDependencies,
+        runtimeDependencies: mergedRuntimeDependencies,
+    });
+
     return {
         filePath,
         whyRelated: occurrences.length > 0
@@ -164,6 +201,7 @@ function buildFallbackFileInsight(fileContext, selectedText, implicitDependencie
             ? 'Runtime and integration flows in this file can amplify downstream impact if the selected code changes.'
             : 'Changes to the selected code can affect compile-time or structural dependencies in this file.',
         riskLevel,
+        impactCategory,
         recommendedActions: [
             'Review symbol usages in this file before refactoring.',
             mergedRuntimeDependencies.length > 0
@@ -476,6 +514,7 @@ export async function generatePerFileDependencyInsights(selectedText, fileContex
             '      "runtimeDependencies": [""],',
             '      "impactSummary": "",',
             '      "riskLevel": "LOW|MEDIUM|HIGH",',
+            '      "impactCategory": "LOW|MEDIUM|HIGH|IMPACT_JAIL",',
             '      "recommendedActions": [""],',
             '      "confidence": "LOW|MEDIUM|HIGH"',
             '    }',
