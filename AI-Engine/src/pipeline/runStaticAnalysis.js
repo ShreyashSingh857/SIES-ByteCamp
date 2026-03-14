@@ -3,9 +3,11 @@ const { scanRepository } = require('./scanRepository');
 const { parseFiles } = require('./parseFiles');
 const { createGraphBuilder } = require('./graphBuilder');
 const { extractDependenciesFromAst } = require('./extractDependencies');
+const { runGraphIntelligence } = require('../llm/graphIntelligence');
 
-async function runStaticAnalysis(repositoryPath) {
+async function runStaticAnalysis(repositoryPath, options = {}) {
   const resolvedPath = path.resolve(repositoryPath);
+  const withLlm = options.withLlm ?? false;
 
   const scannedFiles = scanRepository(resolvedPath);
   const parsedFiles = await parseFiles(scannedFiles);
@@ -16,8 +18,7 @@ async function runStaticAnalysis(repositoryPath) {
   }
 
   const graph = graphBuilder.toJSON();
-
-  return {
+  const result = {
     repositoryPath: resolvedPath,
     summary: {
       scannedFiles: scannedFiles.length,
@@ -28,6 +29,14 @@ async function runStaticAnalysis(repositoryPath) {
     },
     ...graph,
   };
+
+  if (withLlm) {
+    result.llmInsights = await runGraphIntelligence(result, {
+      model: options.model,
+    });
+  }
+
+  return result;
 }
 
 module.exports = {
