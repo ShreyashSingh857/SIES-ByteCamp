@@ -1,0 +1,69 @@
+{
+  "repositoryPath": "D:\\ByteCampFinalRound\\SIES-ByteCamp\\Backend",
+  "summary": {
+    "scannedFiles": 9,
+    "parsedFiles": 9,
+    "nodes": 9,
+    "edges": 0,
+    "languages": [
+      "javascript"
+    ]
+  },
+  "nodes": [
+    {
+      "id": "file:app.js",
+      "type": "FILE",
+      "name": "app.js",
+      "language": "javascript"
+    },
+    {
+      "id": "file:index.js",
+      "type": "FILE",
+      "name": "index.js",
+      "language": "javascript"
+    },
+    {
+      "id": "file:src\\controllers\\auth.controller.js",
+      "type": "FILE",
+      "name": "src\\controllers\\auth.controller.js",
+      "language": "javascript"
+    },
+    {
+      "id": "file:src\\middlewares\\addHere.js",
+      "type": "FILE",
+      "name": "src\\middlewares\\addHere.js",
+      "language": "javascript"
+    },
+    {
+      "id": "file:src\\models\\user.model.js",
+      "type": "FILE",
+      "name": "src\\models\\user.model.js",
+      "language": "javascript"
+    },
+    {
+      "id": "file:src\\routes\\auth.route.js",
+      "type": "FILE",
+      "name": "src\\routes\\auth.route.js",
+      "language": "javascript"
+    },
+    {
+      "id": "file:src\\routes\\user.route.js",
+      "type": "FILE",
+      "name": "src\\routes\\user.route.js",
+      "language": "javascript"
+    },
+    {
+      "id": "file:src\\services\\auth.service.js",
+      "type": "FILE",
+      "name": "src\\services\\auth.service.js",
+      "language": "javascript"
+    },
+    {
+      "id": "file:src\\utils\\addhere.js",
+      "type": "FILE",
+      "name": "src\\utils\\addhere.js",
+      "language": "javascript"
+    }
+  ],
+  "edges": []
+}

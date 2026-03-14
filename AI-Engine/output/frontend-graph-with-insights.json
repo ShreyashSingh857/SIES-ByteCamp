@@ -1,0 +1,3112 @@
+{
+  "repositoryPath": "D:\\ByteCampFinalRound\\SIES-ByteCamp\\Frontend",
+  "summary": {
+    "scannedFiles": 14,
+    "parsedFiles": 14,
+    "nodes": 228,
+    "edges": 312,
+    "languages": [
+      "javascript"
+    ]
+  },
+  "nodes": [
+    {
+      "id": "file:eslint.config.js",
+      "type": "FILE",
+      "name": "eslint.config.js",
+      "language": "javascript"
+    },
+    {
+      "id": "module:@eslint/js",
+      "type": "MODULE",
+      "name": "@eslint/js"
+    },
+    {
+      "id": "module:globals",
+      "type": "MODULE",
+      "name": "globals"
+    },
+    {
+      "id": "module:eslint-plugin-react-hooks",
+      "type": "MODULE",
+      "name": "eslint-plugin-react-hooks"
+    },
+    {
+      "id": "module:eslint-plugin-react-refresh",
+      "type": "MODULE",
+      "name": "eslint-plugin-react-refresh"
+    },
+    {
+      "id": "module:eslint/config",
+      "type": "MODULE",
+      "name": "eslint/config"
+    },
+    {
+      "id": "symbol:defineConfig",
+      "type": "SYMBOL",
+      "name": "defineConfig"
+    },
+    {
+      "id": "symbol:globalIgnores",
+      "type": "SYMBOL",
+      "name": "globalIgnores"
+    },
+    {
+      "id": "file:src/assets/mockdata.js",
+      "type": "FILE",
+      "name": "src/assets/mockdata.js",
+      "language": "javascript"
+    },
+    {
+      "id": "file:src/pages/index.js",
+      "type": "FILE",
+      "name": "src/pages/index.js",
+      "language": "javascript"
+    },
+    {
+      "id": "module:./Landing",
+      "type": "MODULE",
+      "name": "./Landing"
+    },
+    {
+      "id": "module:./Login",
+      "type": "MODULE",
+      "name": "./Login"
+    },
+    {
+      "id": "module:./Signup",
+      "type": "MODULE",
+      "name": "./Signup"
+    },
+    {
+      "id": "module:./Home",
+      "type": "MODULE",
+      "name": "./Home"
+    },
+    {
+      "id": "module:./UploadRepo",
+      "type": "MODULE",
+      "name": "./UploadRepo"
+    },
+    {
+      "id": "module:./GraphView",
+      "type": "MODULE",
+      "name": "./GraphView"
+    },
+    {
+      "id": "module:./ImpactPanel",
+      "type": "MODULE",
+      "name": "./ImpactPanel"
+    },
+    {
+      "id": "file:src/services/api.js",
+      "type": "FILE",
+      "name": "src/services/api.js",
+      "language": "javascript"
+    },
+    {
+      "id": "module:axios",
+      "type": "MODULE",
+      "name": "axios"
+    },
+    {
+      "id": "symbol:create",
+      "type": "SYMBOL",
+      "name": "create"
+    },
+    {
+      "id": "service:axios",
+      "type": "EXTERNAL_SERVICE",
+      "name": "axios"
+    },
+    {
+      "id": "symbol:use",
+      "type": "SYMBOL",
+      "name": "use"
+    },
+    {
+      "id": "symbol:getItem",
+      "type": "SYMBOL",
+      "name": "getItem"
+    },
+    {
+      "id": "symbol:reject",
+      "type": "SYMBOL",
+      "name": "reject"
+    },
+    {
+      "id": "symbol:post",
+      "type": "SYMBOL",
+      "name": "post"
+    },
+    {
+      "id": "symbol:setItem",
+      "type": "SYMBOL",
+      "name": "setItem"
+    },
+    {
+      "id": "symbol:api",
+      "type": "SYMBOL",
+      "name": "api"
+    },
+    {
+      "id": "symbol:removeItem",
+      "type": "SYMBOL",
+      "name": "removeItem"
+    },
+    {
+      "id": "symbol:get",
+      "type": "SYMBOL",
+      "name": "get"
+    },
+    {
+      "id": "symbol:patch",
+      "type": "SYMBOL",
+      "name": "patch"
+    },
+    {
+      "id": "symbol:put",
+      "type": "SYMBOL",
+      "name": "put"
+    },
+    {
+      "id": "symbol:delete",
+      "type": "SYMBOL",
+      "name": "delete"
+    },
+    {
+      "id": "file:src/store/index.js",
+      "type": "FILE",
+      "name": "src/store/index.js",
+      "language": "javascript"
+    },
+    {
+      "id": "module:./slices/themeSlice.js",
+      "type": "MODULE",
+      "name": "./slices/themeSlice.js"
+    },
+    {
+      "id": "module:./slices/graphSlice.js",
+      "type": "MODULE",
+      "name": "./slices/graphSlice.js"
+    },
+    {
+      "id": "file:src/store/slices/apiSlice.js",
+      "type": "FILE",
+      "name": "src/store/slices/apiSlice.js",
+      "language": "javascript"
+    },
+    {
+      "id": "module:@reduxjs/toolkit/query/react",
+      "type": "MODULE",
+      "name": "@reduxjs/toolkit/query/react"
+    },
+    {
+      "id": "symbol:createApi",
+      "type": "SYMBOL",
+      "name": "createApi"
+    },
+    {
+      "id": "symbol:fetchBaseQuery",
+      "type": "SYMBOL",
+      "name": "fetchBaseQuery"
+    },
+    {
+      "id": "symbol:set",
+      "type": "SYMBOL",
+      "name": "set"
+    },
+    {
+      "id": "symbol:query",
+      "type": "SYMBOL",
+      "name": "query"
+    },
+    {
+      "id": "symbol:map",
+      "type": "SYMBOL",
+      "name": "map"
+    },
+    {
+      "id": "symbol:mutation",
+      "type": "SYMBOL",
+      "name": "mutation"
+    },
+    {
+      "id": "file:src/store/slices/graphSlice.js",
+      "type": "FILE",
+      "name": "src/store/slices/graphSlice.js",
+      "language": "javascript"
+    },
+    {
+      "id": "function:src/store/slices/graphSlice.js#computeImpact",
+      "type": "FUNCTION",
+      "name": "computeImpact",
+      "file": "src/store/slices/graphSlice.js",
+      "line": 5
+    },
+    {
+      "id": "function:src/store/slices/graphSlice.js#setSelectedNode",
+      "type": "FUNCTION",
+      "name": "setSelectedNode",
+      "file": "src/store/slices/graphSlice.js",
+      "line": 58
+    },
+    {
+      "id": "function:src/store/slices/graphSlice.js#clearSelection",
+      "type": "FUNCTION",
+      "name": "clearSelection",
+      "file": "src/store/slices/graphSlice.js",
+      "line": 64
+    },
+    {
+      "id": "function:src/store/slices/graphSlice.js#setScanStatus",
+      "type": "FUNCTION",
+      "name": "setScanStatus",
+      "file": "src/store/slices/graphSlice.js",
+      "line": 69
+    },
+    {
+      "id": "function:src/store/slices/graphSlice.js#setScanProgress",
+      "type": "FUNCTION",
+      "name": "setScanProgress",
+      "file": "src/store/slices/graphSlice.js",
+      "line": 72
+    },
+    {
+      "id": "function:src/store/slices/graphSlice.js#addRepo",
+      "type": "FUNCTION",
+      "name": "addRepo",
+      "file": "src/store/slices/graphSlice.js",
+      "line": 75
+    },
+    {
+      "id": "function:src/store/slices/graphSlice.js#updateRepoStatus",
+      "type": "FUNCTION",
+      "name": "updateRepoStatus",
+      "file": "src/store/slices/graphSlice.js",
+      "line": 78
+    },
+    {
+      "id": "function:src/store/slices/graphSlice.js#removeRepo",
+      "type": "FUNCTION",
+      "name": "removeRepo",
+      "file": "src/store/slices/graphSlice.js",
+      "line": 83
+    },
+    {
+      "id": "function:src/store/slices/graphSlice.js#setFilterLangs",
+      "type": "FUNCTION",
+      "name": "setFilterLangs",
+      "file": "src/store/slices/graphSlice.js",
+      "line": 86
+    },
+    {
+      "id": "function:src/store/slices/graphSlice.js#setFilterTypes",
+      "type": "FUNCTION",
+      "name": "setFilterTypes",
+      "file": "src/store/slices/graphSlice.js",
+      "line": 89
+    },
+    {
+      "id": "module:@reduxjs/toolkit",
+      "type": "MODULE",
+      "name": "@reduxjs/toolkit"
+    },
+    {
+      "id": "module:../../assets/mockdata",
+      "type": "MODULE",
+      "name": "../../assets/mockdata"
+    },
+    {
+      "id": "symbol:forEach",
+      "type": "SYMBOL",
+      "name": "forEach"
+    },
+    {
+      "id": "symbol:add",
+      "type": "SYMBOL",
+      "name": "add"
+    },
+    {
+      "id": "symbol:shift",
+      "type": "SYMBOL",
+      "name": "shift"
+    },
+    {
+      "id": "symbol:has",
+      "type": "SYMBOL",
+      "name": "has"
+    },
+    {
+      "id": "symbol:push",
+      "type": "SYMBOL",
+      "name": "push"
+    },
+    {
+      "id": "symbol:createSlice",
+      "type": "SYMBOL",
+      "name": "createSlice"
+    },
+    {
+      "id": "symbol:unshift",
+      "type": "SYMBOL",
+      "name": "unshift"
+    },
+    {
+      "id": "symbol:find",
+      "type": "SYMBOL",
+      "name": "find"
+    },
+    {
+      "id": "symbol:filter",
+      "type": "SYMBOL",
+      "name": "filter"
+    },
+    {
+      "id": "file:src/store/slices/themeSlice.js",
+      "type": "FILE",
+      "name": "src/store/slices/themeSlice.js",
+      "language": "javascript"
+    },
+    {
+      "id": "function:src/store/slices/themeSlice.js#toggleTheme",
+      "type": "FUNCTION",
+      "name": "toggleTheme",
+      "file": "src/store/slices/themeSlice.js",
+      "line": 16
+    },
+    {
+      "id": "function:src/store/slices/themeSlice.js#setTheme",
+      "type": "FUNCTION",
+      "name": "setTheme",
+      "file": "src/store/slices/themeSlice.js",
+      "line": 19
+    },
+    {
+      "id": "symbol:matchMedia",
+      "type": "SYMBOL",
+      "name": "matchMedia"
+    },
+    {
+      "id": "file:src/store/slices/uiSlice/uiSlice-examples.js",
+      "type": "FILE",
+      "name": "src/store/slices/uiSlice/uiSlice-examples.js",
+      "language": "javascript"
+    },
+    {
+      "id": "function:src/store/slices/uiSlice/uiSlice-examples.js#ModalExample",
+      "type": "FUNCTION",
+      "name": "ModalExample",
+      "file": "src/store/slices/uiSlice/uiSlice-examples.js",
+      "line": 34
+    },
+    {
+      "id": "function:src/store/slices/uiSlice/uiSlice-examples.js#handleOpenCreate",
+      "type": "FUNCTION",
+      "name": "handleOpenCreate",
+      "file": "src/store/slices/uiSlice/uiSlice-examples.js",
+      "line": 39
+    },
+    {
+      "id": "function:src/store/slices/uiSlice/uiSlice-examples.js#handleOpenEdit",
+      "type": "FUNCTION",
+      "name": "handleOpenEdit",
+      "file": "src/store/slices/uiSlice/uiSlice-examples.js",
+      "line": 43
+    },
+    {
+      "id": "function:src/store/slices/uiSlice/uiSlice-examples.js#handleCloseCreate",
+      "type": "FUNCTION",
+      "name": "handleCloseCreate",
+      "file": "src/store/slices/uiSlice/uiSlice-examples.js",
+      "line": 47
+    },
+    {
+      "id": "function:src/store/slices/uiSlice/uiSlice-examples.js#SidebarExample",
+      "type": "FUNCTION",
+      "name": "SidebarExample",
+      "file": "src/store/slices/uiSlice/uiSlice-examples.js",
+      "line": 97
+    },
+    {
+      "id": "function:src/store/slices/uiSlice/uiSlice-examples.js#FiltersExample",
+      "type": "FUNCTION",
+      "name": "FiltersExample",
+      "file": "src/store/slices/uiSlice/uiSlice-examples.js",
+      "line": 142
+    },
+    {
+      "id": "function:src/store/slices/uiSlice/uiSlice-examples.js#handleSearchChange",
+      "type": "FUNCTION",
+      "name": "handleSearchChange",
+      "file": "src/store/slices/uiSlice/uiSlice-examples.js",
+      "line": 146
+    },
+    {
+      "id": "function:src/store/slices/uiSlice/uiSlice-examples.js#handleCategoryChange",
+      "type": "FUNCTION",
+      "name": "handleCategoryChange",
+      "file": "src/store/slices/uiSlice/uiSlice-examples.js",
+      "line": 150
+    },
+    {
+      "id": "function:src/store/slices/uiSlice/uiSlice-examples.js#handlePriceChange",
+      "type": "FUNCTION",
+      "name": "handlePriceChange",
+      "file": "src/store/slices/uiSlice/uiSlice-examples.js",
+      "line": 154
+    },
+    {
+      "id": "function:src/store/slices/uiSlice/uiSlice-examples.js#handleTagAdd",
+      "type": "FUNCTION",
+      "name": "handleTagAdd",
+      "file": "src/store/slices/uiSlice/uiSlice-examples.js",
+      "line": 158
+    },
+    {
+      "id": "function:src/store/slices/uiSlice/uiSlice-examples.js#handleTagRemove",
+      "type": "FUNCTION",
+      "name": "handleTagRemove",
+      "file": "src/store/slices/uiSlice/uiSlice-examples.js",
+      "line": 162
+    },
+    {
+      "id": "function:src/store/slices/uiSlice/uiSlice-examples.js#handleReset",
+      "type": "FUNCTION",
+      "name": "handleReset",
+      "file": "src/store/slices/uiSlice/uiSlice-examples.js",
+      "line": 166
+    },
+    {
+      "id": "function:src/store/slices/uiSlice/uiSlice-examples.js#PaginationExample",
+      "type": "FUNCTION",
+      "name": "PaginationExample",
+      "file": "src/store/slices/uiSlice/uiSlice-examples.js",
+      "line": 252
+    },
+    {
+      "id": "function:src/store/slices/uiSlice/uiSlice-examples.js#ViewModeExample",
+      "type": "FUNCTION",
+      "name": "ViewModeExample",
+      "file": "src/store/slices/uiSlice/uiSlice-examples.js",
+      "line": 302
+    },
+    {
+      "id": "function:src/store/slices/uiSlice/uiSlice-examples.js#NotificationsExample",
+      "type": "FUNCTION",
+      "name": "NotificationsExample",
+      "file": "src/store/slices/uiSlice/uiSlice-examples.js",
+      "line": 340
+    },
+    {
+      "id": "function:src/store/slices/uiSlice/uiSlice-examples.js#showSuccess",
+      "type": "FUNCTION",
+      "name": "showSuccess",
+      "file": "src/store/slices/uiSlice/uiSlice-examples.js",
+      "line": 344
+    },
+    {
+      "id": "function:src/store/slices/uiSlice/uiSlice-examples.js#showError",
+      "type": "FUNCTION",
+      "name": "showError",
+      "file": "src/store/slices/uiSlice/uiSlice-examples.js",
+      "line": 352
+    },
+    {
+      "id": "function:src/store/slices/uiSlice/uiSlice-examples.js#showWarning",
+      "type": "FUNCTION",
+      "name": "showWarning",
+      "file": "src/store/slices/uiSlice/uiSlice-examples.js",
+      "line": 360
+    },
+    {
+      "id": "function:src/store/slices/uiSlice/uiSlice-examples.js#Toast",
+      "type": "FUNCTION",
+      "name": "Toast",
+      "file": "src/store/slices/uiSlice/uiSlice-examples.js",
+      "line": 386
+    },
+    {
+      "id": "function:src/store/slices/uiSlice/uiSlice-examples.js#ThemeToggle",
+      "type": "FUNCTION",
+      "name": "ThemeToggle",
+      "file": "src/store/slices/uiSlice/uiSlice-examples.js",
+      "line": 411
+    },
+    {
+      "id": "function:src/store/slices/uiSlice/uiSlice-examples.js#BulkSelectionExample",
+      "type": "FUNCTION",
+      "name": "BulkSelectionExample",
+      "file": "src/store/slices/uiSlice/uiSlice-examples.js",
+      "line": 454
+    },
+    {
+      "id": "function:src/store/slices/uiSlice/uiSlice-examples.js#handleSelectAll",
+      "type": "FUNCTION",
+      "name": "handleSelectAll",
+      "file": "src/store/slices/uiSlice/uiSlice-examples.js",
+      "line": 458
+    },
+    {
+      "id": "function:src/store/slices/uiSlice/uiSlice-examples.js#handleDeselectAll",
+      "type": "FUNCTION",
+      "name": "handleDeselectAll",
+      "file": "src/store/slices/uiSlice/uiSlice-examples.js",
+      "line": 463
+    },
+    {
+      "id": "function:src/store/slices/uiSlice/uiSlice-examples.js#handleToggleItem",
+      "type": "FUNCTION",
+      "name": "handleToggleItem",
+      "file": "src/store/slices/uiSlice/uiSlice-examples.js",
+      "line": 467
+    },
+    {
+      "id": "function:src/store/slices/uiSlice/uiSlice-examples.js#handleBulkDelete",
+      "type": "FUNCTION",
+      "name": "handleBulkDelete",
+      "file": "src/store/slices/uiSlice/uiSlice-examples.js",
+      "line": 471
+    },
+    {
+      "id": "function:src/store/slices/uiSlice/uiSlice-examples.js#DrawerExample",
+      "type": "FUNCTION",
+      "name": "DrawerExample",
+      "file": "src/store/slices/uiSlice/uiSlice-examples.js",
+      "line": 512
+    },
+    {
+      "id": "function:src/store/slices/uiSlice/uiSlice-examples.js#handleOpenFilters",
+      "type": "FUNCTION",
+      "name": "handleOpenFilters",
+      "file": "src/store/slices/uiSlice/uiSlice-examples.js",
+      "line": 516
+    },
+    {
+      "id": "function:src/store/slices/uiSlice/uiSlice-examples.js#handleOpenProfile",
+      "type": "FUNCTION",
+      "name": "handleOpenProfile",
+      "file": "src/store/slices/uiSlice/uiSlice-examples.js",
+      "line": 523
+    },
+    {
+      "id": "function:src/store/slices/uiSlice/uiSlice-examples.js#OnboardingExample",
+      "type": "FUNCTION",
+      "name": "OnboardingExample",
+      "file": "src/store/slices/uiSlice/uiSlice-examples.js",
+      "line": 558
+    },
+    {
+      "id": "function:src/store/slices/uiSlice/uiSlice-examples.js#handleNext",
+      "type": "FUNCTION",
+      "name": "handleNext",
+      "file": "src/store/slices/uiSlice/uiSlice-examples.js",
+      "line": 577
+    },
+    {
+      "id": "function:src/store/slices/uiSlice/uiSlice-examples.js#handleSkip",
+      "type": "FUNCTION",
+      "name": "handleSkip",
+      "file": "src/store/slices/uiSlice/uiSlice-examples.js",
+      "line": 586
+    },
+    {
+      "id": "function:src/store/slices/uiSlice/uiSlice-examples.js#ComparisonExample",
+      "type": "FUNCTION",
+      "name": "ComparisonExample",
+      "file": "src/store/slices/uiSlice/uiSlice-examples.js",
+      "line": 621
+    },
+    {
+      "id": "function:src/store/slices/uiSlice/uiSlice-examples.js#handleAddToCompare",
+      "type": "FUNCTION",
+      "name": "handleAddToCompare",
+      "file": "src/store/slices/uiSlice/uiSlice-examples.js",
+      "line": 625
+    },
+    {
+      "id": "function:src/store/slices/uiSlice/uiSlice-examples.js#handleRemoveFromCompare",
+      "type": "FUNCTION",
+      "name": "handleRemoveFromCompare",
+      "file": "src/store/slices/uiSlice/uiSlice-examples.js",
+      "line": 631
+    },
+    {
+      "id": "function:src/store/slices/uiSlice/uiSlice-examples.js#handleClearCompare",
+      "type": "FUNCTION",
+      "name": "handleClearCompare",
+      "file": "src/store/slices/uiSlice/uiSlice-examples.js",
+      "line": 635
+    },
+    {
+      "id": "function:src/store/slices/uiSlice/uiSlice-examples.js#CompleteDashboard",
+      "type": "FUNCTION",
+      "name": "CompleteDashboard",
+      "file": "src/store/slices/uiSlice/uiSlice-examples.js",
+      "line": 689
+    },
+    {
+      "id": "module:react",
+      "type": "MODULE",
+      "name": "react"
+    },
+    {
+      "id": "module:react-redux",
+      "type": "MODULE",
+      "name": "react-redux"
+    },
+    {
+      "id": "module:./uiSlice",
+      "type": "MODULE",
+      "name": "./uiSlice"
+    },
+    {
+      "id": "symbol:useDispatch",
+      "type": "SYMBOL",
+      "name": "useDispatch"
+    },
+    {
+      "id": "symbol:useSelector",
+      "type": "SYMBOL",
+      "name": "useSelector"
+    },
+    {
+      "id": "symbol:dispatch",
+      "type": "SYMBOL",
+      "name": "dispatch"
+    },
+    {
+      "id": "symbol:openModal",
+      "type": "SYMBOL",
+      "name": "openModal"
+    },
+    {
+      "id": "symbol:closeModal",
+      "type": "SYMBOL",
+      "name": "closeModal"
+    },
+    {
+      "id": "symbol:toggleSidebar",
+      "type": "SYMBOL",
+      "name": "toggleSidebar"
+    },
+    {
+      "id": "symbol:setSearch",
+      "type": "SYMBOL",
+      "name": "setSearch"
+    },
+    {
+      "id": "symbol:setFilter",
+      "type": "SYMBOL",
+      "name": "setFilter"
+    },
+    {
+      "id": "symbol:useEffect",
+      "type": "SYMBOL",
+      "name": "useEffect"
+    },
+    {
+      "id": "symbol:ceil",
+      "type": "SYMBOL",
+      "name": "ceil"
+    },
+    {
+      "id": "symbol:Number",
+      "type": "SYMBOL",
+      "name": "Number"
+    },
+    {
+      "id": "symbol:setViewMode",
+      "type": "SYMBOL",
+      "name": "setViewMode"
+    },
+    {
+      "id": "symbol:addNotification",
+      "type": "SYMBOL",
+      "name": "addNotification"
+    },
+    {
+      "id": "symbol:setTimeout",
+      "type": "SYMBOL",
+      "name": "setTimeout"
+    },
+    {
+      "id": "symbol:removeNotification",
+      "type": "SYMBOL",
+      "name": "removeNotification"
+    },
+    {
+      "id": "symbol:clearTimeout",
+      "type": "SYMBOL",
+      "name": "clearTimeout"
+    },
+    {
+      "id": "symbol:setProperty",
+      "type": "SYMBOL",
+      "name": "setProperty"
+    },
+    {
+      "id": "symbol:toggleTheme",
+      "type": "SYMBOL",
+      "name": "toggleTheme"
+    },
+    {
+      "id": "symbol:selectAll",
+      "type": "SYMBOL",
+      "name": "selectAll"
+    },
+    {
+      "id": "symbol:deselectAll",
+      "type": "SYMBOL",
+      "name": "deselectAll"
+    },
+    {
+      "id": "symbol:toggleSelection",
+      "type": "SYMBOL",
+      "name": "toggleSelection"
+    },
+    {
+      "id": "symbol:log",
+      "type": "SYMBOL",
+      "name": "log"
+    },
+    {
+      "id": "symbol:includes",
+      "type": "SYMBOL",
+      "name": "includes"
+    },
+    {
+      "id": "symbol:openDrawer",
+      "type": "SYMBOL",
+      "name": "openDrawer"
+    },
+    {
+      "id": "symbol:closeDrawer",
+      "type": "SYMBOL",
+      "name": "closeDrawer"
+    },
+    {
+      "id": "symbol:startOnboarding",
+      "type": "SYMBOL",
+      "name": "startOnboarding"
+    },
+    {
+      "id": "symbol:nextOnboardingStep",
+      "type": "SYMBOL",
+      "name": "nextOnboardingStep"
+    },
+    {
+      "id": "symbol:addToComparison",
+      "type": "SYMBOL",
+      "name": "addToComparison"
+    },
+    {
+      "id": "file:src/store/slices/uiSlice/uiSlice-hooks.js",
+      "type": "FILE",
+      "name": "src/store/slices/uiSlice/uiSlice-hooks.js",
+      "language": "javascript"
+    },
+    {
+      "id": "function:src/store/slices/uiSlice/uiSlice-hooks.js#useModal",
+      "type": "FUNCTION",
+      "name": "useModal",
+      "file": "src/store/slices/uiSlice/uiSlice-hooks.js",
+      "line": 14
+    },
+    {
+      "id": "function:src/store/slices/uiSlice/uiSlice-hooks.js#useNotification",
+      "type": "FUNCTION",
+      "name": "useNotification",
+      "file": "src/store/slices/uiSlice/uiSlice-hooks.js",
+      "line": 48
+    },
+    {
+      "id": "function:src/store/slices/uiSlice/uiSlice-hooks.js#useFilters",
+      "type": "FUNCTION",
+      "name": "useFilters",
+      "file": "src/store/slices/uiSlice/uiSlice-hooks.js",
+      "line": 95
+    },
+    {
+      "id": "function:src/store/slices/uiSlice/uiSlice-hooks.js#usePagination",
+      "type": "FUNCTION",
+      "name": "usePagination",
+      "file": "src/store/slices/uiSlice/uiSlice-hooks.js",
+      "line": 158
+    },
+    {
+      "id": "function:src/store/slices/uiSlice/uiSlice-hooks.js#useViewMode",
+      "type": "FUNCTION",
+      "name": "useViewMode",
+      "file": "src/store/slices/uiSlice/uiSlice-hooks.js",
+      "line": 210
+    },
+    {
+      "id": "function:src/store/slices/uiSlice/uiSlice-hooks.js#useTheme",
+      "type": "FUNCTION",
+      "name": "useTheme",
+      "file": "src/store/slices/uiSlice/uiSlice-hooks.js",
+      "line": 241
+    },
+    {
+      "id": "function:src/store/slices/uiSlice/uiSlice-hooks.js#useSelection",
+      "type": "FUNCTION",
+      "name": "useSelection",
+      "file": "src/store/slices/uiSlice/uiSlice-hooks.js",
+      "line": 287
+    },
+    {
+      "id": "function:src/store/slices/uiSlice/uiSlice-hooks.js#useDrawer",
+      "type": "FUNCTION",
+      "name": "useDrawer",
+      "file": "src/store/slices/uiSlice/uiSlice-hooks.js",
+      "line": 327
+    },
+    {
+      "id": "function:src/store/slices/uiSlice/uiSlice-hooks.js#useSidebar",
+      "type": "FUNCTION",
+      "name": "useSidebar",
+      "file": "src/store/slices/uiSlice/uiSlice-hooks.js",
+      "line": 361
+    },
+    {
+      "id": "function:src/store/slices/uiSlice/uiSlice-hooks.js#useLoading",
+      "type": "FUNCTION",
+      "name": "useLoading",
+      "file": "src/store/slices/uiSlice/uiSlice-hooks.js",
+      "line": 399
+    },
+    {
+      "id": "function:src/store/slices/uiSlice/uiSlice-hooks.js#useOnboarding",
+      "type": "FUNCTION",
+      "name": "useOnboarding",
+      "file": "src/store/slices/uiSlice/uiSlice-hooks.js",
+      "line": 430
+    },
+    {
+      "id": "function:src/store/slices/uiSlice/uiSlice-hooks.js#useComparison",
+      "type": "FUNCTION",
+      "name": "useComparison",
+      "file": "src/store/slices/uiSlice/uiSlice-hooks.js",
+      "line": 474
+    },
+    {
+      "id": "function:src/store/slices/uiSlice/uiSlice-hooks.js#useQuickActions",
+      "type": "FUNCTION",
+      "name": "useQuickActions",
+      "file": "src/store/slices/uiSlice/uiSlice-hooks.js",
+      "line": 518
+    },
+    {
+      "id": "function:src/store/slices/uiSlice/uiSlice-hooks.js#useUI",
+      "type": "FUNCTION",
+      "name": "useUI",
+      "file": "src/store/slices/uiSlice/uiSlice-hooks.js",
+      "line": 547
+    },
+    {
+      "id": "symbol:useCallback",
+      "type": "SYMBOL",
+      "name": "useCallback"
+    },
+    {
+      "id": "symbol:updateModalData",
+      "type": "SYMBOL",
+      "name": "updateModalData"
+    },
+    {
+      "id": "symbol:setCategory",
+      "type": "SYMBOL",
+      "name": "setCategory"
+    },
+    {
+      "id": "symbol:setStatus",
+      "type": "SYMBOL",
+      "name": "setStatus"
+    },
+    {
+      "id": "symbol:setSortBy",
+      "type": "SYMBOL",
+      "name": "setSortBy"
+    },
+    {
+      "id": "symbol:toggleSortOrder",
+      "type": "SYMBOL",
+      "name": "toggleSortOrder"
+    },
+    {
+      "id": "symbol:addTag",
+      "type": "SYMBOL",
+      "name": "addTag"
+    },
+    {
+      "id": "symbol:removeTag",
+      "type": "SYMBOL",
+      "name": "removeTag"
+    },
+    {
+      "id": "symbol:resetFilters",
+      "type": "SYMBOL",
+      "name": "resetFilters"
+    },
+    {
+      "id": "symbol:setTotalItems",
+      "type": "SYMBOL",
+      "name": "setTotalItems"
+    },
+    {
+      "id": "symbol:setPage",
+      "type": "SYMBOL",
+      "name": "setPage"
+    },
+    {
+      "id": "symbol:setPageSize",
+      "type": "SYMBOL",
+      "name": "setPageSize"
+    },
+    {
+      "id": "symbol:nextPage",
+      "type": "SYMBOL",
+      "name": "nextPage"
+    },
+    {
+      "id": "symbol:previousPage",
+      "type": "SYMBOL",
+      "name": "previousPage"
+    },
+    {
+      "id": "symbol:toggleViewMode",
+      "type": "SYMBOL",
+      "name": "toggleViewMode"
+    },
+    {
+      "id": "symbol:setThemeMode",
+      "type": "SYMBOL",
+      "name": "setThemeMode"
+    },
+    {
+      "id": "symbol:setPrimaryColor",
+      "type": "SYMBOL",
+      "name": "setPrimaryColor"
+    },
+    {
+      "id": "symbol:setFontSize",
+      "type": "SYMBOL",
+      "name": "setFontSize"
+    },
+    {
+      "id": "symbol:setAttribute",
+      "type": "SYMBOL",
+      "name": "setAttribute"
+    },
+    {
+      "id": "symbol:toggleDrawer",
+      "type": "SYMBOL",
+      "name": "toggleDrawer"
+    },
+    {
+      "id": "symbol:setSidebarOpen",
+      "type": "SYMBOL",
+      "name": "setSidebarOpen"
+    },
+    {
+      "id": "symbol:toggleSidebarCollapse",
+      "type": "SYMBOL",
+      "name": "toggleSidebarCollapse"
+    },
+    {
+      "id": "symbol:setActiveSection",
+      "type": "SYMBOL",
+      "name": "setActiveSection"
+    },
+    {
+      "id": "symbol:setLoading",
+      "type": "SYMBOL",
+      "name": "setLoading"
+    },
+    {
+      "id": "symbol:previousOnboardingStep",
+      "type": "SYMBOL",
+      "name": "previousOnboardingStep"
+    },
+    {
+      "id": "symbol:skipOnboarding",
+      "type": "SYMBOL",
+      "name": "skipOnboarding"
+    },
+    {
+      "id": "symbol:completeOnboarding",
+      "type": "SYMBOL",
+      "name": "completeOnboarding"
+    },
+    {
+      "id": "symbol:toggleComparison",
+      "type": "SYMBOL",
+      "name": "toggleComparison"
+    },
+    {
+      "id": "symbol:removeFromComparison",
+      "type": "SYMBOL",
+      "name": "removeFromComparison"
+    },
+    {
+      "id": "symbol:clearComparison",
+      "type": "SYMBOL",
+      "name": "clearComparison"
+    },
+    {
+      "id": "symbol:some",
+      "type": "SYMBOL",
+      "name": "some"
+    },
+    {
+      "id": "symbol:toggleQuickActions",
+      "type": "SYMBOL",
+      "name": "toggleQuickActions"
+    },
+    {
+      "id": "symbol:addRecentSearch",
+      "type": "SYMBOL",
+      "name": "addRecentSearch"
+    },
+    {
+      "id": "symbol:clearRecentSearches",
+      "type": "SYMBOL",
+      "name": "clearRecentSearches"
+    },
+    {
+      "id": "file:src/store/slices/uiSlice/uiSlice.js",
+      "type": "FILE",
+      "name": "src/store/slices/uiSlice/uiSlice.js",
+      "language": "javascript"
+    },
+    {
+      "id": "function:src/store/slices/uiSlice/uiSlice.js#selectModals",
+      "type": "FUNCTION",
+      "name": "selectModals",
+      "file": "src/store/slices/uiSlice/uiSlice.js",
+      "line": 656
+    },
+    {
+      "id": "function:src/store/slices/uiSlice/uiSlice.js#selectModal",
+      "type": "FUNCTION",
+      "name": "selectModal",
+      "file": "src/store/slices/uiSlice/uiSlice.js",
+      "line": 657
+    },
+    {
+      "id": "function:src/store/slices/uiSlice/uiSlice.js#selectSidebar",
+      "type": "FUNCTION",
+      "name": "selectSidebar",
+      "file": "src/store/slices/uiSlice/uiSlice.js",
+      "line": 658
+    },
+    {
+      "id": "function:src/store/slices/uiSlice/uiSlice.js#selectFilters",
+      "type": "FUNCTION",
+      "name": "selectFilters",
+      "file": "src/store/slices/uiSlice/uiSlice.js",
+      "line": 659
+    },
+    {
+      "id": "function:src/store/slices/uiSlice/uiSlice.js#selectPagination",
+      "type": "FUNCTION",
+      "name": "selectPagination",
+      "file": "src/store/slices/uiSlice/uiSlice.js",
+      "line": 660
+    },
+    {
+      "id": "function:src/store/slices/uiSlice/uiSlice.js#selectViewMode",
+      "type": "FUNCTION",
+      "name": "selectViewMode",
+      "file": "src/store/slices/uiSlice/uiSlice.js",
+      "line": 661
+    },
+    {
+      "id": "function:src/store/slices/uiSlice/uiSlice.js#selectActiveTabs",
+      "type": "FUNCTION",
+      "name": "selectActiveTabs",
+      "file": "src/store/slices/uiSlice/uiSlice.js",
+      "line": 662
+    },
+    {
+      "id": "function:src/store/slices/uiSlice/uiSlice.js#selectLoading",
+      "type": "FUNCTION",
+      "name": "selectLoading",
+      "file": "src/store/slices/uiSlice/uiSlice.js",
+      "line": 663
+    },
+    {
+      "id": "function:src/store/slices/uiSlice/uiSlice.js#selectNotifications",
+      "type": "FUNCTION",
+      "name": "selectNotifications",
+      "file": "src/store/slices/uiSlice/uiSlice.js",
+      "line": 664
+    },
+    {
+      "id": "function:src/store/slices/uiSlice/uiSlice.js#selectTheme",
+      "type": "FUNCTION",
+      "name": "selectTheme",
+      "file": "src/store/slices/uiSlice/uiSlice.js",
+      "line": 665
+    },
+    {
+      "id": "function:src/store/slices/uiSlice/uiSlice.js#selectLayout",
+      "type": "FUNCTION",
+      "name": "selectLayout",
+      "file": "src/store/slices/uiSlice/uiSlice.js",
+      "line": 666
+    },
+    {
+      "id": "function:src/store/slices/uiSlice/uiSlice.js#selectForms",
+      "type": "FUNCTION",
+      "name": "selectForms",
+      "file": "src/store/slices/uiSlice/uiSlice.js",
+      "line": 667
+    },
+    {
+      "id": "function:src/store/slices/uiSlice/uiSlice.js#selectSelection",
+      "type": "FUNCTION",
+      "name": "selectSelection",
+      "file": "src/store/slices/uiSlice/uiSlice.js",
+      "line": 668
+    },
+    {
+      "id": "function:src/store/slices/uiSlice/uiSlice.js#selectDrawers",
+      "type": "FUNCTION",
+      "name": "selectDrawers",
+      "file": "src/store/slices/uiSlice/uiSlice.js",
+      "line": 669
+    },
+    {
+      "id": "function:src/store/slices/uiSlice/uiSlice.js#selectQuickActions",
+      "type": "FUNCTION",
+      "name": "selectQuickActions",
+      "file": "src/store/slices/uiSlice/uiSlice.js",
+      "line": 670
+    },
+    {
+      "id": "function:src/store/slices/uiSlice/uiSlice.js#selectOnboarding",
+      "type": "FUNCTION",
+      "name": "selectOnboarding",
+      "file": "src/store/slices/uiSlice/uiSlice.js",
+      "line": 671
+    },
+    {
+      "id": "function:src/store/slices/uiSlice/uiSlice.js#selectComparison",
+      "type": "FUNCTION",
+      "name": "selectComparison",
+      "file": "src/store/slices/uiSlice/uiSlice.js",
+      "line": 672
+    },
+    {
+      "id": "function:src/store/slices/uiSlice/uiSlice.js#selectDragDrop",
+      "type": "FUNCTION",
+      "name": "selectDragDrop",
+      "file": "src/store/slices/uiSlice/uiSlice.js",
+      "line": 673
+    },
+    {
+      "id": "symbol:keys",
+      "type": "SYMBOL",
+      "name": "keys"
+    },
+    {
+      "id": "symbol:indexOf",
+      "type": "SYMBOL",
+      "name": "indexOf"
+    },
+    {
+      "id": "symbol:now",
+      "type": "SYMBOL",
+      "name": "now"
+    },
+    {
+      "id": "symbol:random",
+      "type": "SYMBOL",
+      "name": "random"
+    },
+    {
+      "id": "symbol:splice",
+      "type": "SYMBOL",
+      "name": "splice"
+    },
+    {
+      "id": "symbol:slice",
+      "type": "SYMBOL",
+      "name": "slice"
+    },
+    {
+      "id": "file:src/store/store.js",
+      "type": "FILE",
+      "name": "src/store/store.js",
+      "language": "javascript"
+    },
+    {
+      "id": "module:./slices/themeSlice",
+      "type": "MODULE",
+      "name": "./slices/themeSlice"
+    },
+    {
+      "id": "module:./slices/graphSlice",
+      "type": "MODULE",
+      "name": "./slices/graphSlice"
+    },
+    {
+      "id": "module:./slices/apiSlice",
+      "type": "MODULE",
+      "name": "./slices/apiSlice"
+    },
+    {
+      "id": "symbol:configureStore",
+      "type": "SYMBOL",
+      "name": "configureStore"
+    },
+    {
+      "id": "symbol:concat",
+      "type": "SYMBOL",
+      "name": "concat"
+    },
+    {
+      "id": "symbol:getDefaultMiddleware",
+      "type": "SYMBOL",
+      "name": "getDefaultMiddleware"
+    },
+    {
+      "id": "file:src/styles/muiTheme.js",
+      "type": "FILE",
+      "name": "src/styles/muiTheme.js",
+      "language": "javascript"
+    },
+    {
+      "id": "function:src/styles/muiTheme.js#getMuiTheme",
+      "type": "FUNCTION",
+      "name": "getMuiTheme",
+      "file": "src/styles/muiTheme.js",
+      "line": 41
+    },
+    {
+      "id": "module:@mui/material/styles",
+      "type": "MODULE",
+      "name": "@mui/material/styles"
+    },
+    {
+      "id": "symbol:createTheme",
+      "type": "SYMBOL",
+      "name": "createTheme"
+    },
+    {
+      "id": "file:vite.config.js",
+      "type": "FILE",
+      "name": "vite.config.js",
+      "language": "javascript"
+    },
+    {
+      "id": "module:vite",
+      "type": "MODULE",
+      "name": "vite"
+    },
+    {
+      "id": "module:@vitejs/plugin-react",
+      "type": "MODULE",
+      "name": "@vitejs/plugin-react"
+    },
+    {
+      "id": "module:@tailwindcss/vite",
+      "type": "MODULE",
+      "name": "@tailwindcss/vite"
+    },
+    {
+      "id": "symbol:react",
+      "type": "SYMBOL",
+      "name": "react"
+    },
+    {
+      "id": "symbol:tailwindcss",
+      "type": "SYMBOL",
+      "name": "tailwindcss"
+    }
+  ],
+  "edges": [
+    {
+      "from": "file:eslint.config.js",
+      "to": "module:@eslint/js",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "file:eslint.config.js",
+      "to": "module:globals",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "file:eslint.config.js",
+      "to": "module:eslint-plugin-react-hooks",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "file:eslint.config.js",
+      "to": "module:eslint-plugin-react-refresh",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "file:eslint.config.js",
+      "to": "module:eslint/config",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "file:eslint.config.js",
+      "to": "symbol:defineConfig",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:eslint.config.js",
+      "to": "symbol:globalIgnores",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:src/pages/index.js",
+      "to": "module:./Landing",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "file:src/pages/index.js",
+      "to": "module:./Login",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "file:src/pages/index.js",
+      "to": "module:./Signup",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "file:src/pages/index.js",
+      "to": "module:./Home",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "file:src/pages/index.js",
+      "to": "module:./UploadRepo",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "file:src/pages/index.js",
+      "to": "module:./GraphView",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "file:src/pages/index.js",
+      "to": "module:./ImpactPanel",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "file:src/services/api.js",
+      "to": "module:axios",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "file:src/services/api.js",
+      "to": "symbol:create",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:src/services/api.js",
+      "to": "service:axios",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:src/services/api.js",
+      "to": "symbol:use",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:src/services/api.js",
+      "to": "symbol:getItem",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:src/services/api.js",
+      "to": "symbol:reject",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:src/services/api.js",
+      "to": "symbol:post",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:src/services/api.js",
+      "to": "symbol:setItem",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:src/services/api.js",
+      "to": "symbol:api",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:src/services/api.js",
+      "to": "symbol:removeItem",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:src/services/api.js",
+      "to": "symbol:get",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:src/services/api.js",
+      "to": "symbol:patch",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:src/services/api.js",
+      "to": "symbol:put",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:src/services/api.js",
+      "to": "symbol:delete",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:src/store/index.js",
+      "to": "module:./slices/themeSlice.js",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "file:src/store/index.js",
+      "to": "module:./slices/graphSlice.js",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "file:src/store/slices/apiSlice.js",
+      "to": "module:@reduxjs/toolkit/query/react",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "file:src/store/slices/apiSlice.js",
+      "to": "symbol:createApi",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:src/store/slices/apiSlice.js",
+      "to": "symbol:fetchBaseQuery",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:src/store/slices/apiSlice.js",
+      "to": "symbol:getItem",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:src/store/slices/apiSlice.js",
+      "to": "symbol:set",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:src/store/slices/apiSlice.js",
+      "to": "symbol:query",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:src/store/slices/apiSlice.js",
+      "to": "symbol:map",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:src/store/slices/apiSlice.js",
+      "to": "symbol:mutation",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:src/store/slices/graphSlice.js",
+      "to": "module:@reduxjs/toolkit",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "file:src/store/slices/graphSlice.js",
+      "to": "module:../../assets/mockdata",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "function:src/store/slices/graphSlice.js#computeImpact",
+      "to": "symbol:forEach",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/graphSlice.js#computeImpact",
+      "to": "symbol:add",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/graphSlice.js#computeImpact",
+      "to": "symbol:shift",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/graphSlice.js#computeImpact",
+      "to": "symbol:has",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/graphSlice.js#computeImpact",
+      "to": "symbol:push",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:src/store/slices/graphSlice.js",
+      "to": "symbol:createSlice",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/graphSlice.js#setSelectedNode",
+      "to": "function:src/store/slices/graphSlice.js#computeImpact",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/graphSlice.js#addRepo",
+      "to": "symbol:unshift",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/graphSlice.js#updateRepoStatus",
+      "to": "symbol:find",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/graphSlice.js#removeRepo",
+      "to": "symbol:filter",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:src/store/slices/themeSlice.js",
+      "to": "module:@reduxjs/toolkit",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "file:src/store/slices/themeSlice.js",
+      "to": "symbol:getItem",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:src/store/slices/themeSlice.js",
+      "to": "symbol:matchMedia",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:src/store/slices/themeSlice.js",
+      "to": "symbol:createSlice",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:src/store/slices/uiSlice/uiSlice-examples.js",
+      "to": "module:react",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "file:src/store/slices/uiSlice/uiSlice-examples.js",
+      "to": "module:react-redux",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "file:src/store/slices/uiSlice/uiSlice-examples.js",
+      "to": "module:./uiSlice",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-examples.js#ModalExample",
+      "to": "symbol:useDispatch",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-examples.js#ModalExample",
+      "to": "symbol:useSelector",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-examples.js#handleOpenCreate",
+      "to": "symbol:dispatch",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-examples.js#handleOpenCreate",
+      "to": "symbol:openModal",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-examples.js#handleOpenEdit",
+      "to": "symbol:dispatch",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-examples.js#handleOpenEdit",
+      "to": "symbol:openModal",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-examples.js#handleCloseCreate",
+      "to": "symbol:dispatch",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-examples.js#handleCloseCreate",
+      "to": "symbol:closeModal",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-examples.js#ModalExample",
+      "to": "function:src/store/slices/uiSlice/uiSlice-examples.js#handleOpenEdit",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-examples.js#ModalExample",
+      "to": "symbol:dispatch",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-examples.js#ModalExample",
+      "to": "symbol:closeModal",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-examples.js#SidebarExample",
+      "to": "symbol:useDispatch",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-examples.js#SidebarExample",
+      "to": "symbol:useSelector",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-examples.js#SidebarExample",
+      "to": "symbol:dispatch",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-examples.js#SidebarExample",
+      "to": "symbol:toggleSidebar",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-examples.js#FiltersExample",
+      "to": "symbol:useDispatch",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-examples.js#FiltersExample",
+      "to": "symbol:useSelector",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-examples.js#handleSearchChange",
+      "to": "symbol:dispatch",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-examples.js#handleSearchChange",
+      "to": "symbol:setSearch",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-examples.js#handleCategoryChange",
+      "to": "symbol:dispatch",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-examples.js#handleCategoryChange",
+      "to": "symbol:setFilter",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-examples.js#handlePriceChange",
+      "to": "symbol:dispatch",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-examples.js#handlePriceChange",
+      "to": "symbol:setFilter",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-examples.js#handleTagAdd",
+      "to": "symbol:dispatch",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-examples.js#handleTagRemove",
+      "to": "symbol:dispatch",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-examples.js#handleReset",
+      "to": "symbol:dispatch",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-examples.js#FiltersExample",
+      "to": "function:src/store/slices/uiSlice/uiSlice-examples.js#handleCategoryChange",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-examples.js#FiltersExample",
+      "to": "symbol:dispatch",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-examples.js#FiltersExample",
+      "to": "symbol:setFilter",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-examples.js#FiltersExample",
+      "to": "function:src/store/slices/uiSlice/uiSlice-examples.js#handlePriceChange",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-examples.js#FiltersExample",
+      "to": "symbol:map",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-examples.js#FiltersExample",
+      "to": "function:src/store/slices/uiSlice/uiSlice-examples.js#handleTagRemove",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-examples.js#FiltersExample",
+      "to": "function:src/store/slices/uiSlice/uiSlice-examples.js#handleTagAdd",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-examples.js#PaginationExample",
+      "to": "symbol:useDispatch",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-examples.js#PaginationExample",
+      "to": "symbol:useSelector",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-examples.js#PaginationExample",
+      "to": "symbol:useEffect",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-examples.js#PaginationExample",
+      "to": "symbol:dispatch",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-examples.js#PaginationExample",
+      "to": "symbol:ceil",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-examples.js#PaginationExample",
+      "to": "symbol:Number",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-examples.js#ViewModeExample",
+      "to": "symbol:useDispatch",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-examples.js#ViewModeExample",
+      "to": "symbol:useSelector",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-examples.js#ViewModeExample",
+      "to": "symbol:dispatch",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-examples.js#ViewModeExample",
+      "to": "symbol:setViewMode",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-examples.js#NotificationsExample",
+      "to": "symbol:useDispatch",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-examples.js#NotificationsExample",
+      "to": "symbol:useSelector",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-examples.js#showSuccess",
+      "to": "symbol:dispatch",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-examples.js#showSuccess",
+      "to": "symbol:addNotification",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-examples.js#showError",
+      "to": "symbol:dispatch",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-examples.js#showError",
+      "to": "symbol:addNotification",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-examples.js#showWarning",
+      "to": "symbol:dispatch",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-examples.js#showWarning",
+      "to": "symbol:addNotification",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-examples.js#NotificationsExample",
+      "to": "symbol:map",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-examples.js#Toast",
+      "to": "symbol:useDispatch",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-examples.js#Toast",
+      "to": "symbol:useEffect",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-examples.js#Toast",
+      "to": "symbol:setTimeout",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-examples.js#Toast",
+      "to": "symbol:dispatch",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-examples.js#Toast",
+      "to": "symbol:removeNotification",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-examples.js#Toast",
+      "to": "symbol:clearTimeout",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-examples.js#ThemeToggle",
+      "to": "symbol:useDispatch",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-examples.js#ThemeToggle",
+      "to": "symbol:useSelector",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-examples.js#ThemeToggle",
+      "to": "symbol:useEffect",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-examples.js#ThemeToggle",
+      "to": "symbol:setProperty",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-examples.js#ThemeToggle",
+      "to": "symbol:dispatch",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-examples.js#ThemeToggle",
+      "to": "symbol:toggleTheme",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-examples.js#BulkSelectionExample",
+      "to": "symbol:useDispatch",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-examples.js#BulkSelectionExample",
+      "to": "symbol:useSelector",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-examples.js#handleSelectAll",
+      "to": "symbol:map",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-examples.js#handleSelectAll",
+      "to": "symbol:dispatch",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-examples.js#handleSelectAll",
+      "to": "symbol:selectAll",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-examples.js#handleDeselectAll",
+      "to": "symbol:dispatch",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-examples.js#handleDeselectAll",
+      "to": "symbol:deselectAll",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-examples.js#handleToggleItem",
+      "to": "symbol:dispatch",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-examples.js#handleToggleItem",
+      "to": "symbol:toggleSelection",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-examples.js#handleBulkDelete",
+      "to": "symbol:log",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-examples.js#handleBulkDelete",
+      "to": "symbol:dispatch",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-examples.js#handleBulkDelete",
+      "to": "symbol:deselectAll",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-examples.js#BulkSelectionExample",
+      "to": "symbol:map",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-examples.js#BulkSelectionExample",
+      "to": "symbol:includes",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-examples.js#BulkSelectionExample",
+      "to": "function:src/store/slices/uiSlice/uiSlice-examples.js#handleToggleItem",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-examples.js#DrawerExample",
+      "to": "symbol:useDispatch",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-examples.js#DrawerExample",
+      "to": "symbol:useSelector",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-examples.js#handleOpenFilters",
+      "to": "symbol:dispatch",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-examples.js#handleOpenFilters",
+      "to": "symbol:openDrawer",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-examples.js#handleOpenProfile",
+      "to": "symbol:dispatch",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-examples.js#handleOpenProfile",
+      "to": "symbol:openDrawer",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-examples.js#DrawerExample",
+      "to": "symbol:dispatch",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-examples.js#DrawerExample",
+      "to": "symbol:closeDrawer",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-examples.js#OnboardingExample",
+      "to": "symbol:useDispatch",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-examples.js#OnboardingExample",
+      "to": "symbol:useSelector",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-examples.js#OnboardingExample",
+      "to": "symbol:useEffect",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-examples.js#OnboardingExample",
+      "to": "symbol:getItem",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-examples.js#OnboardingExample",
+      "to": "symbol:dispatch",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-examples.js#OnboardingExample",
+      "to": "symbol:startOnboarding",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-examples.js#handleNext",
+      "to": "symbol:dispatch",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-examples.js#handleNext",
+      "to": "symbol:nextOnboardingStep",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-examples.js#handleNext",
+      "to": "symbol:setItem",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-examples.js#handleSkip",
+      "to": "symbol:dispatch",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-examples.js#handleSkip",
+      "to": "symbol:setItem",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-examples.js#ComparisonExample",
+      "to": "symbol:useDispatch",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-examples.js#ComparisonExample",
+      "to": "symbol:useSelector",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-examples.js#handleAddToCompare",
+      "to": "symbol:dispatch",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-examples.js#handleAddToCompare",
+      "to": "symbol:addToComparison",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-examples.js#handleRemoveFromCompare",
+      "to": "symbol:dispatch",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-examples.js#handleClearCompare",
+      "to": "symbol:dispatch",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-examples.js#ComparisonExample",
+      "to": "symbol:dispatch",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-examples.js#ComparisonExample",
+      "to": "symbol:map",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-examples.js#ComparisonExample",
+      "to": "function:src/store/slices/uiSlice/uiSlice-examples.js#handleRemoveFromCompare",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-examples.js#ComparisonExample",
+      "to": "function:src/store/slices/uiSlice/uiSlice-examples.js#handleAddToCompare",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-examples.js#ComparisonExample",
+      "to": "symbol:find",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-examples.js#CompleteDashboard",
+      "to": "symbol:useDispatch",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-examples.js#CompleteDashboard",
+      "to": "symbol:useSelector",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:src/store/slices/uiSlice/uiSlice-hooks.js",
+      "to": "module:react-redux",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "file:src/store/slices/uiSlice/uiSlice-hooks.js",
+      "to": "module:react",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "file:src/store/slices/uiSlice/uiSlice-hooks.js",
+      "to": "module:./uiSlice",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-hooks.js#useModal",
+      "to": "symbol:useDispatch",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-hooks.js#useModal",
+      "to": "symbol:useSelector",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-hooks.js#useModal",
+      "to": "symbol:useCallback",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-hooks.js#useModal",
+      "to": "symbol:dispatch",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-hooks.js#useModal",
+      "to": "symbol:openModal",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-hooks.js#useModal",
+      "to": "symbol:closeModal",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-hooks.js#useModal",
+      "to": "symbol:updateModalData",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-hooks.js#useNotification",
+      "to": "symbol:useDispatch",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-hooks.js#useNotification",
+      "to": "symbol:useCallback",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-hooks.js#useNotification",
+      "to": "symbol:dispatch",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-hooks.js#useNotification",
+      "to": "symbol:addNotification",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-hooks.js#useFilters",
+      "to": "symbol:useDispatch",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-hooks.js#useFilters",
+      "to": "symbol:useSelector",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-hooks.js#useFilters",
+      "to": "symbol:useCallback",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-hooks.js#useFilters",
+      "to": "symbol:dispatch",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-hooks.js#useFilters",
+      "to": "symbol:setSearch",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-hooks.js#useFilters",
+      "to": "symbol:setCategory",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-hooks.js#useFilters",
+      "to": "symbol:setStatus",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-hooks.js#useFilters",
+      "to": "symbol:setSortBy",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-hooks.js#useFilters",
+      "to": "symbol:toggleSortOrder",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-hooks.js#useFilters",
+      "to": "symbol:addTag",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-hooks.js#useFilters",
+      "to": "symbol:removeTag",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-hooks.js#useFilters",
+      "to": "symbol:resetFilters",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-hooks.js#useFilters",
+      "to": "symbol:setFilter",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-hooks.js#usePagination",
+      "to": "symbol:useDispatch",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-hooks.js#usePagination",
+      "to": "symbol:useSelector",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-hooks.js#usePagination",
+      "to": "symbol:useEffect",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-hooks.js#usePagination",
+      "to": "symbol:dispatch",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-hooks.js#usePagination",
+      "to": "symbol:setTotalItems",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-hooks.js#usePagination",
+      "to": "symbol:useCallback",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-hooks.js#usePagination",
+      "to": "symbol:setPage",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-hooks.js#usePagination",
+      "to": "symbol:setPageSize",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-hooks.js#usePagination",
+      "to": "symbol:nextPage",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-hooks.js#usePagination",
+      "to": "symbol:previousPage",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-hooks.js#usePagination",
+      "to": "symbol:ceil",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-hooks.js#useViewMode",
+      "to": "symbol:useDispatch",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-hooks.js#useViewMode",
+      "to": "symbol:useSelector",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-hooks.js#useViewMode",
+      "to": "symbol:useCallback",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-hooks.js#useViewMode",
+      "to": "symbol:dispatch",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-hooks.js#useViewMode",
+      "to": "symbol:setViewMode",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-hooks.js#useViewMode",
+      "to": "symbol:toggleViewMode",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-hooks.js#useTheme",
+      "to": "symbol:useDispatch",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-hooks.js#useTheme",
+      "to": "symbol:useSelector",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-hooks.js#useTheme",
+      "to": "symbol:useCallback",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-hooks.js#useTheme",
+      "to": "symbol:dispatch",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-hooks.js#useTheme",
+      "to": "symbol:toggleTheme",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-hooks.js#useTheme",
+      "to": "symbol:setThemeMode",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-hooks.js#useTheme",
+      "to": "symbol:setPrimaryColor",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-hooks.js#useTheme",
+      "to": "symbol:setFontSize",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-hooks.js#useTheme",
+      "to": "symbol:useEffect",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-hooks.js#useTheme",
+      "to": "symbol:setAttribute",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-hooks.js#useTheme",
+      "to": "symbol:setProperty",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-hooks.js#useSelection",
+      "to": "symbol:useDispatch",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-hooks.js#useSelection",
+      "to": "symbol:useSelector",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-hooks.js#useSelection",
+      "to": "symbol:useCallback",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-hooks.js#useSelection",
+      "to": "symbol:dispatch",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-hooks.js#useSelection",
+      "to": "symbol:toggleSelection",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-hooks.js#useSelection",
+      "to": "symbol:selectAll",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-hooks.js#useSelection",
+      "to": "symbol:deselectAll",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-hooks.js#useSelection",
+      "to": "symbol:includes",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-hooks.js#useDrawer",
+      "to": "symbol:useDispatch",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-hooks.js#useDrawer",
+      "to": "symbol:useSelector",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-hooks.js#useDrawer",
+      "to": "symbol:useCallback",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-hooks.js#useDrawer",
+      "to": "symbol:dispatch",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-hooks.js#useDrawer",
+      "to": "symbol:openDrawer",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-hooks.js#useDrawer",
+      "to": "symbol:closeDrawer",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-hooks.js#useDrawer",
+      "to": "symbol:toggleDrawer",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-hooks.js#useSidebar",
+      "to": "symbol:useDispatch",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-hooks.js#useSidebar",
+      "to": "symbol:useSelector",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-hooks.js#useSidebar",
+      "to": "symbol:useCallback",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-hooks.js#useSidebar",
+      "to": "symbol:dispatch",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-hooks.js#useSidebar",
+      "to": "symbol:toggleSidebar",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-hooks.js#useSidebar",
+      "to": "symbol:setSidebarOpen",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-hooks.js#useSidebar",
+      "to": "symbol:toggleSidebarCollapse",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-hooks.js#useSidebar",
+      "to": "symbol:setActiveSection",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-hooks.js#useLoading",
+      "to": "symbol:useDispatch",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-hooks.js#useLoading",
+      "to": "symbol:useSelector",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-hooks.js#useLoading",
+      "to": "symbol:useCallback",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-hooks.js#useLoading",
+      "to": "symbol:dispatch",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-hooks.js#useLoading",
+      "to": "symbol:setLoading",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-hooks.js#useOnboarding",
+      "to": "symbol:useDispatch",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-hooks.js#useOnboarding",
+      "to": "symbol:useSelector",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-hooks.js#useOnboarding",
+      "to": "symbol:useCallback",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-hooks.js#useOnboarding",
+      "to": "symbol:dispatch",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-hooks.js#useOnboarding",
+      "to": "symbol:startOnboarding",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-hooks.js#useOnboarding",
+      "to": "symbol:nextOnboardingStep",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-hooks.js#useOnboarding",
+      "to": "symbol:previousOnboardingStep",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-hooks.js#useOnboarding",
+      "to": "symbol:skipOnboarding",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-hooks.js#useOnboarding",
+      "to": "symbol:completeOnboarding",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-hooks.js#useComparison",
+      "to": "symbol:useDispatch",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-hooks.js#useComparison",
+      "to": "symbol:useSelector",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-hooks.js#useComparison",
+      "to": "symbol:useCallback",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-hooks.js#useComparison",
+      "to": "symbol:dispatch",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-hooks.js#useComparison",
+      "to": "symbol:toggleComparison",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-hooks.js#useComparison",
+      "to": "symbol:addToComparison",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-hooks.js#useComparison",
+      "to": "symbol:removeFromComparison",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-hooks.js#useComparison",
+      "to": "symbol:clearComparison",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-hooks.js#useComparison",
+      "to": "symbol:some",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-hooks.js#useQuickActions",
+      "to": "symbol:useDispatch",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-hooks.js#useQuickActions",
+      "to": "symbol:useSelector",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-hooks.js#useQuickActions",
+      "to": "symbol:useCallback",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-hooks.js#useQuickActions",
+      "to": "symbol:dispatch",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-hooks.js#useQuickActions",
+      "to": "symbol:toggleQuickActions",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-hooks.js#useQuickActions",
+      "to": "symbol:addRecentSearch",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-hooks.js#useQuickActions",
+      "to": "symbol:clearRecentSearches",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-hooks.js#useUI",
+      "to": "function:src/store/slices/uiSlice/uiSlice-hooks.js#useNotification",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-hooks.js#useUI",
+      "to": "function:src/store/slices/uiSlice/uiSlice-hooks.js#useFilters",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-hooks.js#useUI",
+      "to": "function:src/store/slices/uiSlice/uiSlice-hooks.js#usePagination",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-hooks.js#useUI",
+      "to": "function:src/store/slices/uiSlice/uiSlice-hooks.js#useViewMode",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-hooks.js#useUI",
+      "to": "function:src/store/slices/uiSlice/uiSlice-hooks.js#useTheme",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/uiSlice/uiSlice-hooks.js#useUI",
+      "to": "function:src/store/slices/uiSlice/uiSlice-hooks.js#useSelection",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:src/store/slices/uiSlice/uiSlice.js",
+      "to": "module:@reduxjs/toolkit",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "file:src/store/slices/uiSlice/uiSlice.js",
+      "to": "symbol:createSlice",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:src/store/slices/uiSlice/uiSlice.js",
+      "to": "symbol:forEach",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:src/store/slices/uiSlice/uiSlice.js",
+      "to": "symbol:keys",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:src/store/slices/uiSlice/uiSlice.js",
+      "to": "symbol:includes",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:src/store/slices/uiSlice/uiSlice.js",
+      "to": "symbol:push",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:src/store/slices/uiSlice/uiSlice.js",
+      "to": "symbol:filter",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:src/store/slices/uiSlice/uiSlice.js",
+      "to": "symbol:ceil",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:src/store/slices/uiSlice/uiSlice.js",
+      "to": "symbol:indexOf",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:src/store/slices/uiSlice/uiSlice.js",
+      "to": "symbol:now",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:src/store/slices/uiSlice/uiSlice.js",
+      "to": "symbol:random",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:src/store/slices/uiSlice/uiSlice.js",
+      "to": "symbol:splice",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:src/store/slices/uiSlice/uiSlice.js",
+      "to": "symbol:unshift",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:src/store/slices/uiSlice/uiSlice.js",
+      "to": "symbol:slice",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:src/store/slices/uiSlice/uiSlice.js",
+      "to": "symbol:find",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:src/store/store.js",
+      "to": "module:@reduxjs/toolkit",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "file:src/store/store.js",
+      "to": "module:./slices/themeSlice",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "file:src/store/store.js",
+      "to": "module:./slices/graphSlice",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "file:src/store/store.js",
+      "to": "module:./slices/apiSlice",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "file:src/store/store.js",
+      "to": "symbol:configureStore",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:src/store/store.js",
+      "to": "symbol:concat",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:src/store/store.js",
+      "to": "symbol:getDefaultMiddleware",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:src/styles/muiTheme.js",
+      "to": "module:@mui/material/styles",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "function:src/styles/muiTheme.js#getMuiTheme",
+      "to": "symbol:createTheme",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:vite.config.js",
+      "to": "module:vite",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "file:vite.config.js",
+      "to": "module:@vitejs/plugin-react",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "file:vite.config.js",
+      "to": "module:@tailwindcss/vite",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "file:vite.config.js",
+      "to": "symbol:defineConfig",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:vite.config.js",
+      "to": "symbol:react",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:vite.config.js",
+      "to": "symbol:tailwindcss",
+      "type": "CALLS"
+    }
+  ],
+  "llmInsights": {
+    "status": "ok",
+    "generatedAt": "2026-03-14T09:25:27.396Z",
+    "model": "Qwen/Qwen3-0.6B",
+    "modeUsed": "chat",
+    "contextMeta": {
+      "truncatedNodes": 0,
+      "truncatedEdges": 0
+    },
+    "hiddenDependencies": [
+      {
+        "from": "file:eslint.config.js",
+        "to": "module:@eslint/js",
+        "type": "IMPORTS",
+        "reason": "eslint config is used for linting and configuration",
+        "confidence": 0
+      },
+      {
+        "from": "module:@eslint/js",
+        "to": "module:globals",
+        "type": "IMPORTS",
+        "reason": "eslint plugin is used for global configuration",
+        "confidence": 0
+      },
+      {
+        "from": "module:eslint-plugin-react-hooks",
+        "to": "module:eslint/config",
+        "type": "IMPORTS",
+        "reason": "eslint plugin is used for react hooks",
+        "confidence": 0
+      },
+      {
+        "from": "module:eslint-plugin-react-refresh",
+        "to": "module:eslint/config",
+        "type": "IMPORTS",
+        "reason": "eslint plugin is used for react refresh",
+        "confidence": 0
+      },
+      {
+        "from": "module:eslint/config",
+        "to": "symbol:defineConfig",
+        "type": "CALLS",
+        "reason": "eslint config is used for defining configuration",
+        "confidence": 0
+      }
+    ],
+    "apiContracts": [
+      {
+        "consumer": "create",
+        "endpoint": "module:axios",
+        "provider": "symbol:create",
+        "reason": "create function uses axios for API requests",
+        "confidence": 0
+      },
+      {
+        "consumer": "getItem",
+        "endpoint": "symbol:use",
+        "provider": "symbol:getItem",
+        "reason": "getItem function uses use API method",
+        "confidence": 0
+      },
+      {
+        "consumer": "post",
+        "endpoint": "symbol:post",
+        "provider": "symbol:post",
+        "reason": "post function uses post API method",
+        "confidence": 0
+      },
+      {
+        "consumer": "put",
+        "endpoint": "symbol:put",
+        "provider": "symbol:put",
+        "reason": "put function uses put API method",
+        "confidence": 0
+      },
+      {
+        "consumer": "delete",
+        "endpoint": "symbol:delete",
+        "provider": "symbol:delete",
+        "reason": "delete function uses delete API method",
+        "confidence": 0
+      }
+    ],
+    "databaseLineage": [
+      {
+        "apiOrService": "module:axios",
+        "dbEntity": "symbol:use",
+        "field": "use",
+        "relationship": "READS",
+        "reason": "axios is used for API requests",
+        "confidence": 0
+      },
+      {
+        "apiOrService": "module:@reduxjs/toolkit",
+        "dbEntity": "symbol:createSlice",
+        "field": "create",
+        "relationship": "USES",
+        "reason": "createSlice uses Redux Toolkit for state management",
+        "confidence": 0
+      },
+      {
+        "apiOrService": "module:@reduxjs/toolkit",
+        "dbEntity": "symbol:fetchBaseQuery",
+        "field": "fetch",
+        "relationship": "USES",
+        "reason": "fetchBaseQuery uses Redux Toolkit for API calls",
+        "confidence": 0
+      },
+      {
+        "apiOrService": "module:@reduxjs/toolkit",
+        "dbEntity": "symbol:getItem",
+        "field": "get",
+        "relationship": "USES",
+        "reason": "getItem uses get API method",
+        "confidence": 0
+      }
+    ],
+    "impactPredictions": [
+      {
+        "changeNode": "function:src/store/slices/graphSlice.js#computeImpact",
+        "impacted": [
+          "symbol:forEach",
+          "symbol:map",
+          "symbol:push",
+          "symbol:filter"
+        ],
+        "impact": "The graph state changes due to the usage of graphSlice functions",
+        "reason": "These functions modify the graph structure, affecting the impact prediction",
+        "confidence": 0
+      },
+      {
+        "changeNode": "function:src/store/slices/graphSlice.js#setSelectedNode",
+        "impacted": [
+          "symbol:forEach",
+          "symbol:map",
+          "symbol:push",
+          "symbol:filter"
+        ],
+        "impact": "The selected node update affects the impact prediction",
+        "reason": "The selected node change alters the graph's selected state",
+        "confidence": 0
+      }
+    ],
+    "serviceRelationshipAnalysis": [
+      {
+        "service": "axios",
+        "dependsOn": [
+          "symbol:create",
+          "symbol:use"
+        ],
+        "usedBy": [
+          "symbol:use",
+          "symbol:post",
+          "symbol:put",
+          "symbol:delete"
+        ],
+        "criticality": "HIGH",
+        "reason": "The axios service is used by multiple functions in the graph"
+      },
+      {
+        "service": "api",
+        "dependsOn": [
+          "symbol:create",
+          "symbol:use"
+        ],
+        "usedBy": [
+          "symbol:use",
+          "symbol:post",
+          "symbol:put",
+          "symbol:delete"
+        ],
+        "criticality": "HIGH",
+        "reason": "The API service is used by multiple functions in the graph"
+      },
+      {
+        "service": "apiSlice",
+        "dependsOn": [
+          "symbol:create",
+          "symbol:fetchBaseQuery"
+        ],
+        "usedBy": [
+          "symbol:fetchBaseQuery",
+          "symbol:use"
+        ],
+        "criticality": "MEDIUM",
+        "reason": "The API slice uses fetchBaseQuery and uses the same service"
+      }
+    ],
+    "explanations": [
+      {
+        "nodeId": "file:eslint.config.js",
+        "text": "eslint config is used for linting and configuration"
+      },
+      {
+        "nodeId": "module:@eslint/js",
+        "text": "eslint plugin is used for global configuration"
+      },
+      {
+        "nodeId": "symbol:defineConfig",
+        "text": "eslint config is used for defining configuration"
+      },
+      {
+        "nodeId": "module:@reduxjs/toolkit",
+        "text": "Redux Toolkit is used for state management"
+      }
+    ],
+    "architectureSummary": "The architecture consists of a modular store module, with graphSlice, themeSlice, and apiSlice components interacting through the store module. The use of axios and Redux Toolkit ensures efficient API management.",
+    "assumptions": [
+      "All dependencies are necessary for the graph structure",
+      "The impact predictions are based on the graph's function usage"
+    ],
+    "suggestedNewEdges": [
+      {
+        "from": "function:src/store/slices/graphSlice.js#computeImpact",
+        "to": "function:src/store/slices/graphSlice.js#setSelectedNode",
+        "type": "CALLS",
+        "reason": "These functions modify the graph state, affecting the impact prediction"
+      }
+    ]
+  }
+}
