@@ -55,14 +55,27 @@ Create/update `.env` in `AI-Engine`:
 
 ```env
 OPENAI_API_KEY=your_openai_api_key_here
+OPENAI_BASE_URL=https://api.openai.com/v1
+OPENAI_API_MODE=responses
 OPENAI_MODEL=gpt-4.1-mini
 LLM_MAX_NODES=500
 LLM_MAX_EDGES=1000
 ```
 
 - `OPENAI_API_KEY`: required for LLM layer.
+- `OPENAI_BASE_URL`: optional; set this for OpenAI-compatible providers.
+- `OPENAI_API_MODE`: `responses` (default) or `chat` for providers that only support chat completions.
 - `OPENAI_MODEL`: optional default model.
 - `LLM_MAX_NODES` / `LLM_MAX_EDGES`: controls graph context size sent to the LLM.
+
+Example for an OpenAI-compatible hosted model:
+
+```env
+OPENAI_API_KEY=your_provider_key
+OPENAI_BASE_URL=https://api.featherless.ai/v1
+OPENAI_API_MODE=chat
+OPENAI_MODEL=Qwen/Qwen3-0.6B
+```
 
 If `--with-llm` is enabled but `OPENAI_API_KEY` is missing, output includes `llmInsights.status = "skipped"`.
 
