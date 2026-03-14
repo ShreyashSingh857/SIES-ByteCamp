@@ -1,7 +1,25 @@
 import simpleGit from "simple-git";
 import path from "path";
-import os from "os";
 import fs from "fs";
+import { fileURLToPath } from "url";
+import { execFile } from "child_process";
+import { promisify } from "util";
+
+const execFileAsync = promisify(execFile);
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const PROJECT_ROOT = path.resolve(__dirname, "../../..");
+const WORKSPACE_ROOT = path.join(PROJECT_ROOT, "workspace");
+const REPOSITORIES_ROOT = path.join(WORKSPACE_ROOT, "repositories");
+const AI_ENGINE_ENTRY = path.join(PROJECT_ROOT, "AI-Engine", "src", "index.js");
+
+function buildUniqueRepoDir(repoUrl) {
+  const baseName = path.basename(repoUrl).replace(/\.git$/i, "") || "repo";
+  const safe = baseName.toLowerCase().replace(/[^a-z0-9-_]/g, "-");
+  const suffix = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+  return path.join(REPOSITORIES_ROOT, `${safe}-${suffix}`);
+}
 
 /**
  * @desc    Clone a public repo and return scan result
@@ -16,32 +34,52 @@ export const postScan = async (req, res, next) => {
     return res.status(400).json({ success: false, message: "repoUrl is required" });
   }
 
-  // Basic URL validation — must be http/https, no credential injection
-  const urlPattern = /^https?:\/\/[^\s]+$/;
-  if (!urlPattern.test(repoUrl)) {
-    return res.status(400).json({ success: false, message: "Invalid repoUrl format" });
+  // Accept public HTTP(S) URLs and absolute local paths.
+  const isHttpUrl = /^https?:\/\/[^\s]+$/i.test(repoUrl);
+  const isLocalAbsolutePath = path.isAbsolute(repoUrl);
+  if (!isHttpUrl && !isLocalAbsolutePath) {
+    return res.status(400).json({
+      success: false,
+      message: "repoUrl must be a public http(s) URL or absolute local path",
+    });
   }
 
-  const cloneDir = path.join(os.tmpdir(), `scan-${Date.now()}`);
+  const cloneDir = buildUniqueRepoDir(repoUrl);
 
   try {
-    await simpleGit().clone(repoUrl, cloneDir, ["--depth", "1"]);
+    fs.mkdirSync(REPOSITORIES_ROOT, { recursive: true });
+    await simpleGit().clone(repoUrl, cloneDir);
+
+    const { stdout } = await execFileAsync(
+      process.execPath,
+      [AI_ENGINE_ENTRY, "--repo", cloneDir],
+      {
+        cwd: PROJECT_ROOT,
+        maxBuffer: 20 * 1024 * 1024,
+      }
+    );
+
+    let parserResult = null;
+    try {
+      parserResult = JSON.parse(stdout);
+    } catch {
+      parserResult = { raw: stdout };
+    }
 
     res.status(200).json({
       success: true,
-      message: "Repository cloned successfully",
+      message: "Repository cloned and parsed successfully",
       data: {
         repoUrl,
-        clonedTo: cloneDir,
-        result: "ready for analysis",
+        workspaceDir: WORKSPACE_ROOT,
+        repositoriesDir: REPOSITORIES_ROOT,
+        clonedRepoPath: cloneDir,
+        parserInputPath: cloneDir,
+        parserSummary: parserResult?.summary || null,
       },
     });
   } catch (error) {
-    // Clean up on failure if dir was partially created
-    if (fs.existsSync(cloneDir)) {
-      fs.rmSync(cloneDir, { recursive: true, force: true });
-    }
-    const err = new Error(`Failed to clone repository: ${error.message}`);
+    const err = new Error(`Failed to clone/parse repository: ${error.message}`);
     err.status = 422;
     next(err);
   }

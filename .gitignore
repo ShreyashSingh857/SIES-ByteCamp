@@ -41,6 +41,8 @@ Thumbs.db
 # Testing / Coverage
 # ===============================
 coverage/
+tmp-mixed-repo
+workspace/repositories/
 
 # ===============================
 # Misc
@@ -48,3 +50,4 @@ coverage/
 .cache/
 .tmp/
 .temp/
+
