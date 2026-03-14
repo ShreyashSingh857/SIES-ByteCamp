@@ -6,98 +6,331 @@ const client = new OpenAI({
     baseURL: process.env.OPENAI_BASE_URL,
 });
 
-const DEFAULT_MODEL = process.env.OPENAI_MODEL || 'gpt-4-mini';
+const DEFAULT_MODEL = process.env.OPENAI_MODEL || 'gpt-4.1-mini';
+const DEFAULT_API_MODE = process.env.OPENAI_API_MODE || 'responses';
+
+function truncateText(value, maxLength = 1600) {
+    const text = String(value ?? '').trim();
+    if (!text) return '';
+    if (text.length <= maxLength) return text;
+    return `${text.slice(0, maxLength)}...`;
+}
+
+function toArray(value) {
+    if (Array.isArray(value)) {
+        return value.map((item) => String(item)).map((item) => item.trim()).filter(Boolean);
+    }
+    if (typeof value === 'string') {
+        return value
+            .split('\n')
+            .map((item) => item.trim())
+            .filter(Boolean);
+    }
+    return [];
+}
+
+function extractTextResponse(response) {
+    if (typeof response?.output_text === 'string' && response.output_text.trim()) {
+        return response.output_text.trim();
+    }
+
+    if (!response?.output?.length) {
+        return '';
+    }
+
+    for (const outputItem of response.output) {
+        if (!outputItem?.content?.length) {
+            continue;
+        }
+
+        for (const contentItem of outputItem.content) {
+            if (contentItem?.type === 'output_text' && contentItem?.text) {
+                return String(contentItem.text).trim();
+            }
+        }
+    }
+
+    return '';
+}
+
+function extractTextFromChatCompletion(response) {
+    const firstChoice = response?.choices?.[0];
+    const content = firstChoice?.message?.content;
+
+    if (typeof content === 'string') {
+        return content.trim();
+    }
+
+    if (Array.isArray(content)) {
+        return content
+            .map((item) => item?.text ?? '')
+            .join('')
+            .trim();
+    }
+
+    return '';
+}
+
+function extractFirstJsonObject(text) {
+    if (!text || typeof text !== 'string') {
+        return null;
+    }
+
+    const fencedMatch = text.match(/```(?:json)?\s*([\s\S]*?)\s*```/i);
+    const candidate = fencedMatch ? fencedMatch[1] : text;
+    const direct = candidate.match(/\{[\s\S]*\}/);
+    if (!direct) {
+        return null;
+    }
+
+    try {
+        return JSON.parse(direct[0]);
+    } catch {
+        return null;
+    }
+}
+
+function normalizeRiskLevel(value) {
+    const normalized = String(value ?? '').toUpperCase();
+    if (normalized.includes('HIGH')) return 'HIGH';
+    if (normalized.includes('MEDIUM')) return 'MEDIUM';
+    if (normalized.includes('LOW')) return 'LOW';
+    return 'UNKNOWN';
+}
+
+function normalizeDependencyAnalysis(analysis, fallbackText = '') {
+    if (!analysis || typeof analysis !== 'object' || Array.isArray(analysis)) {
+        return {
+            dependencyType: 'Unknown',
+            dependencyScope: 'Unknown',
+            impactAnalysis: truncateText(fallbackText, 1000) || 'No structured analysis returned by the model.',
+            criticalDependencies: [],
+            accessPatterns: [],
+            riskAssessment: 'Unknown',
+            recommendations: [],
+            confidence: 'MEDIUM',
+            neo4jEvidence: {
+                note: 'LLM did not return a structured JSON payload.',
+            },
+            scope: 'Unknown',
+            riskLevel: 'UNKNOWN',
+            reason: truncateText(fallbackText, 500),
+        };
+    }
+
+    const dependencyType =
+        analysis.dependencyType ||
+        analysis.type ||
+        analysis.dependency_type ||
+        'Unknown';
+
+    const dependencyScope =
+        analysis.dependencyScope ||
+        analysis.scope ||
+        analysis.dependency_scope ||
+        'Unknown';
+
+    const impactAnalysis =
+        analysis.impactAnalysis ||
+        analysis.impact ||
+        analysis.impact_prediction ||
+        'No explicit impact analysis provided.';
+
+    const riskRaw =
+        analysis.riskAssessment ||
+        analysis.risk ||
+        analysis.riskLevel ||
+        analysis.risk_level ||
+        'Unknown';
+
+    const recommendations = toArray(analysis.recommendations || analysis.suggestions);
+    const criticalDependencies = toArray(analysis.criticalDependencies || analysis.critical_dependencies);
+    const accessPatterns = toArray(analysis.accessPatterns || analysis.access_patterns);
+    const confidence = String(analysis.confidence || 'MEDIUM').toUpperCase();
+    const riskLevel = normalizeRiskLevel(riskRaw);
+
+    return {
+        dependencyType,
+        dependencyScope,
+        impactAnalysis: typeof impactAnalysis === 'string' ? impactAnalysis : JSON.stringify(impactAnalysis),
+        criticalDependencies,
+        accessPatterns,
+        riskAssessment: typeof riskRaw === 'string' ? riskRaw : JSON.stringify(riskRaw),
+        recommendations,
+        confidence,
+        neo4jEvidence: analysis.neo4jEvidence || analysis.evidence || {},
+        scope: dependencyScope,
+        impact: riskLevel === 'UNKNOWN' ? 'MEDIUM' : riskLevel,
+        riskLevel,
+        reason: typeof analysis.reason === 'string' ? analysis.reason : truncateText(JSON.stringify(analysis), 500),
+    };
+}
+
+async function runLlmRequest(prompt, options = {}) {
+    const model = options.model || DEFAULT_MODEL;
+    const maxOutputTokens = Number(options.maxOutputTokens || 1500);
+    const apiMode = options.apiMode || DEFAULT_API_MODE;
+    const systemPrompt = options.systemPrompt || 'You produce strict JSON only. No markdown or extra text.';
+
+    let text = '';
+    let usageTokens = { input: 0, output: 0 };
+    let modeUsed = apiMode;
+
+    if (apiMode === 'chat') {
+        const chatResponse = await client.chat.completions.create({
+            model,
+            max_tokens: maxOutputTokens,
+            messages: [
+                { role: 'system', content: systemPrompt },
+                { role: 'user', content: prompt },
+            ],
+        });
+        text = extractTextFromChatCompletion(chatResponse);
+        usageTokens = {
+            input: chatResponse?.usage?.prompt_tokens || 0,
+            output: chatResponse?.usage?.completion_tokens || 0,
+        };
+        return { text, usageTokens, modeUsed, model };
+    }
+
+    try {
+        const response = await client.responses.create({
+            model,
+            input: [
+                {
+                    role: 'system',
+                    content: [
+                        {
+                            type: 'input_text',
+                            text: systemPrompt,
+                        },
+                    ],
+                },
+                {
+                    role: 'user',
+                    content: [
+                        {
+                            type: 'input_text',
+                            text: prompt,
+                        },
+                    ],
+                },
+            ],
+            max_output_tokens: maxOutputTokens,
+        });
+
+        text = extractTextResponse(response);
+        usageTokens = {
+            input: response?.usage?.input_tokens || 0,
+            output: response?.usage?.output_tokens || 0,
+        };
+    } catch {
+        modeUsed = 'chat-fallback';
+        const chatResponse = await client.chat.completions.create({
+            model,
+            max_tokens: maxOutputTokens,
+            messages: [
+                { role: 'system', content: systemPrompt },
+                { role: 'user', content: prompt },
+            ],
+        });
+        text = extractTextFromChatCompletion(chatResponse);
+        usageTokens = {
+            input: chatResponse?.usage?.prompt_tokens || 0,
+            output: chatResponse?.usage?.completion_tokens || 0,
+        };
+    }
+
+    return { text, usageTokens, modeUsed, model };
+}
 
 /**
  * Analyze dependencies using LLM to understand relationships and impact
  * @param {string} selectedText The highlighted/selected symbol or code
  * @param {Object} graphContext The graph context from Neo4j (nodes, edges)
  * @param {Array} occurrences The occurrences found in the codebase
+ * @param {Object} options Additional context from the UI and controller
  * @returns {Object} LLM analysis with insights about dependencies
  */
-export async function analyzeDependenciesWithLLM(selectedText, graphContext, occurrences) {
+export async function analyzeDependenciesWithLLM(selectedText, graphContext, occurrences, options = {}) {
     if (!process.env.OPENAI_API_KEY) {
         return {
             status: 'skipped',
             message: 'OpenAI API key not configured',
             analysis: null,
+            model: DEFAULT_MODEL,
         };
     }
 
     try {
-        // Prepare context for LLM
-        const nodesSummary = (graphContext.nodes || [])
-            .slice(0, 50)
-            .map(n => `${n.name || n.id} (${n.type})`)
-            .join(', ');
+        const selectedContext = {
+            filePath: options.currentFile || null,
+            selectedSnippet: truncateText(options.selectedSnippet || selectedText, 1200),
+            surroundingContext: truncateText(options.surroundingContext || '', 2000),
+            lineRange: options.lineRange || null,
+        };
 
-        const edgesSummary = (graphContext.edges || [])
-            .slice(0, 30)
-            .map(e => `${e.source} --${e.type}--> ${e.target}`)
-            .join(', ');
+        const contextPayload = {
+            selectedContext,
+            graphStats: {
+                nodes: graphContext?.nodes?.length || 0,
+                edges: graphContext?.edges?.length || 0,
+                relationshipTypes: [...new Set((graphContext?.edges || []).map((edge) => edge.type))].slice(0, 25),
+            },
+            dependencySummary: options.dependencySummary || {},
+            occurrences: (occurrences || []).slice(0, 60),
+            references: (options.references || []).slice(0, 40),
+            nodes: (graphContext?.nodes || []).slice(0, 120),
+            edges: (graphContext?.edges || []).slice(0, 160),
+        };
 
-        const occurrencesSummary = (occurrences || [])
-            .slice(0, 10)
-            .map(o => `${o.displayName || o.id} (${o.type}): ${o.filePath}:${o.lineNumber}`)
-            .join(', ');
+        const prompt = [
+            'You are an expert software dependency analyst.',
+            'Analyze the selected code and use the provided Neo4j graph evidence to explain dependencies thoroughly.',
+            'Return STRICT JSON only with this exact schema:',
+            '{',
+            '  "dependencyType": "",',
+            '  "dependencyScope": "",',
+            '  "impactAnalysis": "",',
+            '  "criticalDependencies": [""],',
+            '  "accessPatterns": [""],',
+            '  "riskAssessment": "",',
+            '  "recommendations": [""],',
+            '  "confidence": "LOW|MEDIUM|HIGH",',
+            '  "neo4jEvidence": {',
+            '    "occurrenceCount": 0,',
+            '    "referenceCount": 0,',
+            '    "nodeCount": 0,',
+            '    "edgeCount": 0,',
+            '    "topRelationships": [""]',
+            '  }',
+            '}',
+            '',
+            'Evidence payload:',
+            JSON.stringify(contextPayload),
+        ].join('\n');
 
-        const prompt = `You are a code dependency analyzer. Analyze the selected symbol and its dependencies in the codebase.
-
-SELECTED SYMBOL/CODE:
-"${selectedText}"
-
-OCCURRENCES IN CODEBASE:
-${occurrencesSummary}
-
-RELATED GRAPH NODES:
-${nodesSummary}
-
-DEPENDENCY RELATIONSHIPS:
-${edgesSummary}
-
-Please provide:
-1. **Dependency Type**: Is this a static dependency (imports, requires), runtime dependency (function calls, object properties), or data dependency (database reads/writes)?
-2. **Dependency Scope**: Analyze if this symbol is used locally, across files, or across services.
-3. **Impact Analysis**: What would happen if this code/symbol changes?
-4. **Critical Dependencies**: Identify the most critical parts that depend on this symbol.
-5. **Access Patterns**: How is this symbol typically used (read, write, call, etc.)?
-6. **Risk Assessment**: What is the risk level of making changes to this code?
-7. **Recommendations**: Suggest improvements or cautions for this dependency.
-
-Format your response as a structured JSON object with these exact keys: dependencyType, dependencyScope, impactAnalysis, criticalDependencies, accessPatterns, riskAssessment, recommendations.`;
-
-        const response = await client.messages.create({
-            model: DEFAULT_MODEL,
-            max_tokens: 1500,
-            messages: [
-                {
-                    role: 'user',
-                    content: prompt,
-                },
-            ],
+        const llmResult = await runLlmRequest(prompt, {
+            model: options.model || DEFAULT_MODEL,
+            maxOutputTokens: 1800,
         });
 
-        // Extract the analysis from the response
-        const content = response.content[0]?.text || '';
-
-        // Try to parse as JSON, otherwise return raw text
-        let analysis;
-        try {
-            // Extract JSON from the response (it might be wrapped in markdown code blocks)
-            const jsonMatch = content.match(/\{[\s\S]*\}/);
-            analysis = jsonMatch ? JSON.parse(jsonMatch[0]) : { raw: content };
-        } catch (e) {
-            analysis = { raw: content };
-        }
+        const parsed = extractFirstJsonObject(llmResult.text);
+        const normalized = normalizeDependencyAnalysis(parsed, llmResult.text);
 
         return {
             status: 'completed',
             message: 'LLM analysis completed successfully',
-            analysis,
-            model: DEFAULT_MODEL,
-            usageTokens: {
-                input: response.usage?.input_tokens || 0,
-                output: response.usage?.output_tokens || 0,
+            analysis: normalized,
+            rawAnalysis: parsed || { raw: llmResult.text },
+            model: llmResult.model,
+            modeUsed: llmResult.modeUsed,
+            usageTokens: llmResult.usageTokens,
+            contextStats: {
+                occurrences: contextPayload.occurrences.length,
+                references: contextPayload.references.length,
+                nodes: contextPayload.nodes.length,
+                edges: contextPayload.edges.length,
             },
         };
     } catch (error) {
@@ -106,6 +339,7 @@ Format your response as a structured JSON object with these exact keys: dependen
             status: 'error',
             message: error.message || 'Failed to analyze dependencies with LLM',
             error: error.message,
+            model: options.model || DEFAULT_MODEL,
         };
     }
 }
@@ -139,24 +373,18 @@ Generate a brief (3-4 paragraphs) architectural summary that explains:
 3. Key data/control flows involving this component
 4. Architectural implications of changes to this component`;
 
-        const response = await client.messages.create({
+        const response = await runLlmRequest(prompt, {
             model: DEFAULT_MODEL,
-            max_tokens: 800,
-            messages: [
-                {
-                    role: 'user',
-                    content: prompt,
-                },
-            ],
+            maxOutputTokens: 900,
+            systemPrompt: 'You are an architecture analyst. Provide concise but specific explanation text.',
         });
-
-        const summary = response.content[0]?.text || '';
 
         return {
             status: 'completed',
             message: 'Architecture summary generated',
-            summary,
-            model: DEFAULT_MODEL,
+            summary: response.text,
+            model: response.model,
+            modeUsed: response.modeUsed,
         };
     } catch (error) {
         console.error('LLM Service Error:', error);
@@ -198,29 +426,18 @@ Identify:
 
 Format as JSON with these keys: implicit_dependencies, runtime_dependencies, environmental_dependencies, data_flows, potential_issues`;
 
-        const response = await client.messages.create({
+        const response = await runLlmRequest(prompt, {
             model: DEFAULT_MODEL,
-            max_tokens: 1000,
-            messages: [
-                {
-                    role: 'user',
-                    content: prompt,
-                },
-            ],
+            maxOutputTokens: 1200,
         });
 
-        const content = response.content[0]?.text || '';
-        let inferred;
-        try {
-            const jsonMatch = content.match(/\{[\s\S]*\}/);
-            inferred = jsonMatch ? JSON.parse(jsonMatch[0]) : { raw: content };
-        } catch (e) {
-            inferred = { raw: content };
-        }
+        const inferred = extractFirstJsonObject(response.text) || { raw: response.text };
 
         return {
             status: 'completed',
             inferredDependencies: inferred,
+            model: response.model,
+            modeUsed: response.modeUsed,
         };
     } catch (error) {
         console.error('LLM Service Error:', error);

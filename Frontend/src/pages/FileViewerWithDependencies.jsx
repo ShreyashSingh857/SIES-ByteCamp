@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { useSelector } from 'react-redux';
 import { useNavigate, useParams } from 'react-router-dom';
 import SyntaxHighlighter from 'react-syntax-highlighter';
@@ -75,6 +75,45 @@ const buildRawUrl = (repoUrl, branch, filePath) => {
     return `https://raw.githubusercontent.com/${owner}/${repo}/${branch}/${filePath}`;
 };
 
+const buildSelectionContext = (fullCode, selectedValue) => {
+    const selectedSnippet = String(selectedValue || '').trim();
+    const source = String(fullCode || '');
+
+    if (!selectedSnippet) {
+        return {
+            selectedSnippet: '',
+            surroundingContext: '',
+            lineRange: null,
+        };
+    }
+
+    const selectedIndex = source.indexOf(selectedSnippet);
+    if (selectedIndex < 0) {
+        return {
+            selectedSnippet,
+            surroundingContext: selectedSnippet,
+            lineRange: null,
+        };
+    }
+
+    const before = source.slice(0, selectedIndex);
+    const selectedLineCount = selectedSnippet.split('\n').length;
+    const startLine = before.split('\n').length;
+    const endLine = startLine + selectedLineCount - 1;
+
+    const contextStart = Math.max(0, selectedIndex - 320);
+    const contextEnd = Math.min(source.length, selectedIndex + selectedSnippet.length + 320);
+
+    return {
+        selectedSnippet,
+        surroundingContext: source.slice(contextStart, contextEnd),
+        lineRange: {
+            start: startLine,
+            end: endLine,
+        },
+    };
+};
+
 // ─── DependencySnippet ───────────────────────────────────────────────────────
 
 const DependencySnippet = ({ file, snippet, isDark, selectedText }) => {
@@ -107,13 +146,13 @@ const DependencySnippet = ({ file, snippet, isDark, selectedText }) => {
 
             return lines.map((line, idx) => {
                 const escapedText = selectedText.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-                const regex = new RegExp(`(${escapedText})`, 'gi');
+                const regex = new RegExp(`(${escapedText})`, 'i');
                 const parts = line.split(regex);
 
                 return (
                     <div key={idx} style={{ wordBreak: 'break-word' }}>
                         {parts.map((part, i) => {
-                            if (regex.test(part)) {
+                            if (part.toLowerCase() === selectedText.toLowerCase()) {
                                 return (
                                     <span
                                         key={i}
@@ -241,144 +280,175 @@ const DependencySnippet = ({ file, snippet, isDark, selectedText }) => {
 
 // ─── LLM Insights Card ─────────────────────────────────────────────────────
 
-const LLMInsightCard = ({ insight, isDark }) => {
-    try {
-        const analysis = typeof insight === 'string' ? JSON.parse(insight) : insight;
+const LLMInsightCard = ({ insight, meta, isDark }) => {
+    const analysis = useMemo(() => {
+        if (!insight) return null;
+        if (typeof insight === 'object') return insight;
 
-        const getRiskColor = (risk) => {
-            const colors = {
-                'LOW': '#10b981',
-                'MEDIUM': '#f59e0b',
-                'HIGH': '#ef4444',
-            };
-            return colors[risk?.toUpperCase()] || '#6b7280';
+        try {
+            return JSON.parse(insight);
+        } catch {
+            return { impactAnalysis: String(insight) };
+        }
+    }, [insight]);
+
+    if (!analysis) {
+        return null;
+    }
+
+    const getRiskColor = (risk) => {
+        const colors = {
+            LOW: '#10b981',
+            MEDIUM: '#f59e0b',
+            HIGH: '#ef4444',
+            UNKNOWN: '#6b7280',
         };
+        return colors[String(risk || '').toUpperCase()] || '#6b7280';
+    };
 
-        const getImpactColor = (impact) => {
-            const colors = {
-                'LOW': '#6b7280',
-                'MEDIUM': '#3b82f6',
-                'HIGH': '#8b5cf6',
-            };
-            return colors[impact?.toUpperCase()] || '#6b7280';
-        };
+    const listOrFallback = (value) => {
+        if (Array.isArray(value)) {
+            return value.map((item) => String(item).trim()).filter(Boolean);
+        }
+        if (typeof value === 'string' && value.trim()) {
+            return [value.trim()];
+        }
+        return [];
+    };
 
-        return (
-            <div
-                style={{
-                    background: isDark ? 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)' : 'linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%)',
-                    border: '2px solid #3b82f6',
-                    borderRadius: '0.5rem',
-                    padding: '1rem',
-                    marginBottom: '1rem',
-                }}
-            >
-                <div style={{ marginBottom: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+    const recommendations = listOrFallback(analysis.recommendations);
+    const criticalDependencies = listOrFallback(analysis.criticalDependencies);
+    const accessPatterns = listOrFallback(analysis.accessPatterns);
+
+    return (
+        <div
+            style={{
+                background: isDark ? 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)' : 'linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%)',
+                border: '2px solid #3b82f6',
+                borderRadius: '0.5rem',
+                padding: '1rem',
+                marginBottom: '1rem',
+            }}
+        >
+            <div style={{ marginBottom: '0.75rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.75rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                     <span style={{ color: '#3b82f6', fontSize: '1.25rem' }}>🤖</span>
                     <h3 style={{ margin: 0, color: '#3b82f6', fontWeight: 600, fontSize: '0.95rem' }}>
                         AI Dependency Analysis
                     </h3>
                 </div>
-
-                <div style={{ display: 'grid', gap: '0.75rem', fontSize: '0.85rem' }}>
-                    {analysis.dependencyType && (
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <span style={{ color: 'var(--text-muted)' }}>Type:</span>
-                            <span
-                                style={{
-                                    background: '#06b6d4',
-                                    color: '#fff',
-                                    padding: '0.25rem 0.5rem',
-                                    borderRadius: '0.25rem',
-                                    fontWeight: 500,
-                                    fontSize: '0.75rem',
-                                    textTransform: 'uppercase',
-                                }}
-                            >
-                                {analysis.dependencyType}
-                            </span>
-                        </div>
-                    )}
-
-                    {analysis.classification && (
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <span style={{ color: 'var(--text-muted)' }}>Classification:</span>
-                            <span style={{ color: 'var(--text)' }}>{analysis.classification}</span>
-                        </div>
-                    )}
-
-                    {analysis.scope && (
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <span style={{ color: 'var(--text-muted)' }}>Scope:</span>
-                            <span
-                                style={{
-                                    background: '#8b5cf6',
-                                    color: '#fff',
-                                    padding: '0.25rem 0.5rem',
-                                    borderRadius: '0.25rem',
-                                    fontSize: '0.75rem',
-                                    textTransform: 'capitalize',
-                                }}
-                            >
-                                {analysis.scope}
-                            </span>
-                        </div>
-                    )}
-
-                    {analysis.impact && (
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <span style={{ color: 'var(--text-muted)' }}>Impact:</span>
-                            <span
-                                style={{
-                                    background: getImpactColor(analysis.impact),
-                                    color: '#fff',
-                                    padding: '0.25rem 0.5rem',
-                                    borderRadius: '0.25rem',
-                                    fontWeight: 500,
-                                    fontSize: '0.75rem',
-                                    textTransform: 'uppercase',
-                                }}
-                            >
-                                {analysis.impact}
-                            </span>
-                        </div>
-                    )}
-
-                    {analysis.riskLevel && (
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <span style={{ color: 'var(--text-muted)' }}>Risk:</span>
-                            <span
-                                style={{
-                                    background: getRiskColor(analysis.riskLevel),
-                                    color: '#fff',
-                                    padding: '0.25rem 0.5rem',
-                                    borderRadius: '0.25rem',
-                                    fontWeight: 500,
-                                    fontSize: '0.75rem',
-                                    textTransform: 'uppercase',
-                                }}
-                            >
-                                {analysis.riskLevel}
-                            </span>
-                        </div>
-                    )}
-
-                    {analysis.reason && (
-                        <div style={{ marginTop: '0.5rem', paddingTop: '0.75rem', borderTop: '1px solid var(--border)' }}>
-                            <p style={{ margin: '0 0 0.5rem 0', color: 'var(--text-muted)', fontSize: '0.75rem', fontWeight: 500 }}>
-                                Reason:
-                            </p>
-                            <p style={{ margin: 0, color: 'var(--text)', fontSize: '0.8rem', lineHeight: '1.4' }}>
-                                {analysis.reason}
-                            </p>
-                        </div>
-                    )}
-                </div>
+                {meta?.model && (
+                    <span
+                        className="code-text"
+                        style={{
+                            fontSize: '0.68rem',
+                            color: '#bfdbfe',
+                            background: '#1e3a8a',
+                            padding: '0.25rem 0.45rem',
+                            borderRadius: '0.25rem',
+                            whiteSpace: 'nowrap',
+                        }}
+                    >
+                        {meta.model}
+                    </span>
+                )}
             </div>
-        );
-    } catch (e) {
-        return null;
-    }
+
+            {(meta?.status || meta?.modeUsed) && (
+                <div style={{ marginBottom: '0.75rem', color: 'var(--text-muted)', fontSize: '0.75rem' }}>
+                    Status: {meta?.status || 'unknown'}
+                    {meta?.modeUsed ? ` · API: ${meta.modeUsed}` : ''}
+                </div>
+            )}
+
+            <div style={{ display: 'grid', gap: '0.75rem', fontSize: '0.85rem' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '0.5rem' }}>
+                    <span style={{ color: 'var(--text-muted)' }}>Type:</span>
+                    <span style={{ color: 'var(--text)', fontWeight: 500, textAlign: 'right' }}>{analysis.dependencyType || 'Unknown'}</span>
+                </div>
+
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '0.5rem' }}>
+                    <span style={{ color: 'var(--text-muted)' }}>Scope:</span>
+                    <span style={{ color: 'var(--text)', fontWeight: 500, textAlign: 'right' }}>{analysis.dependencyScope || analysis.scope || 'Unknown'}</span>
+                </div>
+
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '0.5rem' }}>
+                    <span style={{ color: 'var(--text-muted)' }}>Risk:</span>
+                    <span
+                        style={{
+                            background: getRiskColor(analysis.riskLevel || analysis.riskAssessment),
+                            color: '#fff',
+                            padding: '0.2rem 0.45rem',
+                            borderRadius: '0.25rem',
+                            fontWeight: 600,
+                            fontSize: '0.72rem',
+                            textTransform: 'uppercase',
+                        }}
+                    >
+                        {analysis.riskLevel || 'UNKNOWN'}
+                    </span>
+                </div>
+
+                {analysis.impactAnalysis && (
+                    <div style={{ paddingTop: '0.5rem', borderTop: '1px solid var(--border)' }}>
+                        <p style={{ margin: '0 0 0.4rem 0', color: 'var(--text-muted)', fontSize: '0.75rem', fontWeight: 600 }}>
+                            Impact Analysis
+                        </p>
+                        <p style={{ margin: 0, color: 'var(--text)', fontSize: '0.8rem', lineHeight: '1.45' }}>
+                            {analysis.impactAnalysis}
+                        </p>
+                    </div>
+                )}
+
+                {criticalDependencies.length > 0 && (
+                    <div style={{ paddingTop: '0.5rem', borderTop: '1px solid var(--border)' }}>
+                        <p style={{ margin: '0 0 0.4rem 0', color: 'var(--text-muted)', fontSize: '0.75rem', fontWeight: 600 }}>
+                            Critical Dependencies
+                        </p>
+                        <div style={{ display: 'grid', gap: '0.25rem' }}>
+                            {criticalDependencies.slice(0, 5).map((item, idx) => (
+                                <div key={`${item}-${idx}`} style={{ color: 'var(--text)', fontSize: '0.8rem' }}>
+                                    • {item}
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                )}
+
+                {accessPatterns.length > 0 && (
+                    <div style={{ paddingTop: '0.5rem', borderTop: '1px solid var(--border)' }}>
+                        <p style={{ margin: '0 0 0.4rem 0', color: 'var(--text-muted)', fontSize: '0.75rem', fontWeight: 600 }}>
+                            Access Patterns
+                        </p>
+                        <div style={{ color: 'var(--text)', fontSize: '0.8rem' }}>
+                            {accessPatterns.join(' • ')}
+                        </div>
+                    </div>
+                )}
+
+                {recommendations.length > 0 && (
+                    <div style={{ paddingTop: '0.5rem', borderTop: '1px solid var(--border)' }}>
+                        <p style={{ margin: '0 0 0.4rem 0', color: 'var(--text-muted)', fontSize: '0.75rem', fontWeight: 600 }}>
+                            Recommendations
+                        </p>
+                        <div style={{ display: 'grid', gap: '0.25rem' }}>
+                            {recommendations.slice(0, 5).map((item, idx) => (
+                                <div key={`${item}-${idx}`} style={{ color: 'var(--text)', fontSize: '0.8rem' }}>
+                                    • {item}
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                )}
+
+                {(meta?.usageTokens?.input || meta?.usageTokens?.output) && (
+                    <div style={{ paddingTop: '0.5rem', borderTop: '1px solid var(--border)', color: 'var(--text-muted)', fontSize: '0.72rem' }}>
+                        Tokens: in {meta?.usageTokens?.input || 0} · out {meta?.usageTokens?.output || 0}
+                    </div>
+                )}
+            </div>
+        </div>
+    );
 };
 
 // ─── DependencyPanel ───────────────────────────────────────────────────────────
@@ -386,6 +456,7 @@ const LLMInsightCard = ({ insight, isDark }) => {
 const DependencyPanel = ({
     selectedText,
     dependencies,
+    llmMeta,
     loading,
     error,
     isDark,
@@ -484,7 +555,7 @@ const DependencyPanel = ({
                         {/* LLM Insight Section - Shows First & Prominently */}
                         {llmInsight && (
                             <div style={{ marginBottom: '1.5rem' }}>
-                                <LLMInsightCard insight={llmInsight.snippet} isDark={isDark} />
+                                <LLMInsightCard insight={llmInsight.snippet} meta={llmMeta} isDark={isDark} />
                             </div>
                         )}
 
@@ -533,6 +604,7 @@ const FileViewerWithDependencies = () => {
     const [copied, setCopied] = useState(false);
     const [selectedText, setSelectedText] = useState('');
     const [dependencies, setDependencies] = useState([]);
+    const [llmMeta, setLlmMeta] = useState(null);
     const [depLoading, setDepLoading] = useState(false);
     const [depError, setDepError] = useState('');
     const codeEditorRef = useRef(null);
@@ -577,12 +649,20 @@ const FileViewerWithDependencies = () => {
     // Handle text selection in code editor
     useEffect(() => {
         const handleTextSelection = () => {
-            const selected = window.getSelection().toString().trim();
+            const selection = window.getSelection();
+            if (!selection || selection.rangeCount === 0) {
+                return;
+            }
+
+            const selected = selection.toString().trim();
 
             // Only set if selection is within the code editor
             if (selected && codeEditorRef.current) {
-                const range = window.getSelection().getRangeAt(0);
-                const container = range?.commonAncestorContainer?.parentElement;
+                const range = selection.getRangeAt(0);
+                const anchorNode = range?.commonAncestorContainer;
+                const container = anchorNode?.nodeType === Node.TEXT_NODE
+                    ? anchorNode.parentElement
+                    : anchorNode;
 
                 if (codeEditorRef.current.contains(container)) {
                     setSelectedText(selected);
@@ -598,6 +678,7 @@ const FileViewerWithDependencies = () => {
     useEffect(() => {
         if (!selectedText || !currentRepoId) {
             setDependencies([]);
+            setLlmMeta(null);
             setDepError('');
             return;
         }
@@ -605,9 +686,11 @@ const FileViewerWithDependencies = () => {
         const queryDependencies = async () => {
             setDepLoading(true);
             setDepError('');
+            setLlmMeta(null);
 
             try {
                 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+                const selectionContext = buildSelectionContext(code, selectedText);
 
                 // Prefer Redux scanId, then localStorage fallback.
                 const scanId = currentScanId || localStorage.getItem('currentScanId');
@@ -626,6 +709,9 @@ const FileViewerWithDependencies = () => {
                             repoId: currentRepoId,
                             currentFile: filePath,
                             selectedText: selectedText,
+                            selectedSnippet: selectionContext.selectedSnippet,
+                            surroundingContext: selectionContext.surroundingContext,
+                            lineRange: selectionContext.lineRange,
                         }),
                     });
 
@@ -644,6 +730,11 @@ const FileViewerWithDependencies = () => {
                             type: 'file-occurrence',
                         }))
                     );
+                    setLlmMeta({
+                        status: 'not-available',
+                        model: null,
+                        message: 'LLM analysis requires an active scanId.',
+                    });
                     return;
                 }
 
@@ -656,6 +747,9 @@ const FileViewerWithDependencies = () => {
                         scanId: scanId,
                         currentFile: filePath,
                         selectedText: selectedText,
+                        selectedSnippet: selectionContext.selectedSnippet,
+                        surroundingContext: selectionContext.surroundingContext,
+                        lineRange: selectionContext.lineRange,
                         withLLM: true,
                     }),
                 });
@@ -666,6 +760,19 @@ const FileViewerWithDependencies = () => {
 
                 const result = await response.json();
                 const data = result.data || {};
+                const llmAnalysis = data.llmAnalysis || null;
+                const llmMetaState = llmAnalysis
+                    ? {
+                        status: llmAnalysis.status,
+                        model: llmAnalysis.model,
+                        modeUsed: llmAnalysis.modeUsed,
+                        usageTokens: llmAnalysis.usageTokens,
+                        contextStats: llmAnalysis.contextStats,
+                        summary: data.summary,
+                    }
+                    : null;
+
+                setLlmMeta(llmMetaState);
 
                 // Format enriched dependencies
                 const enrichedDeps = [];
@@ -701,14 +808,33 @@ const FileViewerWithDependencies = () => {
                 }
 
                 // Add LLM insights
-                if (data.llmAnalysis?.analysis) {
+                if (llmAnalysis?.analysis) {
                     enrichedDeps.push({
                         id: 'llm-analysis',
                         path: 'AI Analysis',
                         lineNumber: 0,
                         type: 'llm-insight',
-                        displayName: 'LLM Dependency Analysis',
-                        snippet: JSON.stringify(data.llmAnalysis.analysis, null, 2),
+                        displayName: llmAnalysis.model
+                            ? `LLM Dependency Analysis (${llmAnalysis.model})`
+                            : 'LLM Dependency Analysis',
+                        snippet: llmAnalysis.analysis,
+                    });
+                } else if (llmAnalysis && (llmAnalysis.message || llmAnalysis.error)) {
+                    enrichedDeps.push({
+                        id: 'llm-analysis-status',
+                        path: 'AI Analysis',
+                        lineNumber: 0,
+                        type: 'llm-insight',
+                        displayName: llmAnalysis.model
+                            ? `LLM Dependency Analysis (${llmAnalysis.model})`
+                            : 'LLM Dependency Analysis',
+                        snippet: {
+                            dependencyType: 'Unavailable',
+                            dependencyScope: data.summary?.uniqueFiles > 1 ? 'cross-file' : 'local',
+                            impactAnalysis: llmAnalysis.message || llmAnalysis.error,
+                            riskLevel: 'UNKNOWN',
+                            recommendations: ['Refine selection to a symbol/function name for deeper graph tracing.'],
+                        },
                     });
                 }
 
@@ -716,6 +842,7 @@ const FileViewerWithDependencies = () => {
             } catch (err) {
                 setDepError(err.message || 'Error analyzing dependencies');
                 setDependencies([]);
+                setLlmMeta(null);
             } finally {
                 setDepLoading(false);
             }
@@ -723,7 +850,7 @@ const FileViewerWithDependencies = () => {
 
         const timer = setTimeout(queryDependencies, 300);
         return () => clearTimeout(timer);
-    }, [selectedText, currentRepoId, currentScanId, filePath]);
+    }, [selectedText, currentRepoId, currentScanId, filePath, code]);
 
     const handleCopy = () => {
         navigator.clipboard.writeText(code).then(() => {
@@ -735,27 +862,11 @@ const FileViewerWithDependencies = () => {
     const handleClearSelection = () => {
         setSelectedText('');
         setDependencies([]);
+        setLlmMeta(null);
     };
 
     const lineCount = code.split('\n').length;
     const sizeKb = (new Blob([code]).size / 1024).toFixed(1);
-
-    // Add global mouse up listener for text selection
-    React.useEffect(() => {
-        const handleMouseUp = () => {
-            const selected = window.getSelection().toString().trim();
-            if (selected) {
-                // Check if selection is within the code editor
-                const range = window.getSelection().getRangeAt(0);
-                if (codeEditorRef.current && codeEditorRef.current.contains(range.commonAncestorContainer)) {
-                    setSelectedText(selected);
-                }
-            }
-        };
-
-        document.addEventListener('mouseup', handleMouseUp);
-        return () => document.removeEventListener('mouseup', handleMouseUp);
-    }, []);
 
     return (
         <div className="max-w-full mx-auto space-y-4" style={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
@@ -940,6 +1051,7 @@ const FileViewerWithDependencies = () => {
                     <DependencyPanel
                         selectedText={selectedText}
                         dependencies={dependencies}
+                        llmMeta={llmMeta}
                         loading={depLoading}
                         error={depError}
                         isDark={isDark}

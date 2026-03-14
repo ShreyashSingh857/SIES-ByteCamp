@@ -60,6 +60,114 @@ function normalizeNeo4jNumber(value) {
   return Number(value || 0);
 }
 
+function sanitizeSelectedText(rawText, maxLength = 1000) {
+  const value = String(rawText || "").replace(/\s+/g, " ").trim();
+  if (!value) return "";
+  if (value.length <= maxLength) return value;
+  return value.slice(0, maxLength);
+}
+
+function extractSearchCandidates(rawText) {
+  const cleaned = sanitizeSelectedText(rawText, 1000);
+  if (!cleaned) return [];
+
+  const tokens = cleaned
+    .split(/[^a-zA-Z0-9_$./:-]+/)
+    .map((token) => token.trim())
+    .filter((token) => token.length >= 2);
+
+  return [...new Set([cleaned, ...tokens])].slice(0, 8);
+}
+
+function getPreferredSymbolForTracing(candidates) {
+  if (!Array.isArray(candidates) || candidates.length === 0) {
+    return "";
+  }
+  return candidates.find((candidate) => !candidate.includes(" ")) || candidates[0];
+}
+
+function calculateChainDepth(symbolDependencies) {
+  const edges = symbolDependencies?.edges || [];
+  if (!edges.length) return 0;
+  return 1;
+}
+
+function buildLlmGraphContext(symbolOccurrences, dependencyMap, symbolDependencies) {
+  const nodesById = new Map();
+  const edgesById = new Map();
+
+  for (const occurrence of symbolOccurrences || []) {
+    if (!occurrence?.id) continue;
+    nodesById.set(String(occurrence.id), {
+      id: String(occurrence.id),
+      name: occurrence.displayName || occurrence.id,
+      type: occurrence.type || "Unknown",
+      filePath: occurrence.filePath || "",
+      lineNumber: occurrence.lineNumber || 0,
+    });
+  }
+
+  for (const [nodeId, deps] of Object.entries(dependencyMap || {})) {
+    const outgoing = deps?.outgoing || [];
+    const incoming = deps?.incoming || [];
+
+    for (const dep of [...outgoing, ...incoming]) {
+      const sourceId = String(dep.sourceId || dep.targetId || "");
+      const targetId = String(dep.targetId || dep.sourceId || "");
+
+      if (sourceId) {
+        nodesById.set(sourceId, {
+          id: sourceId,
+          name: dep.sourceName || sourceId,
+          type: dep.sourceType || "Unknown",
+        });
+      }
+
+      if (targetId) {
+        nodesById.set(targetId, {
+          id: targetId,
+          name: dep.targetName || targetId,
+          type: dep.targetType || "Unknown",
+        });
+      }
+
+      const edgeId = `${nodeId}:${sourceId}:${dep.relationshipType || "REL"}:${targetId}`;
+      edgesById.set(edgeId, {
+        id: edgeId,
+        source: sourceId,
+        target: targetId,
+        type: dep.relationshipType || "RELATED_TO",
+        properties: dep.relationshipProps || {},
+      });
+    }
+  }
+
+  for (const node of symbolDependencies?.nodes || []) {
+    const nodeId = String(node.id || "");
+    if (!nodeId) continue;
+    nodesById.set(nodeId, {
+      ...(nodesById.get(nodeId) || {}),
+      ...node,
+      id: nodeId,
+    });
+  }
+
+  for (const edge of symbolDependencies?.edges || []) {
+    const edgeId = String(edge.id || `${edge.source}-${edge.type}-${edge.target}`);
+    edgesById.set(edgeId, {
+      ...edge,
+      id: edgeId,
+      source: String(edge.source || ""),
+      target: String(edge.target || ""),
+    });
+  }
+
+  return {
+    nodes: Array.from(nodesById.values()).slice(0, 300),
+    edges: Array.from(edgesById.values()).slice(0, 450),
+  };
+}
+
 function buildSeedPayloadFromParser(repoId, parserResult, scanId) {
   const nowIso = new Date().toISOString();
   const serviceId = `svc:${scanId}:${repoId}`;
@@ -618,9 +726,22 @@ export const analyzeDependencies = async (req, res, next) => {
  */
 export const analyzeDependenciesWithIntelligence = async (req, res, next) => {
   try {
-    const { repoId, scanId, currentFile, selectedText, withLLM = true } = req.body;
+    const {
+      repoId,
+      scanId,
+      currentFile,
+      selectedText,
+      selectedSnippet,
+      surroundingContext,
+      lineRange,
+      withLLM = true,
+    } = req.body;
 
-    if (!selectedText) {
+    const normalizedSelectedText = sanitizeSelectedText(selectedText, 2000);
+    const searchCandidates = extractSearchCandidates(normalizedSelectedText);
+    const preferredSymbol = getPreferredSymbolForTracing(searchCandidates);
+
+    if (!normalizedSelectedText) {
       return res.status(400).json({
         success: false,
         message: "selectedText is required",
@@ -634,24 +755,40 @@ export const analyzeDependenciesWithIntelligence = async (req, res, next) => {
       });
     }
 
-    // Step 1: Find symbol occurrences in Neo4j
+    // Step 1: Find symbol occurrences in Neo4j using robust candidate matching
     let symbolOccurrences = [];
-    try {
-      symbolOccurrences = await findSymbolOccurrences(selectedText, scanId);
-    } catch (err) {
-      console.warn("Neo4j symbol search failed:", err.message);
-      // Continue with empty results if Neo4j query fails
+    const seenOccurrenceIds = new Set();
+    for (const candidate of searchCandidates) {
+      try {
+        const matches = await findSymbolOccurrences(candidate, scanId);
+        for (const match of matches) {
+          const key = String(match.id || `${match.filePath}:${match.lineNumber}:${match.displayName}`);
+          if (!seenOccurrenceIds.has(key)) {
+            seenOccurrenceIds.add(key);
+            symbolOccurrences.push(match);
+          }
+        }
+      } catch (err) {
+        console.warn(`Neo4j symbol search failed for "${candidate}":`, err.message);
+      }
     }
 
     if (symbolOccurrences.length === 0) {
       return res.status(200).json({
         success: true,
         data: {
-          selectedText,
+          selectedText: normalizedSelectedText,
           scanId,
+          searchCandidates,
           symbolOccurrences: [],
           dependencies: [],
-          llmAnalysis: withLLM ? { status: 'skipped', message: 'No occurrences found' } : null,
+          llmAnalysis: withLLM
+            ? {
+              status: "skipped",
+              message: "No occurrences found",
+              model: process.env.OPENAI_MODEL || "gpt-4.1-mini",
+            }
+            : null,
           message: "No symbol occurrences found in database",
         },
       });
@@ -670,9 +807,11 @@ export const analyzeDependenciesWithIntelligence = async (req, res, next) => {
     }
 
     // Step 3: Trace complete dependency chains
-    let symbolDependencies = {};
+    let symbolDependencies = { nodes: [], edges: [] };
     try {
-      symbolDependencies = await traceSymbolDependencies(selectedText, scanId, 4);
+      if (preferredSymbol) {
+        symbolDependencies = await traceSymbolDependencies(preferredSymbol, scanId, 4);
+      }
     } catch (err) {
       console.warn("Failed to trace symbol dependencies:", err.message);
       symbolDependencies = { nodes: [], edges: [] };
@@ -681,36 +820,66 @@ export const analyzeDependenciesWithIntelligence = async (req, res, next) => {
     // Step 4: Get symbol references
     let references = [];
     try {
-      references = await getSymbolReferences(selectedText, scanId);
+      if (preferredSymbol) {
+        references = await getSymbolReferences(preferredSymbol, scanId);
+      }
     } catch (err) {
       console.warn("Failed to get symbol references:", err.message);
     }
 
+    const llmGraphContext = buildLlmGraphContext(
+      symbolOccurrences,
+      dependencyMap,
+      symbolDependencies
+    );
+
+    const dependencySummary = {
+      occurrenceCount: symbolOccurrences.length,
+      uniqueFiles: [...new Set(symbolOccurrences.map((occurrence) => occurrence.filePath).filter(Boolean))].length,
+      relationshipNodes: Object.keys(dependencyMap).length,
+      referenceFiles: references.length,
+      chainDepth: calculateChainDepth(symbolDependencies),
+      relationshipTypes: [
+        ...new Set(
+          Object.values(dependencyMap)
+            .flatMap((deps) => [...(deps?.incoming || []), ...(deps?.outgoing || [])])
+            .map((dep) => dep.relationshipType)
+            .filter(Boolean)
+        ),
+      ],
+    };
+
     // Step 5: Use LLM to analyze if requested
     let llmAnalysis = null;
     if (withLLM) {
-      const graphContext = {
-        nodes: symbolDependencies.nodes,
-        edges: symbolDependencies.edges,
-      };
-
       llmAnalysis = await analyzeDependenciesWithLLM(
-        selectedText,
-        graphContext,
-        symbolOccurrences
+        normalizedSelectedText,
+        llmGraphContext,
+        symbolOccurrences,
+        {
+          currentFile,
+          selectedSnippet,
+          surroundingContext,
+          lineRange,
+          references,
+          dependencySummary,
+        }
       );
     }
 
     res.status(200).json({
       success: true,
       data: {
-        selectedText,
+        selectedText: normalizedSelectedText,
+        searchCandidates,
+        preferredSymbol,
         scanId,
         summary: {
-          occurrencesFound: symbolOccurrences.length,
-          uniqueFiles: [...new Set(symbolOccurrences.map(o => o.filePath))].length,
-          relationshipsFound: Object.keys(dependencyMap).length,
-          chainDepth: Math.max(...symbolDependencies.edges.map(e => e.type === 'CALLS' ? 2 : 1), 0),
+          occurrencesFound: dependencySummary.occurrenceCount,
+          uniqueFiles: dependencySummary.uniqueFiles,
+          relationshipsFound: dependencySummary.relationshipNodes,
+          chainDepth: dependencySummary.chainDepth,
+          relationshipTypes: dependencySummary.relationshipTypes,
         },
         symbolOccurrences: symbolOccurrences.map(o => ({
           id: o.id,
@@ -725,6 +894,12 @@ export const analyzeDependenciesWithIntelligence = async (req, res, next) => {
           chain: symbolDependencies,
         },
         references: references,
+        llmContext: {
+          currentFile,
+          lineRange: lineRange || null,
+          selectedSnippet: selectedSnippet || normalizedSelectedText,
+          surroundingContext: surroundingContext || null,
+        },
         llmAnalysis: llmAnalysis,
       },
     });
