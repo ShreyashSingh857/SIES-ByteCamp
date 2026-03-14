@@ -15,6 +15,7 @@ import {
   Loader2,
 } from 'lucide-react';
 import { useGetGraphQuery } from '../store/slices/apiSlice';
+import { buildGitHubTreeUrl, normalizeRepoUrl, parseGitHubRepoInfo } from '../lib/utils';
 
 // ─── helpers ────────────────────────────────────────────────────────────────
 
@@ -151,6 +152,7 @@ const DirListView = () => {
 
   const currentRepoId  = useSelector((s) => s.graph.currentRepoId);
   const currentRepoUrl = useSelector((s) => s.graph.currentRepoUrl);
+  const currentRepoBranch = useSelector((s) => s.graph.currentRepoBranch || 'main');
 
   const { data: graphData, isLoading } = useGetGraphQuery(currentRepoId, {
     skip: !currentRepoId,
@@ -175,14 +177,15 @@ const DirListView = () => {
   }, [navigate, dirName]);
 
   // extract owner/repo from the GitHub URL for display
+  const normalizedRepoUrl = useMemo(() => normalizeRepoUrl(currentRepoUrl), [currentRepoUrl]);
   const repoDisplayName = useMemo(() => {
-    try {
-      const url = new URL(currentRepoUrl || '');
-      return url.pathname.replace(/^\//, '').replace(/\.git$/, '');
-    } catch {
-      return currentRepoUrl || 'repository';
-    }
-  }, [currentRepoUrl]);
+    const repoInfo = parseGitHubRepoInfo(normalizedRepoUrl);
+    return repoInfo ? `${repoInfo.owner}/${repoInfo.repo}` : normalizedRepoUrl || 'repository';
+  }, [normalizedRepoUrl]);
+
+  const githubDirUrl = useMemo(() => {
+    return buildGitHubTreeUrl(normalizedRepoUrl, currentRepoBranch, dirName);
+  }, [normalizedRepoUrl, currentRepoBranch, dirName]);
 
   return (
     <div className="max-w-5xl mx-auto space-y-5">
@@ -209,9 +212,9 @@ const DirListView = () => {
             {repoDisplayName}
           </span>
         </div>
-        {currentRepoUrl && (
+        {githubDirUrl && (
           <a
-            href={`${currentRepoUrl}/tree/HEAD/${dirName}`}
+            href={githubDirUrl}
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center gap-1.5 text-xs transition-colors"

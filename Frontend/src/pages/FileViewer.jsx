@@ -4,6 +4,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import SyntaxHighlighter from 'react-syntax-highlighter';
 import { atomOneDark, atomOneLight } from 'react-syntax-highlighter/dist/esm/styles/hljs';
 import { useGetFileRelationsQuery, useSeedGraphMutation } from '../store/slices/apiSlice';
+import { buildGitHubBlobUrl, buildGitHubRawUrl, normalizeRepoUrl } from '../lib/utils';
 import {
   ArrowLeft,
   Github,
@@ -59,22 +60,6 @@ const getLanguage = (filename = '') => {
   return EXT_LANG_MAP[ext] || 'plaintext';
 };
 
-const parseRepoInfo = (repoUrl = '') => {
-  try {
-    const url = new URL(repoUrl);
-    const [, owner, repo] = url.pathname.replace(/\.git$/, '').split('/');
-    return { owner, repo };
-  } catch {
-    return { owner: '', repo: '' };
-  }
-};
-
-const buildRawUrl = (repoUrl, branch, filePath) => {
-  const { owner, repo } = parseRepoInfo(repoUrl);
-  if (!owner || !repo) return null;
-  return `https://raw.githubusercontent.com/${owner}/${repo}/${branch}/${filePath}`;
-};
-
 // ─── FileViewer ──────────────────────────────────────────────────────────────
 
 const FileViewer = () => {
@@ -97,16 +82,16 @@ const FileViewer = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError]    = useState('');
   const [copied, setCopied]  = useState(false);
+  const normalizedRepoUrl = useMemo(() => normalizeRepoUrl(currentRepoUrl), [currentRepoUrl]);
 
   const rawUrl = useMemo(
-    () => buildRawUrl(currentRepoUrl, currentRepoBranch, filePath),
-    [currentRepoUrl, currentRepoBranch, filePath],
+    () => buildGitHubRawUrl(normalizedRepoUrl, currentRepoBranch, filePath),
+    [normalizedRepoUrl, currentRepoBranch, filePath],
   );
 
   const githubFileUrl = useMemo(() => {
-    if (!currentRepoUrl || !filePath) return null;
-    return `${currentRepoUrl}/blob/${currentRepoBranch}/${filePath}`;
-  }, [currentRepoUrl, currentRepoBranch, filePath]);
+    return buildGitHubBlobUrl(normalizedRepoUrl, currentRepoBranch, filePath);
+  }, [normalizedRepoUrl, currentRepoBranch, filePath]);
 
   const {
     data: fileRelationsData,
@@ -153,7 +138,7 @@ const FileViewer = () => {
     seedGraph({
       repoId: currentRepoId,
       scanId: currentScanId,
-      repoUrl: currentRepoUrl || undefined,
+      repoUrl: normalizedRepoUrl || undefined,
     })
       .unwrap()
       .then(() => {
@@ -166,7 +151,7 @@ const FileViewer = () => {
     };
   }, [
     currentRepoId,
-    currentRepoUrl,
+    normalizedRepoUrl,
     currentScanId,
     filePath,
     reseedAttempted,
