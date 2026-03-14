@@ -305,6 +305,8 @@ export async function getImpactedNodesByNode(node, scanId) {
 export async function getRelatedFilesByPath(scanId, filePath) {
   const session = getSession();
   try {
+    const runtimeRelTypes = ['CONSUMES_API', 'EXPOSES_API', 'USES_TABLE', 'USES_FIELD', 'READS_ENV', 'USES_CACHE', 'EMITS_EVENT', 'LISTENS_EVENT'];
+
     const incomingImportsResult = await session.run(
       `MATCH (src:File {scanId: $scanId})-[:IMPORTS]->(target:File {scanId: $scanId, path: $filePath})
        RETURN DISTINCT src.path AS path`,
@@ -335,22 +337,74 @@ export async function getRelatedFilesByPath(scanId, filePath) {
       { scanId, filePath }
     );
 
-    const incoming = new Set([
+    const incomingRuntimeResult = await session.run(
+      `MATCH (targetFile:File {scanId: $scanId, path: $filePath})-[:CONTAINS*0..1]->(targetNode)
+       MATCH (sourceNode)-[r]->(targetNode)
+       WHERE sourceNode.scanId = $scanId
+         AND targetNode.scanId = $scanId
+         AND type(r) IN $runtimeRelTypes
+       OPTIONAL MATCH (sourceFile:File {scanId: $scanId})-[:CONTAINS*0..1]->(sourceNode)
+       WITH DISTINCT COALESCE(sourceFile.path, sourceNode.path) AS path
+       WHERE path IS NOT NULL
+       RETURN path`,
+      { scanId, filePath, runtimeRelTypes }
+    );
+
+    const outgoingRuntimeResult = await session.run(
+      `MATCH (sourceFile:File {scanId: $scanId, path: $filePath})-[:CONTAINS*0..1]->(sourceNode)
+       MATCH (sourceNode)-[r]->(targetNode)
+       WHERE sourceNode.scanId = $scanId
+         AND targetNode.scanId = $scanId
+         AND type(r) IN $runtimeRelTypes
+       OPTIONAL MATCH (targetFile:File {scanId: $scanId})-[:CONTAINS*0..1]->(targetNode)
+       WITH DISTINCT COALESCE(targetFile.path, targetNode.path) AS path
+       WHERE path IS NOT NULL
+       RETURN path`,
+      { scanId, filePath, runtimeRelTypes }
+    );
+
+    const staticIncoming = new Set([
       ...incomingImportsResult.records.map((r) => r.get('path')).filter(Boolean),
       ...incomingCallsResult.records.map((r) => r.get('path')).filter(Boolean),
     ]);
 
-    const outgoing = new Set([
+    const staticOutgoing = new Set([
       ...outgoingImportsResult.records.map((r) => r.get('path')).filter(Boolean),
       ...outgoingCallsResult.records.map((r) => r.get('path')).filter(Boolean),
     ]);
 
+    const runtimeIncoming = new Set(
+      incomingRuntimeResult.records.map((r) => r.get('path')).filter(Boolean)
+    );
+
+    const runtimeOutgoing = new Set(
+      outgoingRuntimeResult.records.map((r) => r.get('path')).filter(Boolean)
+    );
+
+    const incoming = new Set([
+      ...staticIncoming,
+      ...runtimeIncoming,
+    ]);
+
+    const outgoing = new Set([
+      ...staticOutgoing,
+      ...runtimeOutgoing,
+    ]);
+
     incoming.delete(filePath);
     outgoing.delete(filePath);
+    staticIncoming.delete(filePath);
+    staticOutgoing.delete(filePath);
+    runtimeIncoming.delete(filePath);
+    runtimeOutgoing.delete(filePath);
 
     return {
       incoming: [...incoming].sort((a, b) => a.localeCompare(b)),
       outgoing: [...outgoing].sort((a, b) => a.localeCompare(b)),
+      staticIncoming: [...staticIncoming].sort((a, b) => a.localeCompare(b)),
+      staticOutgoing: [...staticOutgoing].sort((a, b) => a.localeCompare(b)),
+      runtimeIncoming: [...runtimeIncoming].sort((a, b) => a.localeCompare(b)),
+      runtimeOutgoing: [...runtimeOutgoing].sort((a, b) => a.localeCompare(b)),
     };
   } finally {
     await session.close();

@@ -98,6 +98,82 @@ function normalizeRiskLevel(value) {
     return 'UNKNOWN';
 }
 
+function normalizeConfidence(value) {
+    const normalized = String(value ?? '').toUpperCase();
+    if (normalized === 'HIGH' || normalized === 'MEDIUM' || normalized === 'LOW') {
+        return normalized;
+    }
+    return 'MEDIUM';
+}
+
+function normalizeFileInsight(rawInsight, fallbackFilePath = '') {
+    const source = rawInsight && typeof rawInsight === 'object' && !Array.isArray(rawInsight)
+        ? rawInsight
+        : {};
+
+    const filePath = String(
+        source.filePath ||
+        source.path ||
+        fallbackFilePath ||
+        ''
+    ).trim();
+
+    return {
+        filePath,
+        whyRelated: truncateText(source.whyRelated || source.relationSummary || source.reason || '', 500),
+        staticDependencies: toArray(source.staticDependencies || source.staticDeps),
+        runtimeDependencies: toArray(source.runtimeDependencies || source.runtimeDeps),
+        impactSummary: truncateText(source.impactSummary || source.impactAnalysis || source.impact || '', 700),
+        riskLevel: normalizeRiskLevel(source.riskLevel || source.riskAssessment),
+        recommendedActions: toArray(source.recommendedActions || source.recommendations),
+        confidence: normalizeConfidence(source.confidence),
+    };
+}
+
+function buildFallbackFileInsight(fileContext, selectedText, implicitDependencies) {
+    const filePath = String(fileContext?.filePath || '').trim();
+    const occurrences = Array.isArray(fileContext?.occurrences) ? fileContext.occurrences : [];
+    const dependencies = Array.isArray(fileContext?.dependencies) ? fileContext.dependencies : [];
+
+    const staticDependencies = dependencies
+        .filter((dep) => dep?.dependencyNature === 'static')
+        .slice(0, 6)
+        .map((dep) => `${dep.relationshipType || 'RELATED_TO'} ${dep.relatedEntity || dep.relatedId || 'unknown target'}`);
+
+    const runtimeDependencies = dependencies
+        .filter((dep) => dep?.dependencyNature === 'runtime')
+        .slice(0, 6)
+        .map((dep) => `${dep.relationshipType || 'RELATED_TO'} ${dep.relatedEntity || dep.relatedId || 'unknown target'}`);
+
+    const inferredRuntime = toArray(implicitDependencies?.runtime_dependencies).slice(0, 2);
+    const mergedRuntimeDependencies = [...new Set([...runtimeDependencies, ...inferredRuntime])].slice(0, 8);
+
+    const selectedLabel = String(selectedText || '').trim() || 'selected code';
+    const riskLevel = mergedRuntimeDependencies.length > 0
+        ? (staticDependencies.length > 2 ? 'HIGH' : 'MEDIUM')
+        : (staticDependencies.length > 2 ? 'MEDIUM' : 'LOW');
+
+    return {
+        filePath,
+        whyRelated: occurrences.length > 0
+            ? `Matches for "${selectedLabel}" were found in this file and connected through graph relationships.`
+            : `This file is connected to "${selectedLabel}" through dependency traversal.`,
+        staticDependencies,
+        runtimeDependencies: mergedRuntimeDependencies,
+        impactSummary: mergedRuntimeDependencies.length > 0
+            ? 'Runtime and integration flows in this file can amplify downstream impact if the selected code changes.'
+            : 'Changes to the selected code can affect compile-time or structural dependencies in this file.',
+        riskLevel,
+        recommendedActions: [
+            'Review symbol usages in this file before refactoring.',
+            mergedRuntimeDependencies.length > 0
+                ? 'Re-run integration and API-facing tests for this file.'
+                : 'Validate import/call graph consistency after updates.',
+        ],
+        confidence: 'MEDIUM',
+    };
+}
+
 function normalizeDependencyAnalysis(analysis, fallbackText = '') {
     if (!analysis || typeof analysis !== 'object' || Array.isArray(analysis)) {
         return {
@@ -344,6 +420,146 @@ export async function analyzeDependenciesWithLLM(selectedText, graphContext, occ
     }
 }
 
+export async function generatePerFileDependencyInsights(selectedText, fileContexts = [], options = {}) {
+    const normalizedContexts = Array.isArray(fileContexts)
+        ? fileContexts.filter((item) => item?.filePath)
+        : [];
+
+    if (normalizedContexts.length === 0) {
+        return {
+            status: 'skipped',
+            message: 'No file-level dependency contexts available',
+            files: [],
+            model: options.model || DEFAULT_MODEL,
+        };
+    }
+
+    const fallbackInsights = normalizedContexts.map((context) =>
+        buildFallbackFileInsight(context, selectedText, options.implicitDependencies)
+    );
+
+    if (!process.env.OPENAI_API_KEY) {
+        return {
+            status: 'skipped',
+            message: 'OpenAI API key not configured',
+            files: fallbackInsights,
+            model: options.model || DEFAULT_MODEL,
+        };
+    }
+
+    try {
+        const promptPayload = {
+            selectedText: truncateText(selectedText, 1200),
+            currentFile: options.currentFile || null,
+            files: normalizedContexts.slice(0, 80).map((context) => ({
+                filePath: context.filePath,
+                occurrenceCount: context.occurrences?.length || 0,
+                topOccurrences: (context.occurrences || []).slice(0, 6),
+                dependencies: (context.dependencies || []).slice(0, 18),
+                referencedFunctions: (context.referencedFunctions || []).slice(0, 12),
+            })),
+            implicitDependencies: options.implicitDependencies || null,
+            staticRuntimeSummary: options.staticRuntimeSummary || null,
+        };
+
+        const prompt = [
+            'You are an expert dependency analyst.',
+            'Produce one personalized insight per file in the payload.',
+            'Each file insight must explain why the file is related to the selected text and include both static and runtime dependency details when available.',
+            'Return STRICT JSON only using this exact schema:',
+            '{',
+            '  "fileInsights": [',
+            '    {',
+            '      "filePath": "",',
+            '      "whyRelated": "",',
+            '      "staticDependencies": [""],',
+            '      "runtimeDependencies": [""],',
+            '      "impactSummary": "",',
+            '      "riskLevel": "LOW|MEDIUM|HIGH",',
+            '      "recommendedActions": [""],',
+            '      "confidence": "LOW|MEDIUM|HIGH"',
+            '    }',
+            '  ]',
+            '}',
+            '',
+            'Important constraints:',
+            '- Include every filePath from the payload exactly once.',
+            '- Keep recommendations concrete and file-specific.',
+            '- Prefer concise but actionable language.',
+            '',
+            'Evidence payload:',
+            JSON.stringify(promptPayload),
+        ].join('\n');
+
+        const llmResult = await runLlmRequest(prompt, {
+            model: options.model || DEFAULT_MODEL,
+            maxOutputTokens: 2600,
+        });
+
+        const parsed = extractFirstJsonObject(llmResult.text);
+        const rawInsights = Array.isArray(parsed?.fileInsights) ? parsed.fileInsights : [];
+
+        const mergedByPath = new Map();
+
+        for (const fallback of fallbackInsights) {
+            if (fallback.filePath) {
+                mergedByPath.set(fallback.filePath, fallback);
+            }
+        }
+
+        for (const rawInsight of rawInsights) {
+            const normalized = normalizeFileInsight(rawInsight);
+            if (!normalized.filePath) continue;
+
+            const previous = mergedByPath.get(normalized.filePath);
+            if (!previous) {
+                mergedByPath.set(normalized.filePath, normalized);
+                continue;
+            }
+
+            mergedByPath.set(normalized.filePath, {
+                ...previous,
+                ...normalized,
+                staticDependencies: normalized.staticDependencies.length > 0
+                    ? normalized.staticDependencies
+                    : previous.staticDependencies,
+                runtimeDependencies: normalized.runtimeDependencies.length > 0
+                    ? normalized.runtimeDependencies
+                    : previous.runtimeDependencies,
+                recommendedActions: normalized.recommendedActions.length > 0
+                    ? normalized.recommendedActions
+                    : previous.recommendedActions,
+                whyRelated: normalized.whyRelated || previous.whyRelated,
+                impactSummary: normalized.impactSummary || previous.impactSummary,
+                riskLevel: normalized.riskLevel === 'UNKNOWN' ? previous.riskLevel : normalized.riskLevel,
+                confidence: normalized.confidence || previous.confidence,
+            });
+        }
+
+        const files = normalizedContexts.map((context) => {
+            const filePath = context.filePath;
+            return mergedByPath.get(filePath) || buildFallbackFileInsight(context, selectedText, options.implicitDependencies);
+        });
+
+        return {
+            status: 'completed',
+            message: 'Per-file dependency insights generated successfully',
+            files,
+            model: llmResult.model,
+            modeUsed: llmResult.modeUsed,
+            usageTokens: llmResult.usageTokens,
+        };
+    } catch (error) {
+        console.error('Per-file LLM insight generation error:', error);
+        return {
+            status: 'error',
+            message: error.message || 'Failed to generate per-file insights',
+            files: fallbackInsights,
+            model: options.model || DEFAULT_MODEL,
+        };
+    }
+}
+
 /**
  * Generate natural language description of code structure and dependencies
  */
@@ -450,6 +666,7 @@ Format as JSON with these keys: implicit_dependencies, runtime_dependencies, env
 
 export default {
     analyzeDependenciesWithLLM,
+    generatePerFileDependencyInsights,
     generateArchitectureSummary,
     inferImplicitDependencies,
 };

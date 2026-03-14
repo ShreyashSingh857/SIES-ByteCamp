@@ -3208,73 +3208,81 @@
   ],
   "llmInsights": {
     "status": "ok",
-    "generatedAt": "2026-03-14T18:56:31.838Z",
+    "generatedAt": "2026-03-14T19:12:04.601Z",
     "model": "Qwen/Qwen3-0.6B",
     "modeUsed": "chat",
     "contextMeta": {
       "truncatedNodes": 0,
       "truncatedEdges": 0
     },
-    "hiddenDependencies": [],
+    "hiddenDependencies": [
+      {
+        "from": "",
+        "to": "",
+        "type": "",
+        "reason": "",
+        "confidence": 0
+      }
+    ],
     "apiContracts": [
       {
-        "consumer": "eslint.config.js",
-        "endpoint": "@eslint/js",
-        "provider": "eslint.config.js",
-        "reason": "The source module is imported to expose the ESLint plugin.",
+        "consumer": "",
+        "endpoint": "",
+        "provider": "",
+        "reason": "",
         "confidence": 0
       }
     ],
     "databaseLineage": [
       {
-        "apiOrService": "eslint.config.js",
-        "dbEntity": "eslint",
-        "field": "READS",
-        "relationship": "READS",
-        "reason": "The file reads the configuration file.",
+        "apiOrService": "",
+        "dbEntity": "",
+        "field": "",
+        "relationship": "READS|WRITES|USES",
+        "reason": "",
         "confidence": 0
       }
     ],
     "impactPredictions": [
       {
-        "changeNode": "eslint.config.js",
+        "changeNode": "",
         "impacted": [
-          "eslint.config.js"
+          ""
         ],
-        "impact": "DEPENDENCY",
-        "reason": "The configuration file is a dependency in the graph.",
+        "impact": "",
+        "reason": "",
         "confidence": 0
       }
     ],
     "serviceRelationshipAnalysis": [
       {
-        "service": "axios",
+        "service": "",
         "dependsOn": [
-          "module:@axios"
+          ""
         ],
         "usedBy": [
-          "module:axios"
+          ""
         ],
-        "criticality": "LOW",
-        "reason": "The service is a module that is used by another module."
+        "criticality": "LOW|MEDIUM|HIGH",
+        "reason": ""
       }
     ],
     "explanations": [
       {
-        "nodeId": "file:eslint.config.js",
-        "text": "The file contains the configuration for the ESLint plugin."
+        "nodeId": "",
+        "text": ""
       }
     ],
-    "architectureSummary": "The architecture includes modules, symbols, and services that interact through imports and dependencies. Key components are the ESLint configuration, database, and service modules.",
+    "architectureSummary": "",
     "assumptions": [
-      "All dependencies are inferred from the provided graph."
+      ""
     ],
     "suggestedNewEdges": [
       {
-        "from": "module:axios",
-        "to": "symbol:api",
-        "type": "CALLS",
-        "reason": "The API service is used by the module.",
+        "from": "",
+        "to": "",
+        "type": "",
+        "reason": "",
         "confidence": 0
       }
     ]

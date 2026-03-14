@@ -3,6 +3,7 @@ import { useSelector } from 'react-redux';
 import { useNavigate, useParams } from 'react-router-dom';
 import SyntaxHighlighter from 'react-syntax-highlighter';
 import { atomOneDark, atomOneLight } from 'react-syntax-highlighter/dist/esm/styles/hljs';
+import { useGetFileRelationsQuery } from '../store/slices/apiSlice';
 import {
     ArrowLeft,
     Github,
@@ -13,6 +14,8 @@ import {
     FileCode2,
     ExternalLink,
     Search,
+    Link2,
+    ArrowRight,
     X,
     ChevronDown,
 } from 'lucide-react';
@@ -119,6 +122,41 @@ const buildSelectionContext = (fullCode, selectedValue) => {
 const DependencySnippet = ({ file, snippet, isDark, selectedText }) => {
     const [expanded, setExpanded] = useState(true);
     const lang = getLanguage(file.path || '');
+    const normalizedSnippet = useMemo(() => {
+        if (typeof snippet === 'string') return snippet;
+        if (snippet && typeof snippet === 'object') {
+            try {
+                return JSON.stringify(snippet, null, 2);
+            } catch {
+                return String(snippet);
+            }
+        }
+        return '';
+    }, [snippet]);
+    const parsedLlmSnippet = useMemo(() => {
+        if (file.type !== 'llm-insight') return null;
+        if (!snippet) return null;
+        if (snippet && typeof snippet === 'object') return snippet;
+        if (typeof snippet !== 'string') return null;
+
+        try {
+            const parsed = JSON.parse(snippet);
+            return parsed && typeof parsed === 'object' ? parsed : null;
+        } catch {
+            return null;
+        }
+    }, [file.type, snippet]);
+    const personalizedInsight = file.personalizedInsight || null;
+
+    const personalizedStatic = Array.isArray(personalizedInsight?.staticDependencies)
+        ? personalizedInsight.staticDependencies
+        : [];
+    const personalizedRuntime = Array.isArray(personalizedInsight?.runtimeDependencies)
+        ? personalizedInsight.runtimeDependencies
+        : [];
+    const personalizedActions = Array.isArray(personalizedInsight?.recommendedActions)
+        ? personalizedInsight.recommendedActions
+        : [];
 
     // Get badge color based on dependency type
     const getTypeColor = (type) => {
@@ -137,12 +175,12 @@ const DependencySnippet = ({ file, snippet, isDark, selectedText }) => {
 
     // Render code with highlighted matches
     const renderHighlightedCode = () => {
-        if (!selectedText || !snippet) {
-            return snippet;
+        if (!selectedText || !normalizedSnippet) {
+            return normalizedSnippet;
         }
 
         try {
-            const lines = snippet.split('\n');
+            const lines = normalizedSnippet.split('\n');
 
             return lines.map((line, idx) => {
                 const escapedText = selectedText.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -174,7 +212,7 @@ const DependencySnippet = ({ file, snippet, isDark, selectedText }) => {
                 );
             }).flat();
         } catch {
-            return snippet;
+            return normalizedSnippet;
         }
     };
 
@@ -257,9 +295,9 @@ const DependencySnippet = ({ file, snippet, isDark, selectedText }) => {
                             fontFamily: "'JetBrains Mono', 'Courier New', monospace",
                         }}
                     >
-                        {file.type === 'llm-insight' && snippet.startsWith('{') ? (
+                        {file.type === 'llm-insight' && parsedLlmSnippet ? (
                             <div style={{ color: 'var(--text)' }}>
-                                {Object.entries(JSON.parse(snippet)).map(([key, value]) => (
+                                {Object.entries(parsedLlmSnippet).map(([key, value]) => (
                                     <div key={key} style={{ marginBottom: '0.5rem' }}>
                                         <strong style={{ color: '#3b82f6' }}>{key}:</strong>
                                         <div style={{ marginLeft: '1rem', color: 'var(--text-muted)' }}>
@@ -272,6 +310,52 @@ const DependencySnippet = ({ file, snippet, isDark, selectedText }) => {
                             renderHighlightedCode()
                         )}
                     </pre>
+
+                    {personalizedInsight && file.type !== 'llm-insight' && (
+                        <div
+                            style={{
+                                margin: '0 0.75rem 0.75rem',
+                                padding: '0.65rem',
+                                borderRadius: '0.375rem',
+                                border: '1px solid var(--border)',
+                                background: 'var(--bg-muted)',
+                            }}
+                        >
+                            <div style={{ color: '#3b82f6', fontSize: '0.72rem', fontWeight: 600, marginBottom: '0.4rem' }}>
+                                Personalized Impact for this File
+                            </div>
+
+                            {personalizedInsight.whyRelated && (
+                                <div style={{ color: 'var(--text)', fontSize: '0.76rem', marginBottom: '0.4rem' }}>
+                                    {personalizedInsight.whyRelated}
+                                </div>
+                            )}
+
+                            {personalizedInsight.impactSummary && (
+                                <div style={{ color: 'var(--text-muted)', fontSize: '0.72rem', marginBottom: '0.4rem' }}>
+                                    {personalizedInsight.impactSummary}
+                                </div>
+                            )}
+
+                            {personalizedStatic.length > 0 && (
+                                <div style={{ color: 'var(--text)', fontSize: '0.72rem', marginBottom: '0.3rem' }}>
+                                    Static: {personalizedStatic.slice(0, 3).join(' • ')}
+                                </div>
+                            )}
+
+                            {personalizedRuntime.length > 0 && (
+                                <div style={{ color: 'var(--text)', fontSize: '0.72rem', marginBottom: '0.3rem' }}>
+                                    Runtime: {personalizedRuntime.slice(0, 3).join(' • ')}
+                                </div>
+                            )}
+
+                            {personalizedActions.length > 0 && (
+                                <div style={{ color: 'var(--text-muted)', fontSize: '0.72rem' }}>
+                                    Next step: {personalizedActions[0]}
+                                </div>
+                            )}
+                        </div>
+                    )}
                 </div>
             )}
         </div>
@@ -354,10 +438,9 @@ const LLMInsightCard = ({ insight, meta, isDark }) => {
                 )}
             </div>
 
-            {(meta?.status || meta?.modeUsed) && (
+            {meta?.status && (
                 <div style={{ marginBottom: '0.75rem', color: 'var(--text-muted)', fontSize: '0.75rem' }}>
-                    Status: {meta?.status || 'unknown'}
-                    {meta?.modeUsed ? ` · API: ${meta.modeUsed}` : ''}
+                    Analysis quality: {meta?.status || 'unknown'}
                 </div>
             )}
 
@@ -441,11 +524,6 @@ const LLMInsightCard = ({ insight, meta, isDark }) => {
                     </div>
                 )}
 
-                {(meta?.usageTokens?.input || meta?.usageTokens?.output) && (
-                    <div style={{ paddingTop: '0.5rem', borderTop: '1px solid var(--border)', color: 'var(--text-muted)', fontSize: '0.72rem' }}>
-                        Tokens: in {meta?.usageTokens?.input || 0} · out {meta?.usageTokens?.output || 0}
-                    </div>
-                )}
             </div>
         </div>
     );
@@ -460,11 +538,22 @@ const DependencyPanel = ({
     loading,
     error,
     isDark,
+    fileRelations,
+    relationsLoading,
+    relationsError,
+    staticRuntimeSummary,
     onClear,
 }) => {
     // Separate LLM insights from regular dependencies
     const llmInsight = dependencies.find(dep => dep.type === 'llm-insight');
     const otherDeps = dependencies.filter(dep => dep.type !== 'llm-insight');
+    const incomingFileDeps = fileRelations?.incoming || [];
+    const outgoingFileDeps = fileRelations?.outgoing || [];
+    const staticIncoming = fileRelations?.staticIncoming || [];
+    const staticOutgoing = fileRelations?.staticOutgoing || [];
+    const runtimeIncoming = fileRelations?.runtimeIncoming || [];
+    const runtimeOutgoing = fileRelations?.runtimeOutgoing || [];
+    const hasLiveFileData = Boolean(fileRelations?.hasLiveData);
 
     return (
         <div
@@ -485,7 +574,7 @@ const DependencyPanel = ({
                 <div className="flex items-center gap-2 min-w-0">
                     <Search size={14} style={{ color: '#3b82f6', flexShrink: 0 }} />
                     <span className="text-sm font-semibold" style={{ color: 'var(--text)' }}>
-                        Dependencies & AI Analysis
+                        Dependency Intelligence
                     </span>
                     {selectedText && (
                         <span
@@ -514,11 +603,129 @@ const DependencyPanel = ({
 
             {/* Content */}
             <div className="flex-1 overflow-auto px-4 py-3" style={{ color: 'var(--text)' }}>
+                <div
+                    style={{
+                        border: '1px solid var(--border)',
+                        borderRadius: '0.5rem',
+                        padding: '0.75rem',
+                        marginBottom: '1rem',
+                        background: 'var(--bg-muted)',
+                    }}
+                >
+                    <div className="flex items-center gap-2" style={{ marginBottom: '0.6rem' }}>
+                        <Link2 size={14} style={{ color: '#3b82f6' }} />
+                        <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: '#3b82f6' }}>
+                            File-Level Dependencies
+                        </span>
+                        {relationsLoading && <Loader2 size={12} className="animate-spin" style={{ color: 'var(--text-muted)' }} />}
+                    </div>
+
+                    {!hasLiveFileData && (
+                        <p className="text-xs" style={{ color: 'var(--text-muted)', margin: 0 }}>
+                            Live graph relationships appear here once a scan and graph seed are available.
+                        </p>
+                    )}
+
+                    {relationsError && (
+                        <p className="text-xs" style={{ color: '#ef4444', margin: '0 0 0.5rem 0' }}>
+                            Could not load file-level relationships.
+                        </p>
+                    )}
+
+                    {hasLiveFileData && !relationsLoading && (
+                        <div style={{ display: 'grid', gap: '0.65rem' }}>
+                            <div>
+                                <div className="text-xs" style={{ color: '#f97316', fontWeight: 600, marginBottom: '0.35rem' }}>
+                                    Files depending on this ({incomingFileDeps.length})
+                                </div>
+                                {incomingFileDeps.length === 0 ? (
+                                    <div className="text-xs" style={{ color: 'var(--text-muted)' }}>No incoming dependencies.</div>
+                                ) : (
+                                    <div style={{ display: 'grid', gap: '0.25rem', maxHeight: '120px', overflowY: 'auto' }}>
+                                        {incomingFileDeps.slice(0, 40).map((item) => (
+                                            <div key={`in-${item}`} className="flex items-start gap-1" style={{ color: 'var(--text)', fontSize: '0.72rem' }}>
+                                                <ArrowRight size={11} style={{ marginTop: '2px', color: '#f97316', flexShrink: 0 }} />
+                                                <span style={{ wordBreak: 'break-word' }}>{item}</span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+
+                            <div>
+                                <div className="text-xs" style={{ color: 'var(--text)', fontWeight: 600, marginBottom: '0.35rem' }}>
+                                    Static relations ({staticIncoming.length + staticOutgoing.length})
+                                </div>
+                                {staticIncoming.length === 0 && staticOutgoing.length === 0 ? (
+                                    <div className="text-xs" style={{ color: 'var(--text-muted)' }}>No static relationships.</div>
+                                ) : (
+                                    <div style={{ display: 'grid', gap: '0.25rem', maxHeight: '120px', overflowY: 'auto' }}>
+                                        {staticIncoming.slice(0, 20).map((item) => (
+                                            <div key={`static-in-${item}`} className="flex items-start gap-1" style={{ color: 'var(--text)', fontSize: '0.72rem' }}>
+                                                <ArrowRight size={11} style={{ marginTop: '2px', color: '#f97316', flexShrink: 0 }} />
+                                                <span style={{ wordBreak: 'break-word' }}>IN: {item}</span>
+                                            </div>
+                                        ))}
+                                        {staticOutgoing.slice(0, 20).map((item) => (
+                                            <div key={`static-out-${item}`} className="flex items-start gap-1" style={{ color: 'var(--text)', fontSize: '0.72rem' }}>
+                                                <ArrowRight size={11} style={{ marginTop: '2px', color: '#3b82f6', flexShrink: 0 }} />
+                                                <span style={{ wordBreak: 'break-word' }}>OUT: {item}</span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+
+                            <div>
+                                <div className="text-xs" style={{ color: 'var(--text)', fontWeight: 600, marginBottom: '0.35rem' }}>
+                                    Runtime relations ({runtimeIncoming.length + runtimeOutgoing.length})
+                                </div>
+                                {runtimeIncoming.length === 0 && runtimeOutgoing.length === 0 ? (
+                                    <div className="text-xs" style={{ color: 'var(--text-muted)' }}>No runtime relationships.</div>
+                                ) : (
+                                    <div style={{ display: 'grid', gap: '0.25rem', maxHeight: '120px', overflowY: 'auto' }}>
+                                        {runtimeIncoming.slice(0, 20).map((item) => (
+                                            <div key={`runtime-in-${item}`} className="flex items-start gap-1" style={{ color: 'var(--text)', fontSize: '0.72rem' }}>
+                                                <ArrowRight size={11} style={{ marginTop: '2px', color: '#22c55e', flexShrink: 0 }} />
+                                                <span style={{ wordBreak: 'break-word' }}>IN: {item}</span>
+                                            </div>
+                                        ))}
+                                        {runtimeOutgoing.slice(0, 20).map((item) => (
+                                            <div key={`runtime-out-${item}`} className="flex items-start gap-1" style={{ color: 'var(--text)', fontSize: '0.72rem' }}>
+                                                <ArrowRight size={11} style={{ marginTop: '2px', color: '#22c55e', flexShrink: 0 }} />
+                                                <span style={{ wordBreak: 'break-word' }}>OUT: {item}</span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+
+                            <div>
+                                <div className="text-xs" style={{ color: '#3b82f6', fontWeight: 600, marginBottom: '0.35rem' }}>
+                                    Files this depends on ({outgoingFileDeps.length})
+                                </div>
+                                {outgoingFileDeps.length === 0 ? (
+                                    <div className="text-xs" style={{ color: 'var(--text-muted)' }}>No outgoing dependencies.</div>
+                                ) : (
+                                    <div style={{ display: 'grid', gap: '0.25rem', maxHeight: '120px', overflowY: 'auto' }}>
+                                        {outgoingFileDeps.slice(0, 40).map((item) => (
+                                            <div key={`out-${item}`} className="flex items-start gap-1" style={{ color: 'var(--text)', fontSize: '0.72rem' }}>
+                                                <ArrowRight size={11} style={{ marginTop: '2px', color: '#3b82f6', flexShrink: 0 }} />
+                                                <span style={{ wordBreak: 'break-word' }}>{item}</span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    )}
+                </div>
+
                 {!selectedText && (
                     <div className="text-center py-8">
                         <Search size={24} style={{ color: 'var(--text-muted)', margin: '0 auto 1rem' }} />
                         <p className="text-sm" style={{ color: 'var(--text-muted)' }}>
-                            Select text in the code to find dependencies
+                            Select any line or symbol to run deep cross-repository dependency analysis.
                         </p>
                     </div>
                 )}
@@ -527,7 +734,7 @@ const DependencyPanel = ({
                     <div className="flex items-center justify-center gap-2 py-8">
                         <Loader2 size={16} className="animate-spin" style={{ color: '#3b82f6' }} />
                         <span className="text-sm" style={{ color: 'var(--text-muted)' }}>
-                            Running AI analysis…
+                            Analyzing selected code across the repository…
                         </span>
                     </div>
                 )}
@@ -552,6 +759,25 @@ const DependencyPanel = ({
 
                 {selectedText && !loading && dependencies.length > 0 && (
                     <div>
+                        {staticRuntimeSummary && (
+                            <div
+                                style={{
+                                    border: '1px solid var(--border)',
+                                    borderRadius: '0.5rem',
+                                    padding: '0.65rem 0.75rem',
+                                    marginBottom: '0.9rem',
+                                    background: 'var(--bg-muted)',
+                                }}
+                            >
+                                <div className="text-xs" style={{ color: 'var(--text)', fontWeight: 600, marginBottom: '0.3rem' }}>
+                                    Static vs Runtime Coverage
+                                </div>
+                                <div className="text-xs" style={{ color: 'var(--text-muted)', lineHeight: '1.45' }}>
+                                    Files covered: {staticRuntimeSummary.totalFiles || 0} · Static links: {staticRuntimeSummary.staticDependencyCount || 0} · Runtime links: {staticRuntimeSummary.runtimeDependencyCount || 0}
+                                </div>
+                            </div>
+                        )}
+
                         {/* LLM Insight Section - Shows First & Prominently */}
                         {llmInsight && (
                             <div style={{ marginBottom: '1.5rem' }}>
@@ -605,6 +831,7 @@ const FileViewerWithDependencies = () => {
     const [selectedText, setSelectedText] = useState('');
     const [dependencies, setDependencies] = useState([]);
     const [llmMeta, setLlmMeta] = useState(null);
+    const [staticRuntimeSummary, setStaticRuntimeSummary] = useState(null);
     const [depLoading, setDepLoading] = useState(false);
     const [depError, setDepError] = useState('');
     const codeEditorRef = useRef(null);
@@ -618,6 +845,30 @@ const FileViewerWithDependencies = () => {
         if (!currentRepoUrl || !filePath) return null;
         return `${currentRepoUrl}/blob/${currentRepoBranch}/${filePath}`;
     }, [currentRepoUrl, currentRepoBranch, filePath]);
+
+    const {
+        data: fileRelationsData,
+        isFetching: relationsLoading,
+        error: relationsError,
+    } = useGetFileRelationsQuery(
+        { scanId: currentScanId, filePath },
+        {
+            skip: !currentScanId || !filePath,
+            pollingInterval: 5000,
+            refetchOnFocus: true,
+            refetchOnReconnect: true,
+        }
+    );
+
+    const fileRelations = useMemo(() => ({
+        incoming: fileRelationsData?.incoming || [],
+        outgoing: fileRelationsData?.outgoing || [],
+        staticIncoming: fileRelationsData?.staticIncoming || [],
+        staticOutgoing: fileRelationsData?.staticOutgoing || [],
+        runtimeIncoming: fileRelationsData?.runtimeIncoming || [],
+        runtimeOutgoing: fileRelationsData?.runtimeOutgoing || [],
+        hasLiveData: Boolean(currentScanId),
+    }), [fileRelationsData, currentScanId]);
 
     // Fetch file code
     useEffect(() => {
@@ -679,6 +930,7 @@ const FileViewerWithDependencies = () => {
         if (!selectedText || !currentRepoId) {
             setDependencies([]);
             setLlmMeta(null);
+            setStaticRuntimeSummary(null);
             setDepError('');
             return;
         }
@@ -687,6 +939,7 @@ const FileViewerWithDependencies = () => {
             setDepLoading(true);
             setDepError('');
             setLlmMeta(null);
+            setStaticRuntimeSummary(null);
 
             try {
                 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
@@ -735,6 +988,7 @@ const FileViewerWithDependencies = () => {
                         model: null,
                         message: 'LLM analysis requires an active scanId.',
                     });
+                    setStaticRuntimeSummary(null);
                     return;
                 }
 
@@ -761,18 +1015,25 @@ const FileViewerWithDependencies = () => {
                 const result = await response.json();
                 const data = result.data || {};
                 const llmAnalysis = data.llmAnalysis || null;
+                const personalizedInsights = Array.isArray(data.personalizedInsights?.files)
+                    ? data.personalizedInsights.files
+                    : [];
+                const personalizedInsightsMap = new Map(
+                    personalizedInsights
+                        .filter((item) => item?.filePath)
+                        .map((item) => [item.filePath, item])
+                );
                 const llmMetaState = llmAnalysis
                     ? {
                         status: llmAnalysis.status,
                         model: llmAnalysis.model,
-                        modeUsed: llmAnalysis.modeUsed,
-                        usageTokens: llmAnalysis.usageTokens,
                         contextStats: llmAnalysis.contextStats,
                         summary: data.summary,
                     }
                     : null;
 
                 setLlmMeta(llmMetaState);
+                setStaticRuntimeSummary(data.staticRuntimeDependencies || null);
 
                 // Format enriched dependencies
                 const enrichedDeps = [];
@@ -787,6 +1048,7 @@ const FileViewerWithDependencies = () => {
                             type: occ.type,
                             displayName: occ.displayName,
                             snippet: `Located at ${occ.context || 'this location'}`,
+                            personalizedInsight: personalizedInsightsMap.get(occ.filePath) || null,
                         }))
                     );
                 }
@@ -794,14 +1056,19 @@ const FileViewerWithDependencies = () => {
                 // Add dependencies
                 if (data.dependencies?.perNode) {
                     Object.entries(data.dependencies.perNode).forEach(([nodeId, deps]) => {
-                        [...deps.incoming, ...deps.outgoing].forEach(dep => {
+                        const incoming = Array.isArray(deps?.incoming) ? deps.incoming : [];
+                        const outgoing = Array.isArray(deps?.outgoing) ? deps.outgoing : [];
+
+                        [...incoming, ...outgoing].forEach(dep => {
+                            const targetPath = dep.targetName || dep.sourceName || 'unknown';
                             enrichedDeps.push({
                                 id: `${nodeId}-${dep.targetId}`,
-                                path: dep.targetName,
+                                path: targetPath,
                                 lineNumber: 0,
                                 type: 'dependency',
-                                displayName: `${dep.relationshipType}: ${dep.targetName}`,
+                                displayName: `${dep.relationshipType}: ${targetPath}`,
                                 snippet: `${dep.sourceType} → [${dep.relationshipType}] → ${dep.targetType}`,
+                                personalizedInsight: personalizedInsightsMap.get(targetPath) || null,
                             });
                         });
                     });
@@ -843,6 +1110,7 @@ const FileViewerWithDependencies = () => {
                 setDepError(err.message || 'Error analyzing dependencies');
                 setDependencies([]);
                 setLlmMeta(null);
+                setStaticRuntimeSummary(null);
             } finally {
                 setDepLoading(false);
             }
@@ -863,6 +1131,7 @@ const FileViewerWithDependencies = () => {
         setSelectedText('');
         setDependencies([]);
         setLlmMeta(null);
+        setStaticRuntimeSummary(null);
     };
 
     const lineCount = code.split('\n').length;
@@ -1052,6 +1321,10 @@ const FileViewerWithDependencies = () => {
                         selectedText={selectedText}
                         dependencies={dependencies}
                         llmMeta={llmMeta}
+                        fileRelations={fileRelations}
+                        relationsLoading={relationsLoading}
+                        relationsError={relationsError}
+                        staticRuntimeSummary={staticRuntimeSummary}
                         loading={depLoading}
                         error={depError}
                         isDark={isDark}

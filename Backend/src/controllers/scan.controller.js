@@ -18,6 +18,7 @@ import {
 } from "../db/neo4j.queries.js";
 import {
   analyzeDependenciesWithLLM,
+  generatePerFileDependencyInsights,
   generateArchitectureSummary,
   inferImplicitDependencies,
 } from "../services/llm.service.js";
@@ -90,6 +91,195 @@ function calculateChainDepth(symbolDependencies) {
   const edges = symbolDependencies?.edges || [];
   if (!edges.length) return 0;
   return 1;
+}
+
+const STATIC_RELATIONSHIP_TYPES = new Set([
+  "IMPORTS",
+  "CALLS",
+  "DEPENDS_ON",
+  "USES",
+  "EXTENDS",
+  "IMPLEMENTS",
+  "INHERITS",
+  "READS",
+  "WRITES",
+  "RELATES_TO",
+]);
+
+const RUNTIME_RELATIONSHIP_TYPES = new Set([
+  "CONSUMES_API",
+  "EXPOSES_API",
+  "USES_TABLE",
+  "USES_FIELD",
+  "EMITS_EVENT",
+  "LISTENS_EVENT",
+  "READS_ENV",
+  "USES_CACHE",
+  "RUNTIME_CALL",
+]);
+
+function normalizeRelationshipType(value) {
+  return String(value || "RELATED_TO").trim().toUpperCase();
+}
+
+function isTruthyFlag(value) {
+  if (value === true) return true;
+  const normalized = String(value ?? "").trim().toLowerCase();
+  return normalized === "true" || normalized === "1" || normalized === "yes";
+}
+
+function classifyDependencyNature(relationshipType, relationshipProps = {}) {
+  const normalizedType = normalizeRelationshipType(relationshipType);
+
+  if (isTruthyFlag(relationshipProps?.runtimeDependency)) {
+    return "runtime";
+  }
+
+  if (isTruthyFlag(relationshipProps?.staticDependency)) {
+    return "static";
+  }
+
+  if (RUNTIME_RELATIONSHIP_TYPES.has(normalizedType)) {
+    return "runtime";
+  }
+
+  if (STATIC_RELATIONSHIP_TYPES.has(normalizedType)) {
+    return "static";
+  }
+
+  return "unknown";
+}
+
+function createFileContextBucket(filePath) {
+  return {
+    filePath,
+    occurrences: [],
+    dependencies: [],
+    referencedFunctions: [],
+  };
+}
+
+function buildFileDependencyContexts(symbolOccurrences, dependencyMap, references) {
+  const fileMap = new Map();
+
+  const ensureBucket = (filePath) => {
+    const safePath = String(filePath || "").trim() || "unknown";
+    if (!fileMap.has(safePath)) {
+      fileMap.set(safePath, createFileContextBucket(safePath));
+    }
+    return fileMap.get(safePath);
+  };
+
+  for (const occurrence of symbolOccurrences || []) {
+    const bucket = ensureBucket(occurrence?.filePath);
+
+    bucket.occurrences.push({
+      id: occurrence?.id,
+      displayName: occurrence?.displayName,
+      type: occurrence?.type,
+      lineNumber: occurrence?.lineNumber || 0,
+      context: occurrence?.context || "",
+    });
+
+    const nodeDeps = dependencyMap?.[occurrence?.id] || { incoming: [], outgoing: [] };
+    const mergedDeps = [
+      ...(nodeDeps?.incoming || []).map((dep) => ({ ...dep, direction: "incoming" })),
+      ...(nodeDeps?.outgoing || []).map((dep) => ({ ...dep, direction: "outgoing" })),
+    ];
+
+    for (const dep of mergedDeps) {
+      const direction = dep.direction || "outgoing";
+      const relationshipType = normalizeRelationshipType(dep.relationshipType);
+      const dependencyNature = classifyDependencyNature(relationshipType, dep.relationshipProps || {});
+      const relatedEntity = direction === "incoming"
+        ? dep.sourceName || dep.sourceId || "unknown"
+        : dep.targetName || dep.targetId || "unknown";
+      const relatedId = direction === "incoming"
+        ? String(dep.sourceId || "")
+        : String(dep.targetId || "");
+      const relatedType = direction === "incoming"
+        ? dep.sourceType || "Unknown"
+        : dep.targetType || "Unknown";
+
+      bucket.dependencies.push({
+        direction,
+        relationshipType,
+        dependencyNature,
+        relatedId,
+        relatedEntity,
+        relatedType,
+        properties: dep.relationshipProps || {},
+      });
+    }
+  }
+
+  for (const reference of references || []) {
+    const bucket = ensureBucket(reference?.filePath);
+    const functionNames = (reference?.functions || [])
+      .map((fn) => String(fn?.qualifiedName || fn?.name || "").trim())
+      .filter(Boolean);
+
+    bucket.referencedFunctions = [...new Set([...bucket.referencedFunctions, ...functionNames])];
+  }
+
+  for (const bucket of fileMap.values()) {
+    const seenKeys = new Set();
+    bucket.dependencies = bucket.dependencies.filter((dep) => {
+      const key = [
+        dep.direction,
+        dep.relationshipType,
+        dep.dependencyNature,
+        dep.relatedId,
+        dep.relatedEntity,
+      ].join("::");
+      if (seenKeys.has(key)) return false;
+      seenKeys.add(key);
+      return true;
+    });
+  }
+
+  return [...fileMap.values()].sort((a, b) => {
+    const weightA = (a.occurrences?.length || 0) * 2 + (a.dependencies?.length || 0);
+    const weightB = (b.occurrences?.length || 0) * 2 + (b.dependencies?.length || 0);
+    return weightB - weightA;
+  });
+}
+
+function summarizeStaticRuntimeDependencies(fileContexts) {
+  const relationshipBreakdown = {};
+  const staticFiles = new Set();
+  const runtimeFiles = new Set();
+
+  let staticDependencyCount = 0;
+  let runtimeDependencyCount = 0;
+  let unknownDependencyCount = 0;
+
+  for (const context of fileContexts || []) {
+    for (const dep of context?.dependencies || []) {
+      const relType = normalizeRelationshipType(dep.relationshipType);
+      relationshipBreakdown[relType] = (relationshipBreakdown[relType] || 0) + 1;
+
+      if (dep.dependencyNature === "static") {
+        staticDependencyCount += 1;
+        staticFiles.add(context.filePath);
+      } else if (dep.dependencyNature === "runtime") {
+        runtimeDependencyCount += 1;
+        runtimeFiles.add(context.filePath);
+      } else {
+        unknownDependencyCount += 1;
+      }
+    }
+  }
+
+  return {
+    totalFiles: fileContexts?.length || 0,
+    staticDependencyCount,
+    runtimeDependencyCount,
+    unknownDependencyCount,
+    filesWithStaticDependencies: [...staticFiles].sort((a, b) => a.localeCompare(b)),
+    filesWithRuntimeDependencies: [...runtimeFiles].sort((a, b) => a.localeCompare(b)),
+    relationshipBreakdown,
+  };
 }
 
 function buildLlmGraphContext(symbolOccurrences, dependencyMap, symbolDependencies) {
@@ -612,6 +802,10 @@ export const getFileRelations = async (req, res, next) => {
         filePath,
         incoming: result.incoming,
         outgoing: result.outgoing,
+        staticIncoming: result.staticIncoming || [],
+        staticOutgoing: result.staticOutgoing || [],
+        runtimeIncoming: result.runtimeIncoming || [],
+        runtimeOutgoing: result.runtimeOutgoing || [],
       },
     });
   } catch (error) {
@@ -849,6 +1043,14 @@ export const analyzeDependenciesWithIntelligence = async (req, res, next) => {
       ],
     };
 
+    const fileDependencyContexts = buildFileDependencyContexts(
+      symbolOccurrences,
+      dependencyMap,
+      references
+    );
+
+    const staticRuntimeDependencies = summarizeStaticRuntimeDependencies(fileDependencyContexts);
+
     // Step 5: Use LLM to analyze if requested
     let llmAnalysis = null;
     if (withLLM) {
@@ -863,6 +1065,47 @@ export const analyzeDependenciesWithIntelligence = async (req, res, next) => {
           lineRange,
           references,
           dependencySummary,
+        }
+      );
+    }
+
+    // Step 6: infer implicit/runtime dependencies from selected code + graph context
+    let implicitDependencies = null;
+    if (withLLM) {
+      implicitDependencies = await inferImplicitDependencies(
+        selectedSnippet || normalizedSelectedText,
+        {
+          selectedText: normalizedSelectedText,
+          currentFile,
+          lineRange: lineRange || null,
+          dependencySummary,
+          staticRuntimeDependencies,
+          topFiles: fileDependencyContexts.slice(0, 25).map((fileCtx) => ({
+            filePath: fileCtx.filePath,
+            occurrenceCount: fileCtx.occurrences.length,
+            dependencyCount: fileCtx.dependencies.length,
+          })),
+        }
+      );
+    }
+
+    // Step 7: generate personalized dependency response for each related file
+    let personalizedInsights = {
+      status: "skipped",
+      message: "Per-file personalization skipped",
+      files: [],
+      model: process.env.OPENAI_MODEL || "gpt-4.1-mini",
+    };
+
+    if (fileDependencyContexts.length > 0) {
+      personalizedInsights = await generatePerFileDependencyInsights(
+        normalizedSelectedText,
+        fileDependencyContexts,
+        {
+          currentFile,
+          implicitDependencies: implicitDependencies?.inferredDependencies || null,
+          staticRuntimeSummary: staticRuntimeDependencies,
+          model: process.env.OPENAI_MODEL || "gpt-4.1-mini",
         }
       );
     }
@@ -894,6 +1137,9 @@ export const analyzeDependenciesWithIntelligence = async (req, res, next) => {
           chain: symbolDependencies,
         },
         references: references,
+        staticRuntimeDependencies,
+        implicitDependencies,
+        personalizedInsights,
         llmContext: {
           currentFile,
           lineRange: lineRange || null,
