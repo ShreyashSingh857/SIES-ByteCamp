@@ -4,6 +4,13 @@ import fs from "fs";
 import { fileURLToPath } from "url";
 import { execFile } from "child_process";
 import { promisify } from "util";
+import { randomUUID } from "crypto";
+import {
+  getImpactedNodesByNode,
+  getGraphMetrics,
+  setupDatabaseSchema,
+  seedParsedGraph,
+} from "../db/neo4j.queries.js";
 
 const execFileAsync = promisify(execFile);
 const __filename = fileURLToPath(import.meta.url);
@@ -35,6 +42,98 @@ function assertValidRepoId(repoId) {
 function getGraphFilePath(repoId) {
   assertValidRepoId(repoId);
   return path.join(GRAPHS_ROOT, `${repoId}.json`);
+}
+
+function normalizeNeo4jNumber(value) {
+  if (typeof value === "number") return value;
+  if (value && typeof value.toNumber === "function") return value.toNumber();
+  return Number(value || 0);
+}
+
+function buildSeedPayloadFromParser(repoId, parserResult, scanId) {
+  const nowIso = new Date().toISOString();
+  const serviceId = `svc:${scanId}:${repoId}`;
+  const idMap = new Map();
+
+  const fileNodes = (parserResult?.nodes || []).filter((n) => n.type === "FILE");
+  const functionNodes = (parserResult?.nodes || []).filter((n) => n.type === "FUNCTION");
+
+  const files = fileNodes.map((n) => {
+    const id = `file:${scanId}:${n.id}`;
+    idMap.set(n.id, id);
+    return {
+      id,
+      serviceId,
+      scanId,
+      path: n.name,
+      language: n.language || "unknown",
+      extension: path.extname(n.name || "") || "",
+      lineCount: 0,
+      importCount: 0,
+      exportCount: 0,
+      parsedAt: nowIso,
+    };
+  });
+
+  const functions = functionNodes.map((n) => {
+    const id = `fn:${scanId}:${n.id}`;
+    idMap.set(n.id, id);
+    return {
+      id,
+      fileId: `file:${scanId}:file:${n.file}`,
+      serviceId,
+      scanId,
+      name: n.name || "anonymous",
+      qualifiedName: `${n.file || "unknown"}.${n.name || "anonymous"}`,
+      isExported: false,
+      isAsync: false,
+      visibility: "default",
+      lineStart: n.line || 0,
+      lineEnd: n.line || 0,
+      paramTypes: [],
+      returnType: "unknown",
+    };
+  });
+
+  const containsEdges = [
+    ...files.map((f) => ({ fromId: serviceId, toId: f.id })),
+    ...functions.map((fn) => ({ fromId: fn.fileId, toId: fn.id })),
+  ];
+
+  const dependencyEdges = (parserResult?.edges || [])
+    .filter((e) => ["IMPORTS", "CALLS"].includes(e.type))
+    .map((e) => ({ fromId: idMap.get(e.from), toId: idMap.get(e.to), type: e.type }))
+    .filter((e) => e.fromId && e.toId);
+
+  return {
+    scanNode: {
+      id: scanId,
+      status: "COMPLETE",
+      repoUrls: [],
+      fileCount: files.length,
+      nodeCount: files.length + functions.length + 2,
+      edgeCount: containsEdges.length + dependencyEdges.length,
+      durationMs: 0,
+      userId: "system",
+      createdAt: nowIso,
+      completedAt: nowIso,
+    },
+    serviceNode: {
+      id: serviceId,
+      scanId,
+      name: repoId,
+      language: parserResult?.summary?.languages?.[0] || "unknown",
+      repoUrl: "",
+      rootPath: "/",
+      framework: "none",
+      fileCount: files.length,
+      detectedAt: nowIso,
+    },
+    files,
+    functions,
+    containsEdges,
+    dependencyEdges,
+  };
 }
 
 /**
@@ -171,20 +270,118 @@ export const deleteGraph = async (req, res, next) => {
 };
 
 /**
+ * @desc    Seed Neo4j constraints/indexes for graph schema
+ * @route   POST /api/db/seed/schema
+ * @access  Public
+ */
+export const seedSchema = async (_req, res, next) => {
+  try {
+    await setupDatabaseSchema();
+    res.status(200).json({ success: true, message: "Schema seed completed" });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * @desc    Seed stored parser graph into Neo4j
+ * @route   POST /api/db/seed/graph/:repoId
+ * @access  Public
+ */
+export const seedGraphToDb = async (req, res, next) => {
+  try {
+    const { repoId } = req.params;
+    const graphFilePath = getGraphFilePath(repoId);
+    if (!fs.existsSync(graphFilePath)) {
+      return res.status(404).json({ success: false, message: `No graph found for repoId: ${repoId}` });
+    }
+
+    const parserResult = JSON.parse(fs.readFileSync(graphFilePath, "utf8"));
+    const scanId = req.body?.scanId || `scan-${randomUUID()}`;
+    const payload = buildSeedPayloadFromParser(repoId, parserResult, scanId);
+    payload.scanNode.repoUrls = [req.body?.repoUrl || ""];
+    payload.serviceNode.repoUrl = req.body?.repoUrl || "";
+
+    await seedParsedGraph(payload);
+
+    res.status(200).json({
+      success: true,
+      message: "Graph seeded into Neo4j",
+      data: {
+        repoId,
+        scanId,
+        fileCount: payload.files.length,
+        functionCount: payload.functions.length,
+        dependencyCount: payload.dependencyEdges.length,
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * @desc    Return graph metrics for a scan
+ * @route   GET /api/metrics/:scanId
+ * @access  Public
+ */
+export const getMetrics = async (req, res, next) => {
+  try {
+    const { scanId } = req.params;
+    if (!scanId) {
+      return res.status(400).json({ success: false, message: "scanId is required" });
+    }
+
+    const metrics = await getGraphMetrics(scanId);
+    res.status(200).json({
+      success: true,
+      data: {
+        scanId,
+        totalServices: normalizeNeo4jNumber(metrics.totalServices),
+        totalDependencies: normalizeNeo4jNumber(metrics.totalDependencies),
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
  * @desc    Return impact analysis result
  * @route   GET /api/impact
  * @access  Public
  */
 export const getImpact = async (_req, res, next) => {
   try {
+    const node = _req.query.node;
+    const scanId = _req.query.scanId || null;
+
+    if (!node || typeof node !== "string") {
+      return res.status(400).json({
+        success: false,
+        message: "Query param 'node' is required",
+      });
+    }
+
+    const impactedNodesRaw = await getImpactedNodesByNode(node, scanId);
+    const impactedNodes = impactedNodesRaw.map((item) => ({
+      ...item,
+      hops: normalizeNeo4jNumber(item.hops),
+    }));
+
     res.status(200).json({
       success: true,
       data: {
-        impactedModules: [],
-        summary: "No impact detected",
+        node,
+        scanId,
+        count: impactedNodes.length,
+        impactedNodes,
       },
     });
   } catch (error) {
+    if (error?.message?.includes("Neo4j is not configured")) {
+      return res.status(503).json({ success: false, message: error.message });
+    }
     next(error);
   }
 };
