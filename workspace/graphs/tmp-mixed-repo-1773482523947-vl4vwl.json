@@ -1,0 +1,42 @@
+{
+  "repositoryPath": "C:\\Users\\singh\\OneDrive\\Desktop\\SIES-ByteCamp\\SIES-ByteCamp\\workspace\\repositories\\tmp-mixed-repo-1773482523947-vl4vwl",
+  "summary": {
+    "scannedFiles": 2,
+    "parsedFiles": 2,
+    "nodes": 4,
+    "edges": 0,
+    "languages": [
+      "javascript",
+      "python"
+    ]
+  },
+  "nodes": [
+    {
+      "id": "file:app.js",
+      "type": "FILE",
+      "name": "app.js",
+      "language": "javascript"
+    },
+    {
+      "id": "function:app.js#add",
+      "type": "FUNCTION",
+      "name": "add",
+      "file": "app.js",
+      "line": 1
+    },
+    {
+      "id": "file:main.py",
+      "type": "FILE",
+      "name": "main.py",
+      "language": "python"
+    },
+    {
+      "id": "function:main.py#add",
+      "type": "FUNCTION",
+      "name": "add",
+      "file": "main.py",
+      "line": 1
+    }
+  ],
+  "edges": []
+}
