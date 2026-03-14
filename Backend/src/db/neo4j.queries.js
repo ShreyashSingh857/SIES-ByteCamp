@@ -241,3 +241,37 @@ export async function getApiContracts(scanId) {
     await session.close();
   }
 }
+
+// Get all CALLS_API edges for a scan
+export async function getApiCalls(scanId) {
+  const session = getSession();
+  try {
+    const result = await session.run(
+      `MATCH (caller)-[:CALLS_API]->(api:API)
+       WHERE caller.scanId = $scanId
+       RETURN caller.id AS callerId, caller.name AS callerName,
+              api.id AS apiId, api.name AS apiName`,
+      { scanId }
+    );
+    return result.records.map(r => r.toObject());
+  } finally {
+    await session.close();
+  }
+}
+
+// Get all READS_DB edges for a scan
+export async function getDbReads(scanId) {
+  const session = getSession();
+  try {
+    const result = await session.run(
+      `MATCH (reader)-[:READS_DB]->(field:DBField)
+       WHERE reader.scanId = $scanId
+       RETURN reader.id AS readerId, reader.name AS readerName,
+              field.id AS fieldId, field.fieldName AS fieldName`,
+      { scanId }
+    );
+    return result.records.map(r => r.toObject());
+  } finally {
+    await session.close();
+  }
+}
