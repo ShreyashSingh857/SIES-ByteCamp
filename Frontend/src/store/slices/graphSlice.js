@@ -52,6 +52,9 @@ const graphSlice = createSlice({
     transitiveImpact: [],
     filterLangs: [],
     filterTypes: [],
+    // Phase 2: track active scan context
+    currentRepoId: localStorage.getItem('currentRepoId') || null,
+    currentScanId: localStorage.getItem('currentScanId') || null,
   },
   reducers: {
     setSelectedNode(state, action) {
@@ -80,9 +83,13 @@ const graphSlice = createSlice({
       state.repos.unshift(action.payload);
     },
     updateRepoStatus(state, action) {
-      const { id, status } = action.payload;
+      const { id, status, nodes, edges } = action.payload;
       const repo = state.repos.find((r) => r.id === id);
-      if (repo) repo.status = status;
+      if (repo) {
+        repo.status = status;
+        if (nodes !== undefined) repo.nodes = nodes;
+        if (edges !== undefined) repo.edges = edges;
+      }
     },
     removeRepo(state, action) {
       state.repos = state.repos.filter((r) => r.id !== action.payload);
@@ -92,6 +99,16 @@ const graphSlice = createSlice({
     },
     setFilterTypes(state, action) {
       state.filterTypes = action.payload;
+    },
+    // Set the active repoId + scanId after a successful scan+seed cycle
+    setCurrentRepoInfo(state, action) {
+      const { repoId, scanId } = action.payload;
+      state.currentRepoId = repoId;
+      state.currentScanId = scanId;
+      if (repoId) localStorage.setItem('currentRepoId', repoId);
+      else localStorage.removeItem('currentRepoId');
+      if (scanId) localStorage.setItem('currentScanId', scanId);
+      else localStorage.removeItem('currentScanId');
     },
   },
 });
@@ -106,6 +123,7 @@ export const {
   updateRepoStatus,
   setFilterLangs,
   setFilterTypes,
+  setCurrentRepoInfo,
 } = graphSlice.actions;
 
 export default graphSlice.reducer;
