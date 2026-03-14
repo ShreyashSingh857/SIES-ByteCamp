@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import neo4j from 'neo4j-driver';
 
 const neo4jUri = process.env.NEO4J_URI;
