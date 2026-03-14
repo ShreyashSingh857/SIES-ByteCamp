@@ -23,6 +23,34 @@ function scanRepository(repositoryPath, options = {}) {
   ]);
 
   const discoveredFiles = [];
+  const includeFiles = Array.isArray(options.includeFiles) ? options.includeFiles : null;
+
+  if (includeFiles && includeFiles.length > 0) {
+    for (const relativeFile of includeFiles) {
+      const normalizedRelativePath = String(relativeFile || '').split(path.sep).join('/');
+      const fullPath = path.resolve(repositoryPath, normalizedRelativePath);
+
+      if (!fullPath.startsWith(path.resolve(repositoryPath))) {
+        continue;
+      }
+
+      if (!fs.existsSync(fullPath) || !fs.statSync(fullPath).isFile()) {
+        continue;
+      }
+
+      const language = detectLanguage(fullPath);
+      if (!language) {
+        continue;
+      }
+
+      discoveredFiles.push({
+        path: fullPath,
+        language: language.key,
+      });
+    }
+
+    return discoveredFiles;
+  }
 
   function walk(currentPath) {
     const entries = fs.readdirSync(currentPath, { withFileTypes: true });

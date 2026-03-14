@@ -1,0 +1,323 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+.tabs{display:flex;gap:4px;padding:1rem 0 0.5rem;border-bottom:0.5px solid var(--color-border-tertiary);flex-wrap:wrap}
+.tab{font-size:12px;padding:4px 12px;border-radius:var(--border-radius-md);cursor:pointer;color:var(--color-text-secondary);background:transparent;border:0.5px solid transparent}
+.tab.active{background:var(--color-background-secondary);color:var(--color-text-primary);font-weight:500;border-color:var(--color-border-tertiary)}
+.pane{display:none;padding:1rem 0}
+.pane.active{display:block}
+.file-section{margin-bottom:1.5rem}
+.file-label{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.file-path{font-family:var(--font-mono);font-size:12px;color:var(--color-text-primary);font-weight:500}
+.file-badge{font-size:10px;padding:1px 6px;border-radius:3px;font-weight:500}
+.new{background:#eaf3de;color:#27500a}
+.mod{background:#e6f1fb;color:#0c447c}
+.code{background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:12px 14px;font-family:var(--font-mono);font-size:11px;color:var(--color-text-primary);line-height:1.75;white-space:pre;overflow-x:auto}
+.note{background:var(--color-background-info);border:0.5px solid var(--color-border-info);border-radius:var(--border-radius-md);padding:10px 14px;font-size:13px;color:var(--color-text-info);margin-bottom:12px;line-height:1.6}
+.warn{background:var(--color-background-warning);border:0.5px solid var(--color-border-warning);border-radius:var(--border-radius-md);padding:10px 14px;font-size:13px;color:var(--color-text-warning);margin-bottom:12px;line-height:1.6}
+</style>
+
+<div class="tabs">
+  <button class="tab active" onclick="show('neo4j')">4. Neo4j patch</button>
+  <button class="tab" onclick="show('sse')">5. SSE service</button>
+  <button class="tab" onclick="show('frontend')">6. Frontend</button>
+  <button class="tab" onclick="show('redux')">7. Redux slice</button>
+  <button class="tab" onclick="show('env')">8. Env + deps</button>
+  <button class="tab" onclick="show('checklist')">9. Checklist</button>
+</div>
+
+<div id="pane-neo4j" class="pane active">
+  <div class="file-section">
+    <div class="file-label"><span class="file-path">Backend/src/services/neo4j-patch.service.js</span><span class="file-badge new">NEW</span></div>
+    <div class="code">import { getSession } from '../config/neo4j.js';
+
+export async function patchNeo4jGraph(scanId, partialGraph, { removedFiles = [] }) {
+  const session = getSession();
+  try {
+    // 1. Delete nodes for removed files and orphaned children
+    for (const filePath of removedFiles) {
+      await session.run(`
+        MATCH (f:File { path: $path, scanId: $scanId })
+        OPTIONAL MATCH (f)<-[:CONTAINS]-(fn:Function)
+        DETACH DELETE f, fn
+      `, { path: filePath, scanId });
+    }
+
+    // 2. Upsert file nodes (MERGE = create if missing, update if exists)
+    const fileNodes = (partialGraph.nodes || []).filter(n => n.type === 'FILE');
+    for (const file of fileNodes) {
+      await session.run(`
+        MERGE (f:File { id: $id })
+        SET f += $props
+        SET f.scanId    = $scanId
+        SET f.updatedAt = datetime()
+      `, { id: file.id, props: { path: file.name, language: file.language || 'unknown' }, scanId });
+    }
+
+    // 3. Upsert function nodes
+    const fnNodes = (partialGraph.nodes || []).filter(n => n.type === 'FUNCTION');
+    for (const fn of fnNodes) {
+      await session.run(`
+        MERGE (f:Function { id: $id })
+        SET f += $props
+        SET f.scanId    = $scanId
+        SET f.updatedAt = datetime()
+      `, { id: fn.id, props: { name: fn.name, qualifiedName: fn.qualifiedName || fn.name }, scanId });
+    }
+
+    // 4. Drop stale edges from all changed file paths, then re-add current ones
+    const changedPaths = fileNodes.map(n => n.name);
+    await session.run(`
+      MATCH (f:File { scanId: $scanId })-[r:IMPORTS|CALLS|DEPENDS_ON]->()
+      WHERE f.path IN $changedPaths
+      DELETE r
+    `, { scanId, changedPaths });
+
+    for (const edge of (partialGraph.edges || [])) {
+      const relType = ['IMPORTS','CALLS','DEPENDS_ON'].includes(edge.type)
+        ? edge.type : 'DEPENDS_ON';
+      await session.run(`
+        MATCH (a { id: $from, scanId: $scanId })
+        MATCH (b { id: $to,   scanId: $scanId })
+        MERGE (a)-[r:${relType}]->(b)
+        SET r.updatedAt = datetime()
+      `, { from: edge.from || edge.source, to: edge.to || edge.target, scanId });
+    }
+
+    return {
+      patched:  fileNodes.length + fnNodes.length,
+      removed:  removedFiles.length,
+      edges:    partialGraph.edges?.length || 0,
+    };
+  } finally { await session.close(); }
+}
+
+export async function getLastSyncInfo(scanId) {
+  const session = getSession();
+  try {
+    const result = await session.run(`
+      MATCH (s:Scan { id: $scanId })
+      RETURN s.lastWebhookSync AS lastSync, s.commitSha AS commit
+    `, { scanId });
+    return result.records[0]?.toObject() || null;
+  } finally { await session.close(); }
+}</div>
+  </div>
+</div>
+
+<div id="pane-sse" class="pane">
+  <div class="file-section">
+    <div class="file-label"><span class="file-path">Backend/src/services/sse.service.js</span><span class="file-badge new">NEW</span></div>
+    <div class="code">const clients = new Map(); // repoId -> Set&lt;res&gt;
+
+export function addClient(repoId, res) {
+  res.writeHead(200, {
+    'Content-Type':  'text/event-stream',
+    'Cache-Control': 'no-cache',
+    'Connection':    'keep-alive',
+    'X-Accel-Buffering': 'no',  // disables nginx buffering
+  });
+  res.write(':ok\n\n'); // initial heartbeat
+
+  if (!clients.has(repoId)) clients.set(repoId, new Set());
+  clients.get(repoId).add(res);
+
+  // Heartbeat every 25s to prevent proxy timeouts
+  const hb = setInterval(() => res.write(':ping\n\n'), 25000);
+  res.on('close', () => {
+    clearInterval(hb);
+    clients.get(repoId)?.delete(res);
+  });
+}
+
+export function broadcast(repoId, payload) {
+  const group = clients.get(repoId);
+  if (!group?.size) return;
+  const data = `data: ${JSON.stringify(payload)}\n\n`;
+  group.forEach(res => {
+    try { res.write(data); } catch { group.delete(res); }
+  });
+}
+
+export function clientCount(repoId) {
+  return clients.get(repoId)?.size || 0;
+}</div>
+  </div>
+
+  <div class="file-section">
+    <div class="file-label"><span class="file-path">Backend/src/routes/sse.routes.js</span><span class="file-badge new">NEW</span></div>
+    <div class="code">import { Router } from 'express';
+import { addClient } from '../services/sse.service.js';
+
+const router = Router();
+
+// GET /api/events/:repoId — browser opens this to receive live patches
+router.get('/:repoId', (req, res) => {
+  addClient(req.params.repoId, res);
+  // Note: response intentionally never ends — that is the SSE contract
+});
+
+export default router;</div>
+  </div>
+</div>
+
+<div id="pane-frontend" class="pane">
+  <div class="file-section">
+    <div class="file-label"><span class="file-path">Frontend/src/pages/GraphView.jsx — add one useEffect</span><span class="file-badge mod">MODIFY</span></div>
+    <div class="code">// Add this import at the top
+import { applyGraphPatch } from '../store/slices/graphSlice';
+import { apiSlice } from '../store/slices/apiSlice';
+
+// Add inside GraphView component, alongside existing useEffects:
+useEffect(() => {
+  if (!currentRepoId) return;
+
+  const es = new EventSource(
+    `${import.meta.env.VITE_API_URL}/events/${currentRepoId}`
+  );
+
+  es.onmessage = (event) => {
+    const msg = JSON.parse(event.data);
+
+    if (msg.type === 'GRAPH_PATCH') {
+      dispatch(applyGraphPatch(msg.patch));
+    }
+    if (msg.type === 'SCAN_COMPLETE') {
+      // Trigger RTK Query to refetch full graph
+      dispatch(apiSlice.util.invalidateTags(['Graph']));
+    }
+    if (msg.type === 'SYNC_ERROR') {
+      console.error('Live sync error:', msg.error);
+    }
+  };
+
+  es.onerror = () => {
+    // Browser auto-reconnects EventSource — no manual retry needed
+    console.warn('SSE connection lost, browser will retry...');
+  };
+
+  return () => es.close();
+}, [currentRepoId, dispatch]);</div>
+  </div>
+
+  <div class="file-section">
+    <div class="file-label"><span class="file-path">Frontend/src/pages/UploadRepo.jsx — pass GitHub token</span><span class="file-badge mod">MODIFY</span></div>
+    <div class="code">// Modify the scanRepo call to include githubToken
+const scanResult = await scanRepo({
+  repoUrl: repo.url,
+  githubToken: import.meta.env.VITE_GITHUB_TOKEN || '',
+}).unwrap();</div>
+  </div>
+
+  <div class="file-section">
+    <div class="file-label"><span class="file-path">Frontend — live sync status indicator (add to Header.jsx)</span><span class="file-badge mod">MODIFY</span></div>
+    <div class="code">// Frontend/src/components/layout/Header.jsx
+const [syncState, setSyncState] = useState('idle'); // idle|syncing|done|error
+
+useEffect(() => {
+  if (!currentRepoId) return;
+  const es = new EventSource(`${import.meta.env.VITE_API_URL}/events/${currentRepoId}`);
+  es.onmessage = (e) => {
+    const msg = JSON.parse(e.data);
+    if (msg.type === 'GRAPH_PATCH') { setSyncState('syncing'); setTimeout(() => setSyncState('done'), 2000); }
+    if (msg.type === 'SYNC_ERROR')   setSyncState('error');
+  };
+  return () => es.close();
+}, [currentRepoId]);
+
+// In JSX:
+// &lt;span style={{ color: syncState==='syncing'?'#378ADD':syncState==='done'?'#639922':'#E24B4A' }}&gt;
+//   {syncState==='idle' ? 'Live' : syncState==='syncing' ? 'Syncing...' : syncState==='done' ? 'Up to date' : 'Sync error'}
+// &lt;/span&gt;</div>
+  </div>
+</div>
+
+<div id="pane-redux" class="pane">
+  <div class="file-section">
+    <div class="file-label"><span class="file-path">Frontend/src/store/slices/graphSlice.js — add applyGraphPatch reducer</span><span class="file-badge mod">MODIFY</span></div>
+    <div class="code">// Add inside graphSlice reducers:
+applyGraphPatch(state, action) {
+  const { patch } = action.payload;
+
+  // Remove deleted nodes
+  const removedIds = new Set(patch.removedNodeIds || []);
+  state.graphData.nodes = state.graphData.nodes
+    .filter(n => !removedIds.has(n.id));
+
+  // Upsert modified/added nodes
+  const nodeMap = new Map(state.graphData.nodes.map(n => [n.id, n]));
+  for (const node of (patch.nodes || [])) {
+    nodeMap.set(node.id, { ...nodeMap.get(node.id), ...node });
+  }
+  state.graphData.nodes = [...nodeMap.values()];
+
+  // Remove stale edges from changed files, add new ones
+  const changedFiles = new Set(patch.changedFilePaths || []);
+  state.graphData.edges = state.graphData.edges
+    .filter(e => !changedFiles.has(e.sourceFile));
+
+  for (const edge of (patch.edges || [])) {
+    state.graphData.edges.push(edge);
+  }
+
+  // If selected node was deleted, clear selection
+  if (state.selectedNode && removedIds.has(state.selectedNode)) {
+    state.selectedNode = null;
+    state.directImpact = [];
+    state.transitiveImpact = [];
+  }
+},</div>
+  </div>
+</div>
+
+<div id="pane-env" class="pane">
+  <div class="warn">Add these to your Backend .env and Frontend .env files.</div>
+  <div class="file-section">
+    <div class="file-label"><span class="file-path">Backend/.env additions</span></div>
+    <div class="code">REDIS_HOST=localhost
+REDIS_PORT=6379
+APP_PUBLIC_URL=https://your-ngrok-url.ngrok-free.app
+GITHUB_TOKEN=ghp_your_personal_access_token</div>
+  </div>
+  <div class="file-section">
+    <div class="file-label"><span class="file-path">Frontend/.env additions</span></div>
+    <div class="code">VITE_GITHUB_TOKEN=ghp_your_personal_access_token</div>
+  </div>
+  <div class="file-section">
+    <div class="file-label"><span class="file-path">Backend/package.json — new dependencies</span></div>
+    <div class="code">npm install bullmq ioredis
+
+# Start worker separately from server:
+# node Backend/src/workers/webhook.worker.js
+
+# Or add to package.json scripts:
+# "worker": "node src/workers/webhook.worker.js"
+# "dev:all": "concurrently \"npm run dev\" \"npm run worker\""</div>
+  </div>
+</div>
+
+<div id="pane-checklist" class="pane">
+  <div class="note">Complete these in order — each step depends on the previous one working.</div>
+  <div style="font-size:13px;line-height:2;color:var(--color-text-primary)">
+    <div style="display:flex;gap:8px;padding:6px 0;border-bottom:0.5px solid var(--color-border-tertiary)"><span style="color:var(--color-text-secondary);min-width:24px">1.</span><span>Install Redis locally: <code>brew install redis && redis-server</code></span></div>
+    <div style="display:flex;gap:8px;padding:6px 0;border-bottom:0.5px solid var(--color-border-tertiary)"><span style="color:var(--color-text-secondary);min-width:24px">2.</span><span>Install BullMQ: <code>npm install bullmq ioredis</code> in Backend/</span></div>
+    <div style="display:flex;gap:8px;padding:6px 0;border-bottom:0.5px solid var(--color-border-tertiary)"><span style="color:var(--color-text-secondary);min-width:24px">3.</span><span>Create all 6 new backend files listed above</span></div>
+    <div style="display:flex;gap:8px;padding:6px 0;border-bottom:0.5px solid var(--color-border-tertiary)"><span style="color:var(--color-text-secondary);min-width:24px">4.</span><span>Add webhook and SSE routes to <code>app.js</code></span></div>
+    <div style="display:flex;gap:8px;padding:6px 0;border-bottom:0.5px solid var(--color-border-tertiary)"><span style="color:var(--color-text-secondary);min-width:24px">5.</span><span>Add <code>applyGraphPatch</code> reducer to graphSlice</span></div>
+    <div style="display:flex;gap:8px;padding:6px 0;border-bottom:0.5px solid var(--color-border-tertiary)"><span style="color:var(--color-text-secondary);min-width:24px">6.</span><span>Add SSE <code>useEffect</code> to GraphView.jsx</span></div>
+    <div style="display:flex;gap:8px;padding:6px 0;border-bottom:0.5px solid var(--color-border-tertiary)"><span style="color:var(--color-text-secondary);min-width:24px">7.</span><span>Start ngrok: <code>ngrok http 5000</code> — copy the HTTPS URL to <code>APP_PUBLIC_URL</code></span></div>
+    <div style="display:flex;gap:8px;padding:6px 0;border-bottom:0.5px solid var(--color-border-tertiary)"><span style="color:var(--color-text-secondary);min-width:24px">8.</span><span>Start the worker: <code>node src/workers/webhook.worker.js</code> (separate terminal)</span></div>
+    <div style="display:flex;gap:8px;padding:6px 0;border-bottom:0.5px solid var(--color-border-tertiary)"><span style="color:var(--color-text-secondary);min-width:24px">9.</span><span>Scan a repo — webhook auto-registers via the GitHub API</span></div>
+    <div style="display:flex;gap:8px;padding:6px 0;border-bottom:0.5px solid var(--color-border-tertiary)"><span style="color:var(--color-text-secondary);min-width:24px">10.</span><span>Push a commit to the repo — watch Neo4j + graph update within ~5 seconds</span></div>
+    <div style="display:flex;gap:8px;padding:6px 0"><span style="color:var(--color-text-secondary);min-width:24px">11.</span><span>Verify with GitHub repo Settings → Webhooks — status should show green checkmarks</span></div>
+  </div>
+</div>
+
+<script>
+function show(id) {
+  document.querySelectorAll('.pane').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('pane-' + id).classList.add('active');
+  event.target.classList.add('active');
+}
+</script>

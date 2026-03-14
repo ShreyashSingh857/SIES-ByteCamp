@@ -1,0 +1,264 @@
+
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+.tabs { display: flex; gap: 4px; padding: 1rem 0 0.5rem; border-bottom: 0.5px solid var(--color-border-tertiary); flex-wrap: wrap; }
+.tab { font-size: 12px; padding: 4px 12px; border-radius: var(--border-radius-md); cursor: pointer; color: var(--color-text-secondary); background: transparent; border: 0.5px solid transparent; }
+.tab.active { background: var(--color-background-secondary); color: var(--color-text-primary); font-weight: 500; border-color: var(--color-border-tertiary); }
+.pane { display: none; padding: 1rem 0; }
+.pane.active { display: block; }
+.file-section { margin-bottom: 1.5rem; }
+.file-label { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.file-path { font-family: var(--font-mono); font-size: 12px; color: var(--color-text-primary); font-weight: 500; }
+.file-badge { font-size: 10px; padding: 1px 6px; border-radius: 3px; font-weight: 500; }
+.new { background: #eaf3de; color: #27500a; }
+.mod { background: #e6f1fb; color: #0c447c; }
+.code { background: var(--color-background-secondary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); padding: 12px 14px; font-family: var(--font-mono); font-size: 11px; color: var(--color-text-primary); line-height: 1.75; white-space: pre; overflow-x: auto; }
+.note { background: var(--color-background-info); border: 0.5px solid var(--color-border-info); border-radius: var(--border-radius-md); padding: 10px 14px; font-size: 13px; color: var(--color-text-info); margin-bottom: 12px; line-height: 1.6; }
+.warn { background: var(--color-background-warning); border: 0.5px solid var(--color-border-warning); border-radius: var(--border-radius-md); padding: 10px 14px; font-size: 13px; color: var(--color-text-warning); margin-bottom: 12px; line-height: 1.6; }
+</style>
+
+<div class="tabs">
+  <button class="tab active" onclick="show('register')">1. Register webhook</button>
+  <button class="tab" onclick="show('backend')">2. Backend files</button>
+  <button class="tab" onclick="show('queue')">3. Queue + worker</button>
+  <button class="tab" onclick="show('neo4j')">4. Neo4j patch</button>
+  <button class="tab" onclick="show('frontend')">5. Frontend</button>
+  <button class="tab" onclick="show('env')">6. Env + deps</button>
+</div>
+
+<div id="pane-register" class="pane active">
+  <div class="note">GitHub webhooks need a publicly reachable URL. Use ngrok locally: <code>ngrok http 5000</code> → copy the HTTPS URL.</div>
+
+  <div class="file-section">
+    <div class="file-label"><span class="file-path">Backend/src/services/github-webhook-registration.service.js</span><span class="file-badge new">NEW</span></div>
+    <div class="code">import axios from 'axios';
+import crypto from 'crypto';
+
+export async function registerWebhookForRepo(repoFullName, accessToken) {
+  const secret = crypto.randomBytes(32).toString('hex');
+  const hookUrl = `${process.env.APP_PUBLIC_URL}/api/webhook/github`;
+
+  const { data } = await axios.post(
+    `https://api.github.com/repos/${repoFullName}/hooks`,
+    {
+      name:   'web',
+      active: true,
+      events: ['push', 'delete', 'create'],
+      config: {
+        url:          hookUrl,
+        content_type: 'json',
+        secret:       secret,
+        insecure_ssl: '0',
+      },
+    },
+    { headers: { Authorization: `Bearer ${accessToken}` } }
+  );
+
+  return { hookId: data.id, secret };
+}
+
+export async function deleteWebhookForRepo(repoFullName, hookId, accessToken) {
+  await axios.delete(
+    `https://api.github.com/repos/${repoFullName}/hooks/${hookId}`,
+    { headers: { Authorization: `Bearer ${accessToken}` } }
+  );
+}</div>
+  </div>
+
+  <div class="file-section">
+    <div class="file-label"><span class="file-path">Called from: POST /api/scan (after a successful initial scan)</span></div>
+    <div class="code">// In scan.controller.js — add at end of postScan(), after graph is saved:
+import { registerWebhookForRepo } from '../services/github-webhook-registration.service.js';
+import { saveWebhookSubscription } from '../db/webhook.queries.js';
+
+// After fs.writeFileSync(getGraphFilePath(repoId), ...)
+if (req.body.githubToken) {
+  const repoFullName = extractRepoFullName(repoUrl); // "org/repo"
+  const { hookId, secret } = await registerWebhookForRepo(
+    repoFullName, req.body.githubToken
+  );
+  await saveWebhookSubscription({ repoId, repoFullName, hookId, secret, scanId });
+}</div>
+  </div>
+</div>
+
+<div id="pane-backend" class="pane">
+  <div class="file-section">
+    <div class="file-label"><span class="file-path">Backend/src/controllers/webhook.controller.js</span><span class="file-badge new">NEW</span></div>
+    <div class="code">import crypto from 'crypto';
+import { getWebhookSubscription } from '../db/webhook.queries.js';
+import { webhookQueue } from '../queues/webhook.queue.js';
+
+export const handleGithubWebhook = async (req, res, next) => {
+  try {
+    const event = req.headers['x-github-event'];
+    const sig   = req.headers['x-hub-signature-256'];
+    const body  = req.body;
+
+    if (!sig) return res.status(401).json({ error: 'Missing signature' });
+
+    const repoFullName = body.repository?.full_name;
+    const sub = await getWebhookSubscription(repoFullName);
+    if (!sub) return res.status(404).json({ error: 'Unknown repo' });
+
+    // Verify signature — MUST use raw body bytes, not re-serialised JSON
+    const expected = 'sha256=' + crypto
+      .createHmac('sha256', sub.secret)
+      .update(req.rawBody)   // see middleware note below
+      .digest('hex');
+
+    if (!crypto.timingSafeEqual(
+      Buffer.from(sig.padEnd(71)), Buffer.from(expected.padEnd(71))
+    )) {
+      return res.status(401).json({ error: 'Signature mismatch' });
+    }
+
+    if (event === 'push') {
+      const changedFiles = body.commits
+        .flatMap(c => [...(c.added||[]), ...(c.modified||[]), ...(c.removed||[])])
+      const removed = body.commits.flatMap(c => c.removed || []);
+
+      await webhookQueue.add('repo-update', {
+        repoId:       sub.repoId,
+        scanId:       sub.scanId,
+        repoFullName,
+        localPath:    sub.localPath,
+        before:       body.before,
+        after:        body.after,
+        ref:          body.ref,
+        changedFiles: [...new Set(changedFiles)],
+        removedFiles: [...new Set(removed)],
+      }, { attempts: 3, backoff: { type: 'exponential', delay: 5000 } });
+    }
+
+    res.status(200).json({ ok: true });
+  } catch (err) { next(err); }
+};</div>
+  </div>
+
+  <div class="file-section">
+    <div class="file-label"><span class="file-path">Backend/src/routes/webhook.routes.js</span><span class="file-badge new">NEW</span></div>
+    <div class="code">import { Router } from 'express';
+import { handleGithubWebhook } from '../controllers/webhook.controller.js';
+
+const router = Router();
+
+// Raw body is needed for HMAC verification — parse before json middleware
+router.post('/github',
+  (req, res, next) => {
+    let raw = '';
+    req.on('data', chunk => raw += chunk);
+    req.on('end', () => { req.rawBody = raw; next(); });
+  },
+  express.json(),
+  handleGithubWebhook
+);
+
+export default router;</div>
+  </div>
+
+  <div class="file-section">
+    <div class="file-label"><span class="file-path">Backend/app.js — add these two lines</span><span class="file-badge mod">MODIFY</span></div>
+    <div class="code">import webhookRouter from './src/routes/webhook.routes.js';
+import sseRouter     from './src/routes/sse.routes.js';
+
+// Add inside app setup, alongside existing routes:
+app.use('/api/webhook', webhookRouter);
+app.use('/api/events',  sseRouter);</div>
+  </div>
+</div>
+
+<div id="pane-queue" class="pane">
+  <div class="warn">Install dependencies first: <code>npm install bullmq ioredis</code> in Backend/</div>
+
+  <div class="file-section">
+    <div class="file-label"><span class="file-path">Backend/src/queues/webhook.queue.js</span><span class="file-badge new">NEW</span></div>
+    <div class="code">import { Queue } from 'bullmq';
+
+export const redisConnection = {
+  host: process.env.REDIS_HOST || 'localhost',
+  port: Number(process.env.REDIS_PORT) || 6379,
+};
+
+export const webhookQueue = new Queue('webhook-jobs', {
+  connection: redisConnection,
+  defaultJobOptions: {
+    removeOnComplete: 100,
+    removeOnFail:     50,
+  },
+});</div>
+  </div>
+
+  <div class="file-section">
+    <div class="file-label"><span class="file-path">Backend/src/workers/webhook.worker.js</span><span class="file-badge new">NEW</span></div>
+    <div class="code">import { Worker } from 'bullmq';
+import simpleGit from 'simple-git';
+import path from 'path';
+import { execFile } from 'child_process';
+import { promisify } from 'util';
+import { redisConnection } from '../queues/webhook.queue.js';
+import { patchNeo4jGraph }  from '../services/neo4j-patch.service.js';
+import { broadcast }        from '../services/sse.service.js';
+
+const execFileAsync = promisify(execFile);
+const AI_ENGINE = path.resolve('../AI-Engine/src/index.js');
+
+async function runPartialScan(localPath, changedFiles) {
+  // Write a temp file list so AI-Engine can scan only changed files
+  const tmpList = path.join(localPath, '.webhook-changed-files.json');
+  await fs.writeFile(tmpList, JSON.stringify(changedFiles));
+
+  const { stdout } = await execFileAsync(
+    process.execPath,
+    [AI_ENGINE, '--repo', localPath, '--files', tmpList],
+    { maxBuffer: 20 * 1024 * 1024, cwd: path.resolve('../') }
+  );
+
+  await fs.unlink(tmpList).catch(() => {});
+  return JSON.parse(stdout);
+}
+
+const worker = new Worker('webhook-jobs', async (job) => {
+  const { repoId, scanId, localPath, after, changedFiles, removedFiles } = job.data;
+
+  job.updateProgress(10);
+
+  // Pull latest commit
+  const git = simpleGit(localPath);
+  await git.fetch(['--depth=1', 'origin', after]);
+  await git.checkout(after);
+
+  job.updateProgress(30);
+
+  // Partial rescan of only changed files
+  const partialGraph = await runPartialScan(localPath, changedFiles);
+
+  job.updateProgress(60);
+
+  // Patch Neo4j
+  const patch = await patchNeo4jGraph(scanId, partialGraph, { removedFiles });
+
+  job.updateProgress(85);
+
+  // Notify all open browser tabs watching this repo
+  broadcast(repoId, {
+    type:      'GRAPH_PATCH',
+    repoId,
+    scanId,
+    patch,
+    commit:    after,
+    timestamp: new Date().toISOString(),
+  });
+
+  job.updateProgress(100);
+  return { patched: patch.patched, removed: patch.removed };
+
+}, {
+  connection: redisConnection,
+  concurrency: 2,
+});
+
+worker.on('failed', (job, err) => {
+  console.error(`Webhook job ${job.id} failed:`, err.message);
+  broadcast(job.data.repoId, { type: 'SYNC_ERROR', error: err.message });
+});

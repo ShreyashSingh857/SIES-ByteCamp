@@ -9,7 +9,9 @@ async function runStaticAnalysis(repositoryPath, options = {}) {
   const resolvedPath = path.resolve(repositoryPath);
   const withLlm = options.withLlm ?? false;
 
-  const scannedFiles = scanRepository(resolvedPath);
+  const scannedFiles = scanRepository(resolvedPath, {
+    includeFiles: options.files,
+  });
   const parsedFiles = await parseFiles(scannedFiles);
   const graphBuilder = createGraphBuilder();
 

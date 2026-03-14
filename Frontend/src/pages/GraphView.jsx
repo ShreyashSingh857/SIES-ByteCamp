@@ -3,8 +3,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import cytoscape from 'cytoscape';
 import { Filter, RefreshCw, ZoomIn, ZoomOut, Maximize2, Info, Search } from 'lucide-react';
-import { setSelectedNode, clearSelection, setGraphData, setFilterLangs, setFilterTypes } from '../store/index';
-import { useGetGraphQuery } from '../store/slices/apiSlice';
+import { setSelectedNode, clearSelection, setGraphData, setFilterLangs, setFilterTypes, applyGraphPatch } from '../store/index';
+import { apiSlice, useGetGraphQuery } from '../store/slices/apiSlice';
 import { EDGE_TYPE_CONFIG } from '../assets/mockdata';
 import serviceIcon from '../assets/Icons/Service.svg';
 import fileIcon from '../assets/Icons/File.svg';
@@ -28,6 +28,7 @@ const GRAPH_NODE_TYPE_CONFIG = {
 
 const NODE_TYPES = ['service', 'file', 'function', 'api_endpoint', 'db_table', 'db_field', 'api_contract'];
 const EDGE_PALETTE = ['#3b82f6', '#f59e0b', '#22c55e', '#a855f7', '#14b8a6', '#ef4444', '#0ea5e9', '#f97316'];
+const API_BASE_URL = import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
 
 const buildCyStyle = (nodeTypes, edgeConfig) => [
   {
@@ -111,6 +112,8 @@ const GraphView = () => {
   const filterTypes       = useSelector((s) => s.graph.filterTypes);
   const filterLangs       = useSelector((s) => s.graph.filterLangs);
   const currentRepoId     = useSelector((s) => s.graph.currentRepoId);
+  const storedGraphData   = useSelector((s) => s.graph.graphData);
+  const graphDataRepoId   = useSelector((s) => s.graph.graphDataRepoId);
   // Wire up BFS results computed by graphSlice so the canvas highlighting is live
   const directImpact      = useSelector((s) => s.graph.directImpact);
   const transitiveImpact  = useSelector((s) => s.graph.transitiveImpact);
@@ -119,7 +122,12 @@ const GraphView = () => {
   const { data: fetchedGraphData, isLoading } = useGetGraphQuery(currentRepoId, {
     skip: !currentRepoId,
   });
-  const graphData = fetchedGraphData || { nodes: [], edges: [] };
+  const graphData = useMemo(() => {
+    if (graphDataRepoId === currentRepoId) {
+      return storedGraphData || { nodes: [], edges: [] };
+    }
+    return fetchedGraphData || { nodes: [], edges: [] };
+  }, [currentRepoId, fetchedGraphData, graphDataRepoId, storedGraphData]);
   const nodeTypes = useMemo(() => NODE_TYPES, []);
   const [scope, setScope] = useState('overview');
   const [perspective, setPerspective] = useState('structure');
@@ -277,10 +285,40 @@ const GraphView = () => {
   // Keep Redux graphData in sync with the RTK Query result so setSelectedNode
   // fallback BFS always has real data even if graphData isn't passed explicitly.
   useEffect(() => {
-    if (fetchedGraphData) {
-      dispatch(setGraphData(fetchedGraphData));
+    if (currentRepoId && fetchedGraphData) {
+      dispatch(setGraphData({ repoId: currentRepoId, graphData: fetchedGraphData }));
     }
-  }, [fetchedGraphData, dispatch]);
+  }, [currentRepoId, fetchedGraphData, dispatch]);
+
+  useEffect(() => {
+    if (!currentRepoId) {
+      return undefined;
+    }
+
+    const eventSource = new EventSource(`${API_BASE_URL}/events/${currentRepoId}`);
+
+    eventSource.onmessage = (event) => {
+      const message = JSON.parse(event.data);
+
+      if (message.type === 'GRAPH_PATCH') {
+        dispatch(applyGraphPatch({ repoId: currentRepoId, patch: message.patch }));
+      }
+
+      if (message.type === 'SCAN_COMPLETE') {
+        dispatch(apiSlice.util.invalidateTags(['Graph']));
+      }
+
+      if (message.type === 'SYNC_ERROR') {
+        console.error('Live sync error:', message.error);
+      }
+    };
+
+    eventSource.onerror = () => {
+      console.warn('SSE connection lost, browser will retry...');
+    };
+
+    return () => eventSource.close();
+  }, [currentRepoId, dispatch]);
 
   useEffect(() => {
     if (!containerRef.current || cyRef.current) return;
