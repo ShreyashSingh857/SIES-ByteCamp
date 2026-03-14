@@ -94,16 +94,20 @@ const UploadRepo = () => {
         dispatch(setScanProgress(currentProgress));
 
         // Step 1: Clone & parse via AI Engine
-        const scanResult = await scanRepo({ repoUrl: repo.url }).unwrap();
+        const scanResult = await scanRepo({
+          repoUrl: repo.url,
+          branch: repo.branch || 'main',
+          githubToken: import.meta.env.VITE_GITHUB_TOKEN || '',
+        }).unwrap();
         const repoId = scanResult.repoId;
+        let scanId = scanResult.scanId || null;
 
         currentProgress += perRepoProgress * 0.4;
         dispatch(setScanProgress(currentProgress));
 
         // Step 2: Seed parsed graph into Neo4j
-        let scanId = null;
         try {
-          const seedResult = await seedGraph({ repoId, repoUrl: repo.url }).unwrap();
+          const seedResult = await seedGraph({ repoId, scanId, repoUrl: repo.url }).unwrap();
           scanId = seedResult.scanId;
         } catch (seedErr) {
           // Neo4j may not be available — continue anyway, impact will be degraded

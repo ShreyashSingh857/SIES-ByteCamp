@@ -1,10 +1,10 @@
 {
-  "repositoryPath": "D:\\SIES-ByteCamp\\Frontend",
+  "repositoryPath": "C:\\Users\\adity\\Desktop\\SIES-ByteCamp2\\Frontend",
   "summary": {
     "scannedFiles": 46,
     "parsedFiles": 46,
-    "nodes": 576,
-    "edges": 1038,
+    "nodes": 591,
+    "edges": 1085,
     "languages": [
       "javascript"
     ]
@@ -172,6 +172,41 @@
       "name": "useSelector"
     },
     {
+      "id": "symbol:useState",
+      "type": "SYMBOL",
+      "name": "useState"
+    },
+    {
+      "id": "symbol:useEffect",
+      "type": "SYMBOL",
+      "name": "useEffect"
+    },
+    {
+      "id": "symbol:setSyncState",
+      "type": "SYMBOL",
+      "name": "setSyncState"
+    },
+    {
+      "id": "symbol:parse",
+      "type": "SYMBOL",
+      "name": "parse"
+    },
+    {
+      "id": "symbol:clearTimeout",
+      "type": "SYMBOL",
+      "name": "clearTimeout"
+    },
+    {
+      "id": "symbol:setTimeout",
+      "type": "SYMBOL",
+      "name": "setTimeout"
+    },
+    {
+      "id": "symbol:close",
+      "type": "SYMBOL",
+      "name": "close"
+    },
+    {
       "id": "file:src/components/layout/Layout.jsx",
       "type": "FILE",
       "name": "src/components/layout/Layout.jsx",
@@ -193,11 +228,6 @@
       "id": "module:./Sidebar",
       "type": "MODULE",
       "name": "./Sidebar"
-    },
-    {
-      "id": "symbol:useState",
-      "type": "SYMBOL",
-      "name": "useState"
     },
     {
       "id": "symbol:setSidebarOpen",
@@ -331,11 +361,6 @@
       "name": "getMuiTheme"
     },
     {
-      "id": "symbol:useEffect",
-      "type": "SYMBOL",
-      "name": "useEffect"
-    },
-    {
       "id": "symbol:add",
       "type": "SYMBOL",
       "name": "add"
@@ -424,11 +449,6 @@
       "id": "symbol:setPhase",
       "type": "SYMBOL",
       "name": "setPhase"
-    },
-    {
-      "id": "symbol:setTimeout",
-      "type": "SYMBOL",
-      "name": "setTimeout"
     },
     {
       "id": "file:src/components/ui/ExpandableFeatureCards.jsx",
@@ -678,11 +698,6 @@
       "name": "setUser"
     },
     {
-      "id": "symbol:parse",
-      "type": "SYMBOL",
-      "name": "parse"
-    },
-    {
       "id": "symbol:removeItem",
       "type": "SYMBOL",
       "name": "removeItem"
@@ -711,6 +726,48 @@
       "line": 4
     },
     {
+      "id": "function:src/lib/utils.js#normalizeRepoUrl",
+      "type": "FUNCTION",
+      "name": "normalizeRepoUrl",
+      "file": "src/lib/utils.js",
+      "line": 8
+    },
+    {
+      "id": "function:src/lib/utils.js#parseGitHubRepoInfo",
+      "type": "FUNCTION",
+      "name": "parseGitHubRepoInfo",
+      "file": "src/lib/utils.js",
+      "line": 25
+    },
+    {
+      "id": "function:src/lib/utils.js#encodeRepoPath",
+      "type": "FUNCTION",
+      "name": "encodeRepoPath",
+      "file": "src/lib/utils.js",
+      "line": 38
+    },
+    {
+      "id": "function:src/lib/utils.js#buildGitHubBlobUrl",
+      "type": "FUNCTION",
+      "name": "buildGitHubBlobUrl",
+      "file": "src/lib/utils.js",
+      "line": 46
+    },
+    {
+      "id": "function:src/lib/utils.js#buildGitHubTreeUrl",
+      "type": "FUNCTION",
+      "name": "buildGitHubTreeUrl",
+      "file": "src/lib/utils.js",
+      "line": 52
+    },
+    {
+      "id": "function:src/lib/utils.js#buildGitHubRawUrl",
+      "type": "FUNCTION",
+      "name": "buildGitHubRawUrl",
+      "file": "src/lib/utils.js",
+      "line": 58
+    },
+    {
       "id": "module:clsx",
       "type": "MODULE",
       "name": "clsx"
@@ -729,6 +786,41 @@
       "id": "symbol:clsx",
       "type": "SYMBOL",
       "name": "clsx"
+    },
+    {
+      "id": "symbol:trim",
+      "type": "SYMBOL",
+      "name": "trim"
+    },
+    {
+      "id": "symbol:String",
+      "type": "SYMBOL",
+      "name": "String"
+    },
+    {
+      "id": "symbol:test",
+      "type": "SYMBOL",
+      "name": "test"
+    },
+    {
+      "id": "symbol:replace",
+      "type": "SYMBOL",
+      "name": "replace"
+    },
+    {
+      "id": "symbol:toString",
+      "type": "SYMBOL",
+      "name": "toString"
+    },
+    {
+      "id": "symbol:filter",
+      "type": "SYMBOL",
+      "name": "filter"
+    },
+    {
+      "id": "symbol:encodeURIComponent",
+      "type": "SYMBOL",
+      "name": "encodeURIComponent"
     },
     {
       "id": "file:src/main.jsx",
@@ -811,11 +903,6 @@
       "name": "../store/slices/apiSlice"
     },
     {
-      "id": "symbol:replace",
-      "type": "SYMBOL",
-      "name": "replace"
-    },
-    {
       "id": "symbol:sort",
       "type": "SYMBOL",
       "name": "sort"
@@ -851,11 +938,6 @@
       "name": "includes"
     },
     {
-      "id": "symbol:filter",
-      "type": "SYMBOL",
-      "name": "filter"
-    },
-    {
       "id": "symbol:values",
       "type": "SYMBOL",
       "name": "values"
@@ -864,11 +946,6 @@
       "id": "symbol:useGetGraphQuery",
       "type": "SYMBOL",
       "name": "useGetGraphQuery"
-    },
-    {
-      "id": "symbol:encodeURIComponent",
-      "type": "SYMBOL",
-      "name": "encodeURIComponent"
     },
     {
       "id": "file:src/pages/DirListView.jsx",
@@ -881,35 +958,40 @@
       "type": "FUNCTION",
       "name": "normalizePath",
       "file": "src/pages/DirListView.jsx",
-      "line": 21
+      "line": 22
     },
     {
       "id": "function:src/pages/DirListView.jsx#FileIcon",
       "type": "FUNCTION",
       "name": "FileIcon",
       "file": "src/pages/DirListView.jsx",
-      "line": 24
+      "line": 25
     },
     {
       "id": "function:src/pages/DirListView.jsx#buildTree",
       "type": "FUNCTION",
       "name": "buildTree",
       "file": "src/pages/DirListView.jsx",
-      "line": 38
+      "line": 39
     },
     {
       "id": "function:src/pages/DirListView.jsx#TreeNode",
       "type": "FUNCTION",
       "name": "TreeNode",
       "file": "src/pages/DirListView.jsx",
-      "line": 65
+      "line": 66
     },
     {
       "id": "function:src/pages/DirListView.jsx#DirListView",
       "type": "FUNCTION",
       "name": "DirListView",
       "file": "src/pages/DirListView.jsx",
-      "line": 148
+      "line": 149
+    },
+    {
+      "id": "module:../lib/utils",
+      "type": "MODULE",
+      "name": "../lib/utils"
     },
     {
       "id": "symbol:toLowerCase",
@@ -947,6 +1029,21 @@
       "name": "useCallback"
     },
     {
+      "id": "symbol:normalizeRepoUrl",
+      "type": "SYMBOL",
+      "name": "normalizeRepoUrl"
+    },
+    {
+      "id": "symbol:parseGitHubRepoInfo",
+      "type": "SYMBOL",
+      "name": "parseGitHubRepoInfo"
+    },
+    {
+      "id": "symbol:buildGitHubTreeUrl",
+      "type": "SYMBOL",
+      "name": "buildGitHubTreeUrl"
+    },
+    {
       "id": "file:src/pages/FileViewer.jsx",
       "type": "FILE",
       "name": "src/pages/FileViewer.jsx",
@@ -957,35 +1054,21 @@
       "type": "FUNCTION",
       "name": "getLanguage",
       "file": "src/pages/FileViewer.jsx",
-      "line": 54
-    },
-    {
-      "id": "function:src/pages/FileViewer.jsx#parseRepoInfo",
-      "type": "FUNCTION",
-      "name": "parseRepoInfo",
-      "file": "src/pages/FileViewer.jsx",
-      "line": 62
-    },
-    {
-      "id": "function:src/pages/FileViewer.jsx#buildRawUrl",
-      "type": "FUNCTION",
-      "name": "buildRawUrl",
-      "file": "src/pages/FileViewer.jsx",
-      "line": 72
+      "line": 55
     },
     {
       "id": "function:src/pages/FileViewer.jsx#FileViewer",
       "type": "FUNCTION",
       "name": "FileViewer",
       "file": "src/pages/FileViewer.jsx",
-      "line": 80
+      "line": 65
     },
     {
       "id": "function:src/pages/FileViewer.jsx#handleCopy",
       "type": "FUNCTION",
       "name": "handleCopy",
       "file": "src/pages/FileViewer.jsx",
-      "line": 205
+      "line": 190
     },
     {
       "id": "module:react-syntax-highlighter",
@@ -1001,6 +1084,16 @@
       "id": "symbol:useSeedGraphMutation",
       "type": "SYMBOL",
       "name": "useSeedGraphMutation"
+    },
+    {
+      "id": "symbol:buildGitHubRawUrl",
+      "type": "SYMBOL",
+      "name": "buildGitHubRawUrl"
+    },
+    {
+      "id": "symbol:buildGitHubBlobUrl",
+      "type": "SYMBOL",
+      "name": "buildGitHubBlobUrl"
     },
     {
       "id": "symbol:useGetFileRelationsQuery",
@@ -1187,16 +1280,6 @@
       "line": 900
     },
     {
-      "id": "symbol:trim",
-      "type": "SYMBOL",
-      "name": "trim"
-    },
-    {
-      "id": "symbol:String",
-      "type": "SYMBOL",
-      "name": "String"
-    },
-    {
       "id": "symbol:indexOf",
       "type": "SYMBOL",
       "name": "indexOf"
@@ -1235,11 +1318,6 @@
       "id": "symbol:getSelection",
       "type": "SYMBOL",
       "name": "getSelection"
-    },
-    {
-      "id": "symbol:toString",
-      "type": "SYMBOL",
-      "name": "toString"
     },
     {
       "id": "symbol:getRangeAt",
@@ -1317,11 +1395,6 @@
       "name": "Number"
     },
     {
-      "id": "symbol:clearTimeout",
-      "type": "SYMBOL",
-      "name": "clearTimeout"
-    },
-    {
       "id": "file:src/pages/GraphView.jsx",
       "type": "FILE",
       "name": "src/pages/GraphView.jsx",
@@ -1332,49 +1405,49 @@
       "type": "FUNCTION",
       "name": "buildCyStyle",
       "file": "src/pages/GraphView.jsx",
-      "line": 32
+      "line": 33
     },
     {
       "id": "function:src/pages/GraphView.jsx#GraphView",
       "type": "FUNCTION",
       "name": "GraphView",
       "file": "src/pages/GraphView.jsx",
-      "line": 102
+      "line": 103
     },
     {
       "id": "function:src/pages/GraphView.jsx#handleZoomIn",
       "type": "FUNCTION",
       "name": "handleZoomIn",
       "file": "src/pages/GraphView.jsx",
-      "line": 421
+      "line": 459
     },
     {
       "id": "function:src/pages/GraphView.jsx#handleZoomOut",
       "type": "FUNCTION",
       "name": "handleZoomOut",
       "file": "src/pages/GraphView.jsx",
-      "line": 424
+      "line": 462
     },
     {
       "id": "function:src/pages/GraphView.jsx#handleFit",
       "type": "FUNCTION",
       "name": "handleFit",
       "file": "src/pages/GraphView.jsx",
-      "line": 427
+      "line": 465
     },
     {
       "id": "function:src/pages/GraphView.jsx#handleReset",
       "type": "FUNCTION",
       "name": "handleReset",
       "file": "src/pages/GraphView.jsx",
-      "line": 430
+      "line": 468
     },
     {
       "id": "function:src/pages/GraphView.jsx#handleSearchFocus",
       "type": "FUNCTION",
       "name": "handleSearchFocus",
       "file": "src/pages/GraphView.jsx",
-      "line": 438
+      "line": 476
     },
     {
       "id": "module:cytoscape",
@@ -1475,6 +1548,26 @@
       "id": "symbol:setGraphData",
       "type": "SYMBOL",
       "name": "setGraphData"
+    },
+    {
+      "id": "symbol:applyGraphPatch",
+      "type": "SYMBOL",
+      "name": "applyGraphPatch"
+    },
+    {
+      "id": "symbol:invalidateTags",
+      "type": "SYMBOL",
+      "name": "invalidateTags"
+    },
+    {
+      "id": "symbol:error",
+      "type": "SYMBOL",
+      "name": "error"
+    },
+    {
+      "id": "symbol:warn",
+      "type": "SYMBOL",
+      "name": "warn"
     },
     {
       "id": "symbol:cytoscape",
@@ -2057,59 +2150,54 @@
       "type": "FUNCTION",
       "name": "LangBadge",
       "file": "src/pages/UploadRepo.jsx",
-      "line": 18
+      "line": 19
     },
     {
       "id": "function:src/pages/UploadRepo.jsx#UploadRepo",
       "type": "FUNCTION",
       "name": "UploadRepo",
       "file": "src/pages/UploadRepo.jsx",
-      "line": 31
+      "line": 32
     },
     {
       "id": "function:src/pages/UploadRepo.jsx#isValidGitUrl",
       "type": "FUNCTION",
       "name": "isValidGitUrl",
       "file": "src/pages/UploadRepo.jsx",
-      "line": 44
+      "line": 45
     },
     {
       "id": "function:src/pages/UploadRepo.jsx#handleAdd",
       "type": "FUNCTION",
       "name": "handleAdd",
       "file": "src/pages/UploadRepo.jsx",
-      "line": 47
+      "line": 48
     },
     {
       "id": "function:src/pages/UploadRepo.jsx#handleKeyDown",
       "type": "FUNCTION",
       "name": "handleKeyDown",
       "file": "src/pages/UploadRepo.jsx",
-      "line": 73
+      "line": 75
     },
     {
       "id": "function:src/pages/UploadRepo.jsx#handleRemove",
       "type": "FUNCTION",
       "name": "handleRemove",
       "file": "src/pages/UploadRepo.jsx",
-      "line": 75
+      "line": 77
     },
     {
       "id": "function:src/pages/UploadRepo.jsx#scanRepos",
       "type": "FUNCTION",
       "name": "scanRepos",
       "file": "src/pages/UploadRepo.jsx",
-      "line": 77
+      "line": 79
     },
     {
       "id": "symbol:useScanRepoMutation",
       "type": "SYMBOL",
       "name": "useScanRepoMutation"
-    },
-    {
-      "id": "symbol:test",
-      "type": "SYMBOL",
-      "name": "test"
     },
     {
       "id": "symbol:some",
@@ -2167,19 +2255,9 @@
       "name": "scanRepo"
     },
     {
-      "id": "symbol:warn",
-      "type": "SYMBOL",
-      "name": "warn"
-    },
-    {
       "id": "symbol:setCurrentRepoInfo",
       "type": "SYMBOL",
       "name": "setCurrentRepoInfo"
-    },
-    {
-      "id": "symbol:error",
-      "type": "SYMBOL",
-      "name": "error"
     },
     {
       "id": "file:src/services/api.js",
@@ -2290,84 +2368,91 @@
       "type": "FUNCTION",
       "name": "computeImpact",
       "file": "src/store/slices/graphSlice.js",
-      "line": 4
+      "line": 5
     },
     {
       "id": "function:src/store/slices/graphSlice.js#setSelectedNode",
       "type": "FUNCTION",
       "name": "setSelectedNode",
       "file": "src/store/slices/graphSlice.js",
-      "line": 62
+      "line": 64
     },
     {
       "id": "function:src/store/slices/graphSlice.js#clearSelection",
       "type": "FUNCTION",
       "name": "clearSelection",
       "file": "src/store/slices/graphSlice.js",
-      "line": 73
+      "line": 75
     },
     {
       "id": "function:src/store/slices/graphSlice.js#setScanStatus",
       "type": "FUNCTION",
       "name": "setScanStatus",
       "file": "src/store/slices/graphSlice.js",
-      "line": 78
+      "line": 80
     },
     {
       "id": "function:src/store/slices/graphSlice.js#setScanProgress",
       "type": "FUNCTION",
       "name": "setScanProgress",
       "file": "src/store/slices/graphSlice.js",
-      "line": 81
+      "line": 83
     },
     {
       "id": "function:src/store/slices/graphSlice.js#addRepo",
       "type": "FUNCTION",
       "name": "addRepo",
       "file": "src/store/slices/graphSlice.js",
-      "line": 84
+      "line": 86
     },
     {
       "id": "function:src/store/slices/graphSlice.js#updateRepoStatus",
       "type": "FUNCTION",
       "name": "updateRepoStatus",
       "file": "src/store/slices/graphSlice.js",
-      "line": 87
+      "line": 89
     },
     {
       "id": "function:src/store/slices/graphSlice.js#removeRepo",
       "type": "FUNCTION",
       "name": "removeRepo",
       "file": "src/store/slices/graphSlice.js",
-      "line": 96
+      "line": 98
     },
     {
       "id": "function:src/store/slices/graphSlice.js#setFilterLangs",
       "type": "FUNCTION",
       "name": "setFilterLangs",
       "file": "src/store/slices/graphSlice.js",
-      "line": 99
+      "line": 101
     },
     {
       "id": "function:src/store/slices/graphSlice.js#setFilterTypes",
       "type": "FUNCTION",
       "name": "setFilterTypes",
       "file": "src/store/slices/graphSlice.js",
-      "line": 102
+      "line": 104
     },
     {
       "id": "function:src/store/slices/graphSlice.js#setGraphData",
       "type": "FUNCTION",
       "name": "setGraphData",
       "file": "src/store/slices/graphSlice.js",
-      "line": 107
+      "line": 109
+    },
+    {
+      "id": "function:src/store/slices/graphSlice.js#applyGraphPatch",
+      "type": "FUNCTION",
+      "name": "applyGraphPatch",
+      "file": "src/store/slices/graphSlice.js",
+      "line": 116
     },
     {
       "id": "function:src/store/slices/graphSlice.js#setCurrentRepoInfo",
       "type": "FUNCTION",
       "name": "setCurrentRepoInfo",
       "file": "src/store/slices/graphSlice.js",
-      "line": 111
+      "line": 153
     },
     {
       "id": "module:@reduxjs/toolkit",
@@ -3431,6 +3516,41 @@
       "type": "CALLS"
     },
     {
+      "from": "function:src/components/layout/Header.jsx#Header",
+      "to": "symbol:useState",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/components/layout/Header.jsx#Header",
+      "to": "symbol:useEffect",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/components/layout/Header.jsx#Header",
+      "to": "symbol:setSyncState",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/components/layout/Header.jsx#Header",
+      "to": "symbol:parse",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/components/layout/Header.jsx#Header",
+      "to": "symbol:clearTimeout",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/components/layout/Header.jsx#Header",
+      "to": "symbol:setTimeout",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/components/layout/Header.jsx#Header",
+      "to": "symbol:close",
+      "type": "CALLS"
+    },
+    {
       "from": "file:src/components/layout/Layout.jsx",
       "to": "module:react",
       "type": "IMPORTS"
@@ -4031,6 +4151,126 @@
       "type": "CALLS"
     },
     {
+      "from": "function:src/lib/utils.js#normalizeRepoUrl",
+      "to": "symbol:trim",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/lib/utils.js#normalizeRepoUrl",
+      "to": "symbol:String",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/lib/utils.js#normalizeRepoUrl",
+      "to": "symbol:test",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/lib/utils.js#normalizeRepoUrl",
+      "to": "symbol:replace",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/lib/utils.js#normalizeRepoUrl",
+      "to": "symbol:toString",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/lib/utils.js#parseGitHubRepoInfo",
+      "to": "function:src/lib/utils.js#normalizeRepoUrl",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/lib/utils.js#parseGitHubRepoInfo",
+      "to": "symbol:test",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/lib/utils.js#parseGitHubRepoInfo",
+      "to": "symbol:split",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/lib/utils.js#parseGitHubRepoInfo",
+      "to": "symbol:replace",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/lib/utils.js#encodeRepoPath",
+      "to": "symbol:join",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/lib/utils.js#encodeRepoPath",
+      "to": "symbol:map",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/lib/utils.js#encodeRepoPath",
+      "to": "symbol:filter",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/lib/utils.js#encodeRepoPath",
+      "to": "symbol:split",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/lib/utils.js#encodeRepoPath",
+      "to": "symbol:String",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/lib/utils.js#encodeRepoPath",
+      "to": "symbol:encodeURIComponent",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/lib/utils.js#buildGitHubBlobUrl",
+      "to": "function:src/lib/utils.js#parseGitHubRepoInfo",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/lib/utils.js#buildGitHubBlobUrl",
+      "to": "symbol:encodeURIComponent",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/lib/utils.js#buildGitHubBlobUrl",
+      "to": "function:src/lib/utils.js#encodeRepoPath",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/lib/utils.js#buildGitHubTreeUrl",
+      "to": "function:src/lib/utils.js#parseGitHubRepoInfo",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/lib/utils.js#buildGitHubTreeUrl",
+      "to": "symbol:encodeURIComponent",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/lib/utils.js#buildGitHubTreeUrl",
+      "to": "function:src/lib/utils.js#encodeRepoPath",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/lib/utils.js#buildGitHubRawUrl",
+      "to": "function:src/lib/utils.js#parseGitHubRepoInfo",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/lib/utils.js#buildGitHubRawUrl",
+      "to": "symbol:encodeURIComponent",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/lib/utils.js#buildGitHubRawUrl",
+      "to": "function:src/lib/utils.js#encodeRepoPath",
+      "type": "CALLS"
+    },
+    {
       "from": "file:src/main.jsx",
       "to": "module:react",
       "type": "IMPORTS"
@@ -4266,6 +4506,11 @@
       "type": "IMPORTS"
     },
     {
+      "from": "file:src/pages/DirListView.jsx",
+      "to": "module:../lib/utils",
+      "type": "IMPORTS"
+    },
+    {
       "from": "function:src/pages/DirListView.jsx#normalizePath",
       "to": "symbol:replace",
       "type": "CALLS"
@@ -4427,7 +4672,17 @@
     },
     {
       "from": "function:src/pages/DirListView.jsx#DirListView",
-      "to": "symbol:replace",
+      "to": "symbol:normalizeRepoUrl",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/pages/DirListView.jsx#DirListView",
+      "to": "symbol:parseGitHubRepoInfo",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/pages/DirListView.jsx#DirListView",
+      "to": "symbol:buildGitHubTreeUrl",
       "type": "CALLS"
     },
     {
@@ -4467,6 +4722,11 @@
     },
     {
       "from": "file:src/pages/FileViewer.jsx",
+      "to": "module:../lib/utils",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "file:src/pages/FileViewer.jsx",
       "to": "module:lucide-react",
       "type": "IMPORTS"
     },
@@ -4483,21 +4743,6 @@
     {
       "from": "function:src/pages/FileViewer.jsx#getLanguage",
       "to": "symbol:split",
-      "type": "CALLS"
-    },
-    {
-      "from": "function:src/pages/FileViewer.jsx#parseRepoInfo",
-      "to": "symbol:split",
-      "type": "CALLS"
-    },
-    {
-      "from": "function:src/pages/FileViewer.jsx#parseRepoInfo",
-      "to": "symbol:replace",
-      "type": "CALLS"
-    },
-    {
-      "from": "function:src/pages/FileViewer.jsx#buildRawUrl",
-      "to": "function:src/pages/FileViewer.jsx#parseRepoInfo",
       "type": "CALLS"
     },
     {
@@ -4547,7 +4792,17 @@
     },
     {
       "from": "function:src/pages/FileViewer.jsx#FileViewer",
-      "to": "function:src/pages/FileViewer.jsx#buildRawUrl",
+      "to": "symbol:normalizeRepoUrl",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/pages/FileViewer.jsx#FileViewer",
+      "to": "symbol:buildGitHubRawUrl",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/pages/FileViewer.jsx#FileViewer",
+      "to": "symbol:buildGitHubBlobUrl",
       "type": "CALLS"
     },
     {
@@ -5533,6 +5788,36 @@
     {
       "from": "function:src/pages/GraphView.jsx#GraphView",
       "to": "symbol:setGraphData",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/pages/GraphView.jsx#GraphView",
+      "to": "symbol:parse",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/pages/GraphView.jsx#GraphView",
+      "to": "symbol:applyGraphPatch",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/pages/GraphView.jsx#GraphView",
+      "to": "symbol:invalidateTags",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/pages/GraphView.jsx#GraphView",
+      "to": "symbol:error",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/pages/GraphView.jsx#GraphView",
+      "to": "symbol:warn",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/pages/GraphView.jsx#GraphView",
+      "to": "symbol:close",
       "type": "CALLS"
     },
     {
@@ -6681,6 +6966,11 @@
       "type": "IMPORTS"
     },
     {
+      "from": "file:src/pages/UploadRepo.jsx",
+      "to": "module:../lib/utils",
+      "type": "IMPORTS"
+    },
+    {
       "from": "function:src/pages/UploadRepo.jsx#UploadRepo",
       "to": "symbol:useDispatch",
       "type": "CALLS"
@@ -6733,6 +7023,11 @@
     {
       "from": "function:src/pages/UploadRepo.jsx#handleAdd",
       "to": "symbol:trim",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/pages/UploadRepo.jsx#handleAdd",
+      "to": "symbol:normalizeRepoUrl",
       "type": "CALLS"
     },
     {
@@ -7026,6 +7321,11 @@
       "type": "IMPORTS"
     },
     {
+      "from": "file:src/store/slices/graphSlice.js",
+      "to": "module:../../lib/utils",
+      "type": "IMPORTS"
+    },
+    {
       "from": "function:src/store/slices/graphSlice.js#computeImpact",
       "to": "symbol:forEach",
       "type": "CALLS"
@@ -7061,6 +7361,11 @@
       "type": "CALLS"
     },
     {
+      "from": "file:src/store/slices/graphSlice.js",
+      "to": "symbol:normalizeRepoUrl",
+      "type": "CALLS"
+    },
+    {
       "from": "function:src/store/slices/graphSlice.js#setSelectedNode",
       "to": "function:src/store/slices/graphSlice.js#computeImpact",
       "type": "CALLS"
@@ -7078,6 +7383,21 @@
     {
       "from": "function:src/store/slices/graphSlice.js#removeRepo",
       "to": "symbol:filter",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/graphSlice.js#applyGraphPatch",
+      "to": "symbol:has",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/graphSlice.js#applyGraphPatch",
+      "to": "function:src/store/slices/graphSlice.js#computeImpact",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/graphSlice.js#setCurrentRepoInfo",
+      "to": "symbol:normalizeRepoUrl",
       "type": "CALLS"
     },
     {
@@ -8513,8 +8833,8 @@
   ],
   "llmInsights": {
     "status": "failed",
-    "reason": "OpenAI chat completion request failed: 400 This model's maximum context length is 29768 tokens. However, your request has 40355 input tokens. Please reduce the length of the input messages.",
-    "generatedAt": "2026-03-14T19:51:08.074Z",
+    "reason": "OpenAI chat completion request failed: 400 This model's maximum context length is 29768 tokens. However, your request has 39972 input tokens. Please reduce the length of the input messages.",
+    "generatedAt": "2026-03-14T21:31:23.791Z",
     "model": "Qwen/Qwen3-0.6B",
     "modeUsed": "chat"
   }

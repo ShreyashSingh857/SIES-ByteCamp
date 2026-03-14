@@ -1,0 +1,246 @@
+
+<style>
+.stepper { font-family: var(--font-sans); }
+.steps { display: flex; flex-direction: column; gap: 0; }
+.step { display: flex; gap: 0; }
+.step-left { display: flex; flex-direction: column; align-items: center; width: 40px; flex-shrink: 0; }
+.step-num { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 500; flex-shrink: 0; }
+.step-line { width: 1px; flex: 1; min-height: 16px; background: var(--color-border-tertiary); }
+.step-body { padding: 0 0 24px 12px; flex: 1; }
+.step-title { font-size: 14px; font-weight: 500; color: var(--color-text-primary); margin: 0 0 4px; line-height: 28px; }
+.step-desc { font-size: 13px; color: var(--color-text-secondary); line-height: 1.6; margin: 0 0 8px; }
+.code-block { background: var(--color-background-secondary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); padding: 10px 14px; font-family: var(--font-mono); font-size: 11px; color: var(--color-text-primary); line-height: 1.7; white-space: pre; overflow-x: auto; margin: 6px 0 0; }
+.tag { display: inline-block; font-size: 11px; padding: 1px 7px; border-radius: 4px; font-weight: 500; margin-right: 6px; }
+.tag-blue { background: #e6f1fb; color: #0c447c; }
+.tag-green { background: #eaf3de; color: #27500a; }
+.tag-amber { background: #faeeda; color: #633806; }
+.tag-red { background: #fcebeb; color: #791f1f; }
+.tag-purple { background: #eeedfe; color: #3c3489; }
+</style>
+
+<div class="stepper" style="padding: 1rem 0 0;">
+<div class="steps">
+
+<div class="step">
+  <div class="step-left">
+    <div class="step-num" style="background:#e6f1fb;color:#0c447c;">1</div>
+    <div class="step-line"></div>
+  </div>
+  <div class="step-body">
+    <div class="step-title">Developer pushes a commit to GitHub</div>
+    <div class="step-desc">GitHub fires a <code>push</code> event to your registered webhook URL. The payload includes the before/after commit SHAs and a list of all added, modified, and removed files.</div>
+    <div class="code-block">POST https://yourapp.com/api/webhook/github
+X-GitHub-Event: push
+X-Hub-Signature-256: sha256=abc123...
+
+{
+  "ref": "refs/heads/main",
+  "before": "a1b2c3d",
+  "after":  "e4f5g6h",
+  "repository": { "full_name": "org/repo" },
+  "commits": [{
+    "added":    ["src/newFeature.js"],
+    "modified": ["src/api/users.js"],
+    "removed":  ["src/legacy/old.js"]
+  }]
+}</div>
+  </div>
+</div>
+
+<div class="step">
+  <div class="step-left">
+    <div class="step-num" style="background:#eeedfe;color:#3c3489;">2</div>
+    <div class="step-line"></div>
+  </div>
+  <div class="step-body">
+    <div class="step-title">Webhook receiver validates and enqueues</div>
+    <div class="step-desc"><span class="tag tag-red">security</span> Verify the HMAC-SHA256 signature using your stored webhook secret before touching any data. Then extract changed files and push a job into the queue. Respond 200 immediately — GitHub retries if you take &gt;10 seconds.</div>
+    <div class="code-block">// Backend/src/controllers/webhook.controller.js
+import crypto from 'crypto';
+import { webhookQueue } from '../queues/webhook.queue.js';
+
+export const handleGithubWebhook = async (req, res, next) => {
+  const sig = req.headers['x-hub-signature-256'];
+  const secret = await getWebhookSecret(req.body.repository.full_name);
+
+  const expected = 'sha256=' + crypto
+    .createHmac('sha256', secret)
+    .update(JSON.stringify(req.body))
+    .digest('hex');
+
+  if (!crypto.timingSafeEqual(Buffer.from(sig), Buffer.from(expected))) {
+    return res.status(401).json({ error: 'Invalid signature' });
+  }
+
+  const changedFiles = req.body.commits
+    .flatMap(c => [...c.added, ...c.modified, ...c.removed]);
+
+  await webhookQueue.add('repo-update', {
+    repoFullName: req.body.repository.full_name,
+    before: req.body.before,
+    after:  req.body.after,
+    ref:    req.body.ref,
+    changedFiles: [...new Set(changedFiles)],
+  });
+
+  res.status(200).json({ received: true });  // reply fast
+};</div>
+  </div>
+</div>
+
+<div class="step">
+  <div class="step-left">
+    <div class="step-num" style="background:#faeeda;color:#633806;">3</div>
+    <div class="step-line"></div>
+  </div>
+  <div class="step-body">
+    <div class="step-title">Diff worker picks up the job</div>
+    <div class="step-desc"><span class="tag tag-amber">async</span> The worker runs in a separate process. It does a <code>git fetch</code> + <code>git diff</code> to confirm exactly which files changed, then calls the AI-Engine with only those files rather than the whole repo — making rescans 10-100x faster.</div>
+    <div class="code-block">// Backend/src/workers/webhook.worker.js
+import { Worker } from 'bullmq';
+import simpleGit from 'simple-git';
+import { runPartialScan } from '../services/partialScan.service.js';
+import { patchNeo4jGraph }  from '../services/neo4j-patch.service.js';
+import { broadcast }        from '../services/sse.service.js';
+
+new Worker('webhook-jobs', async (job) => {
+  const { repoFullName, before, after, changedFiles } = job.data;
+
+  // 1. Pull latest changes into the already-cloned repo
+  const repoRecord = await getRepoRecord(repoFullName);
+  const git = simpleGit(repoRecord.localPath);
+  await git.fetch('origin');
+  await git.checkout(after);
+
+  // 2. Run AI-Engine only on changed files
+  const partialGraph = await runPartialScan(repoRecord.localPath, changedFiles);
+
+  // 3. Patch Neo4j — merge new nodes, delete removed ones
+  const patch = await patchNeo4jGraph(repoRecord.scanId, partialGraph, {
+    removedFiles: changedFiles.filter(f => !existsAfterCommit(f)),
+  });
+
+  // 4. Push the diff to all connected browser clients
+  broadcast(repoRecord.repoId, { type: 'GRAPH_PATCH', patch });
+
+}, { connection: redisConnection });</div>
+  </div>
+</div>
+
+<div class="step">
+  <div class="step-left">
+    <div class="step-num" style="background:#eaf3de;color:#27500a;">4</div>
+    <div class="step-line"></div>
+  </div>
+  <div class="step-body">
+    <div class="step-title">Neo4j graph gets surgically patched</div>
+    <div class="step-desc"><span class="tag tag-green">database</span> Instead of dropping and re-seeding the entire graph, use Cypher <code>MERGE</code> for upserts and <code>MATCH...DELETE</code> for removed nodes. This keeps existing relationships intact and only modifies what changed.</div>
+    <div class="code-block">// Backend/src/services/neo4j-patch.service.js
+export async function patchNeo4jGraph(scanId, partialGraph, { removedFiles }) {
+  const session = getSession();
+  try {
+    // Upsert modified/added file nodes
+    for (const file of partialGraph.nodes.filter(n => n.type === 'FILE')) {
+      await session.run(`
+        MERGE (f:File { id: $id })
+        SET f += $props, f.scanId = $scanId, f.updatedAt = datetime()
+      `, { id: file.id, props: file, scanId });
+    }
+
+    // Delete nodes for removed files + their orphaned children
+    for (const filePath of removedFiles) {
+      await session.run(`
+        MATCH (f:File { path: $path, scanId: $scanId })
+        OPTIONAL MATCH (f)<-[:CONTAINS]-(fn:Function)
+        DETACH DELETE f, fn
+      `, { path: filePath, scanId });
+    }
+
+    // Upsert new edges, remove stale ones from changed files
+    await session.run(`
+      MATCH (:File { scanId: $scanId })-[r:IMPORTS|CALLS]->()
+      WHERE r.sourceFile IN $changedFiles
+      DELETE r
+    `, { scanId, changedFiles: partialGraph.changedFilePaths });
+
+    for (const edge of partialGraph.edges) {
+      await session.run(`
+        MATCH (a { id: $from, scanId: $scanId })
+        MATCH (b { id: $to,   scanId: $scanId })
+        MERGE (a)-[r:${edge.type}]->(b)
+        SET r.updatedAt = datetime()
+      `, { from: edge.from, to: edge.to, scanId });
+    }
+
+    return { patched: partialGraph.nodes.length, removed: removedFiles.length };
+  } finally { await session.close(); }
+}</div>
+  </div>
+</div>
+
+<div class="step">
+  <div class="step-left">
+    <div class="step-num" style="background:#e1f5ee;color:#085041;">5</div>
+    <div class="step-line"></div>
+  </div>
+  <div class="step-body">
+    <div class="step-title">SSE pushes the graph patch to the browser</div>
+    <div class="step-desc"><span class="tag tag-green">realtime</span> Server-Sent Events keep a persistent HTTP connection open from each browser tab. When Neo4j is patched, the worker calls <code>broadcast()</code> and every connected client gets the diff instantly — no polling.</div>
+    <div class="code-block">// Backend/src/services/sse.service.js
+const clients = new Map(); // repoId -> Set of response objects
+
+export function addClient(repoId, res) {
+  res.writeHead(200, {
+    'Content-Type':  'text/event-stream',
+    'Cache-Control': 'no-cache',
+    'Connection':    'keep-alive',
+  });
+  res.write('data: {"type":"connected"}\n\n');
+  if (!clients.has(repoId)) clients.set(repoId, new Set());
+  clients.get(repoId).add(res);
+  res.on('close', () => clients.get(repoId)?.delete(res));
+}
+
+export function broadcast(repoId, payload) {
+  const group = clients.get(repoId);
+  if (!group) return;
+  const data = `data: ${JSON.stringify(payload)}\n\n`;
+  group.forEach(res => res.write(data));
+}</div>
+  </div>
+</div>
+
+<div class="step">
+  <div class="step-left">
+    <div class="step-num" style="background:#eeedfe;color:#3c3489;">6</div>
+    <div class="step-line"></div>
+  </div>
+  <div class="step-body">
+    <div class="step-title">React applies the patch — graph updates live</div>
+    <div class="step-desc"><span class="tag tag-purple">frontend</span> A single <code>useEffect</code> in <code>GraphView.jsx</code> opens an <code>EventSource</code> connection. When a <code>GRAPH_PATCH</code> event arrives, it dispatches to Redux which updates Cytoscape via the existing data flow — no page reload.</div>
+    <div class="code-block">// Frontend/src/pages/GraphView.jsx  (add this useEffect)
+useEffect(() => {
+  if (!currentRepoId) return;
+
+  const es = new EventSource(`/api/events/${currentRepoId}`);
+
+  es.onmessage = (event) => {
+    const msg = JSON.parse(event.data);
+
+    if (msg.type === 'GRAPH_PATCH') {
+      dispatch(applyGraphPatch(msg.patch));  // new Redux action
+    }
+    if (msg.type === 'SCAN_COMPLETE') {
+      dispatch(refetchGraph(currentRepoId)); // trigger RTK Query refetch
+    }
+  };
+
+  es.onerror = () => es.close();
+
+  return () => es.close();
+}, [currentRepoId, dispatch]);</div>
+  </div>
+</div>
+
+</div>
+</div>
