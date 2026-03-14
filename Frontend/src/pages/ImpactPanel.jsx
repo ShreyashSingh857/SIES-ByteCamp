@@ -3,7 +3,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { Zap, GitBranch, Database, Code2, Globe, ChevronRight, Search, ArrowLeft } from 'lucide-react';
 import { setSelectedNode, clearSelection } from '../store/index';
-import { useGetGraphQuery, useGetImpactAnalysisQuery } from '../store/slices/apiSlice';
+import { useGetGraphQuery } from '../store/slices/apiSlice';
 import { NODE_TYPE_CONFIG } from '../assets/mockdata';
 
 const TYPE_ICONS = {
@@ -67,24 +67,19 @@ const ImpactPanel = () => {
   const navigate  = useNavigate();
 
   const selectedNodeId   = useSelector((s) => s.graph.selectedNode);
+  const directImpact     = useSelector((s) => s.graph.directImpact);
+  const transitiveImpact = useSelector((s) => s.graph.transitiveImpact);
 
   const { data: fetchedGraphData } = useGetGraphQuery();
   const graphData = fetchedGraphData || { nodes: [], edges: [] };
-
-  const { data: impactData } = useGetImpactAnalysisQuery(selectedNodeId, {
-    skip: !selectedNodeId,
-  });
-
-  const directImpactIds = impactData?.directImpact || [];
-  const transitiveImpactIds = impactData?.transitiveImpact || [];
 
   const [search, setSearch] = useState('');
 
   const getNode = (id) => graphData.nodes.find((n) => n.id === id);
 
   const selectedData     = selectedNodeId ? getNode(selectedNodeId) : null;
-  const directNodes      = directImpactIds.map(getNode).filter(Boolean);
-  const transitiveNodes  = transitiveImpactIds.map(getNode).filter(Boolean);
+  const directNodes      = directImpact.map(getNode).filter(Boolean);
+  const transitiveNodes  = transitiveImpact.map(getNode).filter(Boolean);
 
   const filterNodes = (nodes) =>
     search

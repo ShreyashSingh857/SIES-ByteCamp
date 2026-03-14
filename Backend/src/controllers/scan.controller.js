@@ -168,7 +168,7 @@ export const postScan = async (req, res, next) => {
 
     const { stdout } = await execFileAsync(
       process.execPath,
-      [AI_ENGINE_ENTRY, "--repo", cloneDir, "--with-llm"],
+      [AI_ENGINE_ENTRY, "--repo", cloneDir],
       {
         cwd: PROJECT_ROOT,
         maxBuffer: 20 * 1024 * 1024,
@@ -178,14 +178,6 @@ export const postScan = async (req, res, next) => {
     let parserResult = null;
     try {
       parserResult = JSON.parse(stdout);
-      // Store the parsed result in-memory for getGraph to serve
-      if (parserResult.nodes && parserResult.edges) {
-        latestGraphData = {
-          nodes: parserResult.nodes,
-          edges: parserResult.edges,
-          summary: parserResult.summary || null,
-        };
-      }
     } catch {
       parserResult = { raw: stdout };
     }
@@ -359,7 +351,7 @@ export const getMetrics = async (req, res, next) => {
  * @route   GET /api/impact
  * @access  Public
  */
-export const getImpact = async (req, res, next) => {
+export const getImpact = async (_req, res, next) => {
   try {
     const node = _req.query.node;
     const scanId = _req.query.scanId || null;

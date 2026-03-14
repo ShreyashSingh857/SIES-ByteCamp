@@ -1,5 +1,45 @@
 import { createSlice } from '@reduxjs/toolkit';
 
+// BFS to compute directly and transitively impacted nodes from a selected node
+function computeImpact(graphData, selectedNodeId) {
+  if (!selectedNodeId) return { directImpact: [], transitiveImpact: [] };
+
+  const { edges } = graphData;
+  const directImpact = new Set();
+
+  edges.forEach((edge) => {
+    if (edge.source === selectedNodeId) directImpact.add(edge.target);
+    if (edge.target === selectedNodeId) directImpact.add(edge.source);
+  });
+
+  const visited = new Set([selectedNodeId, ...directImpact]);
+  const queue = [...directImpact];
+  const transitiveImpact = new Set();
+
+  while (queue.length > 0) {
+    const current = queue.shift();
+    edges.forEach((edge) => {
+      const neighbor =
+        edge.source === current
+          ? edge.target
+          : edge.target === current
+          ? edge.source
+          : null;
+
+      if (neighbor && !visited.has(neighbor)) {
+        visited.add(neighbor);
+        transitiveImpact.add(neighbor);
+        queue.push(neighbor);
+      }
+    });
+  }
+
+  return {
+    directImpact: [...directImpact],
+    transitiveImpact: [...transitiveImpact],
+  };
+}
+
 const graphSlice = createSlice({
   name: 'graph',
   initialState: {
@@ -15,9 +55,15 @@ const graphSlice = createSlice({
   },
   reducers: {
     setSelectedNode(state, action) {
-      const { id } = action.payload || {};
+      const { id, graphData } = action.payload || {};
       const nodeId = id !== undefined ? id : action.payload;
+      const dataToUse = graphData || state.graphData;
+
+      
       state.selectedNode = nodeId;
+      const impact = computeImpact(dataToUse, nodeId);
+      state.directImpact = impact.directImpact;
+      state.transitiveImpact = impact.transitiveImpact;
     },
     clearSelection(state) {
       state.selectedNode = null;
