@@ -7,10 +7,21 @@ import { promisify } from "util";
 import { randomUUID } from "crypto";
 import {
   getImpactedNodesByNode,
+  getRelatedFilesByPath,
   getGraphMetrics,
   setupDatabaseSchema,
   seedParsedGraph,
+  findSymbolOccurrences,
+  getNodeDependencies,
+  traceSymbolDependencies,
+  getSymbolReferences,
 } from "../db/neo4j.queries.js";
+import {
+  analyzeDependenciesWithLLM,
+  generatePerFileDependencyInsights,
+  generateArchitectureSummary,
+  inferImplicitDependencies,
+} from "../services/llm.service.js";
 
 const execFileAsync = promisify(execFile);
 const __filename = fileURLToPath(import.meta.url);
@@ -50,6 +61,303 @@ function normalizeNeo4jNumber(value) {
   return Number(value || 0);
 }
 
+function sanitizeSelectedText(rawText, maxLength = 1000) {
+  const value = String(rawText || "").replace(/\s+/g, " ").trim();
+  if (!value) return "";
+  if (value.length <= maxLength) return value;
+  return value.slice(0, maxLength);
+}
+
+function extractSearchCandidates(rawText) {
+  const cleaned = sanitizeSelectedText(rawText, 1000);
+  if (!cleaned) return [];
+
+  const tokens = cleaned
+    .split(/[^a-zA-Z0-9_$./:-]+/)
+    .map((token) => token.trim())
+    .filter((token) => token.length >= 2);
+
+  return [...new Set([cleaned, ...tokens])].slice(0, 8);
+}
+
+function getPreferredSymbolForTracing(candidates) {
+  if (!Array.isArray(candidates) || candidates.length === 0) {
+    return "";
+  }
+  return candidates.find((candidate) => !candidate.includes(" ")) || candidates[0];
+}
+
+function calculateChainDepth(symbolDependencies) {
+  const edges = symbolDependencies?.edges || [];
+  if (!edges.length) return 0;
+  return 1;
+}
+
+const STATIC_RELATIONSHIP_TYPES = new Set([
+  "IMPORTS",
+  "CALLS",
+  "DEPENDS_ON",
+  "USES",
+  "EXTENDS",
+  "IMPLEMENTS",
+  "INHERITS",
+  "READS",
+  "WRITES",
+  "RELATES_TO",
+]);
+
+const RUNTIME_RELATIONSHIP_TYPES = new Set([
+  "CONSUMES_API",
+  "EXPOSES_API",
+  "USES_TABLE",
+  "USES_FIELD",
+  "EMITS_EVENT",
+  "LISTENS_EVENT",
+  "READS_ENV",
+  "USES_CACHE",
+  "RUNTIME_CALL",
+]);
+
+function normalizeRelationshipType(value) {
+  return String(value || "RELATED_TO").trim().toUpperCase();
+}
+
+function isTruthyFlag(value) {
+  if (value === true) return true;
+  const normalized = String(value ?? "").trim().toLowerCase();
+  return normalized === "true" || normalized === "1" || normalized === "yes";
+}
+
+function classifyDependencyNature(relationshipType, relationshipProps = {}) {
+  const normalizedType = normalizeRelationshipType(relationshipType);
+
+  if (isTruthyFlag(relationshipProps?.runtimeDependency)) {
+    return "runtime";
+  }
+
+  if (isTruthyFlag(relationshipProps?.staticDependency)) {
+    return "static";
+  }
+
+  if (RUNTIME_RELATIONSHIP_TYPES.has(normalizedType)) {
+    return "runtime";
+  }
+
+  if (STATIC_RELATIONSHIP_TYPES.has(normalizedType)) {
+    return "static";
+  }
+
+  return "unknown";
+}
+
+function createFileContextBucket(filePath) {
+  return {
+    filePath,
+    occurrences: [],
+    dependencies: [],
+    referencedFunctions: [],
+  };
+}
+
+function buildFileDependencyContexts(symbolOccurrences, dependencyMap, references) {
+  const fileMap = new Map();
+
+  const ensureBucket = (filePath) => {
+    const safePath = String(filePath || "").trim() || "unknown";
+    if (!fileMap.has(safePath)) {
+      fileMap.set(safePath, createFileContextBucket(safePath));
+    }
+    return fileMap.get(safePath);
+  };
+
+  for (const occurrence of symbolOccurrences || []) {
+    const bucket = ensureBucket(occurrence?.filePath);
+
+    bucket.occurrences.push({
+      id: occurrence?.id,
+      displayName: occurrence?.displayName,
+      type: occurrence?.type,
+      lineNumber: occurrence?.lineNumber || 0,
+      context: occurrence?.context || "",
+    });
+
+    const nodeDeps = dependencyMap?.[occurrence?.id] || { incoming: [], outgoing: [] };
+    const mergedDeps = [
+      ...(nodeDeps?.incoming || []).map((dep) => ({ ...dep, direction: "incoming" })),
+      ...(nodeDeps?.outgoing || []).map((dep) => ({ ...dep, direction: "outgoing" })),
+    ];
+
+    for (const dep of mergedDeps) {
+      const direction = dep.direction || "outgoing";
+      const relationshipType = normalizeRelationshipType(dep.relationshipType);
+      const dependencyNature = classifyDependencyNature(relationshipType, dep.relationshipProps || {});
+      const relatedEntity = direction === "incoming"
+        ? dep.sourceName || dep.sourceId || "unknown"
+        : dep.targetName || dep.targetId || "unknown";
+      const relatedId = direction === "incoming"
+        ? String(dep.sourceId || "")
+        : String(dep.targetId || "");
+      const relatedType = direction === "incoming"
+        ? dep.sourceType || "Unknown"
+        : dep.targetType || "Unknown";
+
+      bucket.dependencies.push({
+        direction,
+        relationshipType,
+        dependencyNature,
+        relatedId,
+        relatedEntity,
+        relatedType,
+        properties: dep.relationshipProps || {},
+      });
+    }
+  }
+
+  for (const reference of references || []) {
+    const bucket = ensureBucket(reference?.filePath);
+    const functionNames = (reference?.functions || [])
+      .map((fn) => String(fn?.qualifiedName || fn?.name || "").trim())
+      .filter(Boolean);
+
+    bucket.referencedFunctions = [...new Set([...bucket.referencedFunctions, ...functionNames])];
+  }
+
+  for (const bucket of fileMap.values()) {
+    const seenKeys = new Set();
+    bucket.dependencies = bucket.dependencies.filter((dep) => {
+      const key = [
+        dep.direction,
+        dep.relationshipType,
+        dep.dependencyNature,
+        dep.relatedId,
+        dep.relatedEntity,
+      ].join("::");
+      if (seenKeys.has(key)) return false;
+      seenKeys.add(key);
+      return true;
+    });
+  }
+
+  return [...fileMap.values()].sort((a, b) => {
+    const weightA = (a.occurrences?.length || 0) * 2 + (a.dependencies?.length || 0);
+    const weightB = (b.occurrences?.length || 0) * 2 + (b.dependencies?.length || 0);
+    return weightB - weightA;
+  });
+}
+
+function summarizeStaticRuntimeDependencies(fileContexts) {
+  const relationshipBreakdown = {};
+  const staticFiles = new Set();
+  const runtimeFiles = new Set();
+
+  let staticDependencyCount = 0;
+  let runtimeDependencyCount = 0;
+  let unknownDependencyCount = 0;
+
+  for (const context of fileContexts || []) {
+    for (const dep of context?.dependencies || []) {
+      const relType = normalizeRelationshipType(dep.relationshipType);
+      relationshipBreakdown[relType] = (relationshipBreakdown[relType] || 0) + 1;
+
+      if (dep.dependencyNature === "static") {
+        staticDependencyCount += 1;
+        staticFiles.add(context.filePath);
+      } else if (dep.dependencyNature === "runtime") {
+        runtimeDependencyCount += 1;
+        runtimeFiles.add(context.filePath);
+      } else {
+        unknownDependencyCount += 1;
+      }
+    }
+  }
+
+  return {
+    totalFiles: fileContexts?.length || 0,
+    staticDependencyCount,
+    runtimeDependencyCount,
+    unknownDependencyCount,
+    filesWithStaticDependencies: [...staticFiles].sort((a, b) => a.localeCompare(b)),
+    filesWithRuntimeDependencies: [...runtimeFiles].sort((a, b) => a.localeCompare(b)),
+    relationshipBreakdown,
+  };
+}
+
+function buildLlmGraphContext(symbolOccurrences, dependencyMap, symbolDependencies) {
+  const nodesById = new Map();
+  const edgesById = new Map();
+
+  for (const occurrence of symbolOccurrences || []) {
+    if (!occurrence?.id) continue;
+    nodesById.set(String(occurrence.id), {
+      id: String(occurrence.id),
+      name: occurrence.displayName || occurrence.id,
+      type: occurrence.type || "Unknown",
+      filePath: occurrence.filePath || "",
+      lineNumber: occurrence.lineNumber || 0,
+    });
+  }
+
+  for (const [nodeId, deps] of Object.entries(dependencyMap || {})) {
+    const outgoing = deps?.outgoing || [];
+    const incoming = deps?.incoming || [];
+
+    for (const dep of [...outgoing, ...incoming]) {
+      const sourceId = String(dep.sourceId || dep.targetId || "");
+      const targetId = String(dep.targetId || dep.sourceId || "");
+
+      if (sourceId) {
+        nodesById.set(sourceId, {
+          id: sourceId,
+          name: dep.sourceName || sourceId,
+          type: dep.sourceType || "Unknown",
+        });
+      }
+
+      if (targetId) {
+        nodesById.set(targetId, {
+          id: targetId,
+          name: dep.targetName || targetId,
+          type: dep.targetType || "Unknown",
+        });
+      }
+
+      const edgeId = `${nodeId}:${sourceId}:${dep.relationshipType || "REL"}:${targetId}`;
+      edgesById.set(edgeId, {
+        id: edgeId,
+        source: sourceId,
+        target: targetId,
+        type: dep.relationshipType || "RELATED_TO",
+        properties: dep.relationshipProps || {},
+      });
+    }
+  }
+
+  for (const node of symbolDependencies?.nodes || []) {
+    const nodeId = String(node.id || "");
+    if (!nodeId) continue;
+    nodesById.set(nodeId, {
+      ...(nodesById.get(nodeId) || {}),
+      ...node,
+      id: nodeId,
+    });
+  }
+
+  for (const edge of symbolDependencies?.edges || []) {
+    const edgeId = String(edge.id || `${edge.source}-${edge.type}-${edge.target}`);
+    edgesById.set(edgeId, {
+      ...edge,
+      id: edgeId,
+      source: String(edge.source || ""),
+      target: String(edge.target || ""),
+    });
+  }
+
+  return {
+    nodes: Array.from(nodesById.values()).slice(0, 300),
+    edges: Array.from(edgesById.values()).slice(0, 450),
+  };
+}
+
 function buildSeedPayloadFromParser(repoId, parserResult, scanId) {
   const nowIso = new Date().toISOString();
   const serviceId = `svc:${scanId}:${repoId}`;
@@ -57,6 +365,35 @@ function buildSeedPayloadFromParser(repoId, parserResult, scanId) {
 
   const fileNodes = (parserResult?.nodes || []).filter((n) => n.type === "FILE");
   const functionNodes = (parserResult?.nodes || []).filter((n) => n.type === "FUNCTION");
+  const filePathToRawId = new Map(fileNodes.map((n) => [n.name, n.id]));
+
+  const resolveImportedFileRawId = (sourceRawFileId, moduleSpecifier) => {
+    if (!sourceRawFileId || !moduleSpecifier || !moduleSpecifier.startsWith(".")) return null;
+
+    const sourcePath = sourceRawFileId.replace(/^file:/, "");
+    const sourceDir = path.posix.dirname(sourcePath);
+    const baseResolved = path.posix.normalize(path.posix.join(sourceDir, moduleSpecifier));
+
+    const candidates = [];
+    const hasExt = Boolean(path.posix.extname(baseResolved));
+
+    if (hasExt) {
+      candidates.push(baseResolved);
+    } else {
+      const exts = [".js", ".jsx", ".ts", ".tsx", ".mjs", ".cjs", ".json"];
+      for (const ext of exts) {
+        candidates.push(`${baseResolved}${ext}`);
+        candidates.push(path.posix.join(baseResolved, `index${ext}`));
+      }
+    }
+
+    for (const candidate of candidates) {
+      const matchedRawId = filePathToRawId.get(candidate);
+      if (matchedRawId) return matchedRawId;
+    }
+
+    return null;
+  };
 
   const files = fileNodes.map((n) => {
     const id = `file:${scanId}:${n.id}`;
@@ -102,7 +439,31 @@ function buildSeedPayloadFromParser(repoId, parserResult, scanId) {
 
   const dependencyEdges = (parserResult?.edges || [])
     .filter((e) => ["IMPORTS", "CALLS"].includes(e.type))
-    .map((e) => ({ fromId: idMap.get(e.from), toId: idMap.get(e.to), type: e.type }))
+    .map((e) => {
+      let fromRawId = e.from;
+      let toRawId = e.to;
+
+      if (
+        e.type === "IMPORTS" &&
+        typeof e.from === "string" &&
+        e.from.startsWith("file:") &&
+        typeof e.to === "string" &&
+        e.to.startsWith("module:")
+      ) {
+        const moduleSpecifier = e.to.slice("module:".length);
+        const resolvedRawFileId = resolveImportedFileRawId(e.from, moduleSpecifier);
+        if (resolvedRawFileId) {
+          toRawId = resolvedRawFileId;
+          fromRawId = e.from;
+        }
+      }
+
+      return {
+        fromId: idMap.get(fromRawId),
+        toId: idMap.get(toRawId),
+        type: e.type,
+      };
+    })
     .filter((e) => e.fromId && e.toId);
 
   return {
@@ -404,6 +765,515 @@ export const getImpact = async (_req, res, next) => {
     if (error?.message?.includes("Neo4j is not configured")) {
       return res.status(503).json({ success: false, message: error.message });
     }
+    next(error);
+  }
+};
+
+/**
+ * @desc    Return related files for a file path from Neo4j (live)
+ * @route   GET /api/impact/files?scanId=...&filePath=...
+ * @access  Public
+ */
+export const getFileRelations = async (req, res, next) => {
+  try {
+    const scanId = req.query.scanId;
+    const filePath = req.query.filePath;
+
+    if (!scanId || typeof scanId !== "string") {
+      return res.status(400).json({
+        success: false,
+        message: "Query param 'scanId' is required",
+      });
+    }
+
+    if (!filePath || typeof filePath !== "string") {
+      return res.status(400).json({
+        success: false,
+        message: "Query param 'filePath' is required",
+      });
+    }
+
+    const result = await getRelatedFilesByPath(scanId, filePath);
+
+    res.status(200).json({
+      success: true,
+      data: {
+        scanId,
+        filePath,
+        incoming: result.incoming,
+        outgoing: result.outgoing,
+        staticIncoming: result.staticIncoming || [],
+        staticOutgoing: result.staticOutgoing || [],
+        runtimeIncoming: result.runtimeIncoming || [],
+        runtimeOutgoing: result.runtimeOutgoing || [],
+      },
+    });
+  } catch (error) {
+    if (error?.message?.includes("Neo4j is not configured")) {
+      return res.status(503).json({ success: false, message: error.message });
+    }
+    next(error);
+  }
+};
+
+/**
+ * @desc    Analyze dependencies for selected text in code editor
+ * @route   POST /api/analyze/dependencies
+ * @access  Public
+ */
+export const analyzeDependencies = async (req, res, next) => {
+  try {
+    const { repoId, currentFile, selectedText } = req.body;
+
+    if (!repoId || !selectedText) {
+      return res.status(400).json({
+        success: false,
+        message: "repoId and selectedText are required",
+      });
+    }
+
+    const graphFilePath = getGraphFilePath(repoId);
+
+    if (!fs.existsSync(graphFilePath)) {
+      return res.status(404).json({
+        success: false,
+        message: `No graph found for repoId: ${repoId}`,
+      });
+    }
+
+    const parserResult = JSON.parse(fs.readFileSync(graphFilePath, "utf8"));
+    const files = (parserResult?.nodes || []).filter((n) => n.type === "FILE");
+
+    const dependencies = [];
+    const searchText = selectedText.trim();
+
+    // Search through all files for occurrences of the selected text
+    for (const fileNode of files) {
+      const filePath = fileNode.name;
+
+      // Skip the current file
+      if (currentFile && filePath === currentFile) {
+        continue;
+      }
+
+      try {
+        // Construct the full path to the repository clone
+        const repoPath = path.join(REPOSITORIES_ROOT);
+
+        // Find the cloned repo directory for this repoId
+        const repoDirs = fs.readdirSync(REPOSITORIES_ROOT).filter((name) => name.includes(repoId.split('-').slice(0, 2).join('-')));
+
+        if (repoDirs.length === 0) {
+          continue;
+        }
+
+        const repoDir = path.join(REPOSITORIES_ROOT, repoDirs[0]);
+        const fullPath = path.join(repoDir, filePath);
+
+        // Check if file exists and is readable
+        if (!fs.existsSync(fullPath)) {
+          continue;
+        }
+
+        const fileContent = fs.readFileSync(fullPath, "utf8");
+        const lines = fileContent.split("\n");
+
+        // Find lines containing the selected text
+        lines.forEach((line, lineIdx) => {
+          if (line.includes(searchText)) {
+            // Extract context (3 lines before and after)
+            const start = Math.max(0, lineIdx - 2);
+            const end = Math.min(lines.length, lineIdx + 3);
+            const snippet = lines.slice(start, end).join("\n");
+
+            dependencies.push({
+              filePath: filePath,
+              lineNumber: lineIdx + 1,
+              codeSnippet: snippet,
+            });
+          }
+        });
+      } catch (err) {
+        // Skip files that can't be read
+        continue;
+      }
+    }
+
+    res.status(200).json({
+      success: true,
+      data: {
+        repoId,
+        selectedText,
+        dependenciesFound: dependencies.length,
+        dependencies,
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * @desc    Analyze dependencies using Neo4j + LLM intelligence
+ * @route   POST /api/analyze/dependencies-llm
+ * @access  Public
+ */
+export const analyzeDependenciesWithIntelligence = async (req, res, next) => {
+  try {
+    const {
+      repoId,
+      scanId,
+      currentFile,
+      selectedText,
+      selectedSnippet,
+      surroundingContext,
+      lineRange,
+      withLLM = true,
+    } = req.body;
+
+    const normalizedSelectedText = sanitizeSelectedText(selectedText, 2000);
+    const searchCandidates = extractSearchCandidates(normalizedSelectedText);
+    const preferredSymbol = getPreferredSymbolForTracing(searchCandidates);
+
+    if (!normalizedSelectedText) {
+      return res.status(400).json({
+        success: false,
+        message: "selectedText is required",
+      });
+    }
+
+    if (!scanId) {
+      return res.status(400).json({
+        success: false,
+        message: "scanId is required for Neo4j analysis",
+      });
+    }
+
+    // Step 1: Find symbol occurrences in Neo4j using robust candidate matching
+    let symbolOccurrences = [];
+    const seenOccurrenceIds = new Set();
+    for (const candidate of searchCandidates) {
+      try {
+        const matches = await findSymbolOccurrences(candidate, scanId);
+        for (const match of matches) {
+          const key = String(match.id || `${match.filePath}:${match.lineNumber}:${match.displayName}`);
+          if (!seenOccurrenceIds.has(key)) {
+            seenOccurrenceIds.add(key);
+            symbolOccurrences.push(match);
+          }
+        }
+      } catch (err) {
+        console.warn(`Neo4j symbol search failed for "${candidate}":`, err.message);
+      }
+    }
+
+    if (symbolOccurrences.length === 0) {
+      // Fallback: scan repository files for literal text matches.
+      // This keeps the UX useful even when the selection is not a clean symbol present in Neo4j.
+      let textMatches = [];
+      let fallbackOccurrences = [];
+      let fallbackFileContexts = [];
+
+      try {
+        if (repoId) {
+          const graphFilePath = getGraphFilePath(repoId);
+          if (fs.existsSync(graphFilePath)) {
+            const parserResult = JSON.parse(fs.readFileSync(graphFilePath, "utf8"));
+            const files = (parserResult?.nodes || []).filter((n) => n.type === "FILE");
+            const searchText = normalizedSelectedText.trim();
+
+            const repoDirs = fs
+              .readdirSync(REPOSITORIES_ROOT)
+              .filter((name) => name.includes(repoId.split("-").slice(0, 2).join("-")));
+
+            if (repoDirs.length > 0 && searchText) {
+              const repoDir = path.join(REPOSITORIES_ROOT, repoDirs[0]);
+
+              const contextByFile = new Map();
+
+              for (const fileNode of files) {
+                const candidatePath = fileNode.name;
+                if (!candidatePath) continue;
+                if (currentFile && candidatePath === currentFile) continue;
+
+                const fullPath = path.join(repoDir, candidatePath);
+                if (!fs.existsSync(fullPath)) continue;
+
+                let fileContent = "";
+                try {
+                  fileContent = fs.readFileSync(fullPath, "utf8");
+                } catch {
+                  continue;
+                }
+
+                const lines = fileContent.split("\n");
+                for (let lineIdx = 0; lineIdx < lines.length; lineIdx += 1) {
+                  const line = lines[lineIdx];
+                  if (!line || !line.includes(searchText)) continue;
+
+                  const start = Math.max(0, lineIdx - 2);
+                  const end = Math.min(lines.length, lineIdx + 3);
+                  const snippet = lines.slice(start, end).join("\n");
+
+                  const match = {
+                    filePath: candidatePath,
+                    lineNumber: lineIdx + 1,
+                    lineText: String(line).trim().slice(0, 180),
+                    codeSnippet: snippet,
+                  };
+                  textMatches.push(match);
+
+                  if (!contextByFile.has(candidatePath)) {
+                    contextByFile.set(candidatePath, {
+                      filePath: candidatePath,
+                      occurrences: [],
+                      dependencies: [],
+                      referencedFunctions: [],
+                    });
+                  }
+
+                  contextByFile.get(candidatePath).occurrences.push({
+                    id: `${candidatePath}:${lineIdx + 1}`,
+                    displayName: match.lineText || "text match",
+                    type: "TEXT_MATCH",
+                    lineNumber: lineIdx + 1,
+                    context: snippet,
+                  });
+
+                  fallbackOccurrences.push({
+                    id: `${candidatePath}:${lineIdx + 1}`,
+                    displayName: match.lineText || "text match",
+                    type: "TextMatch",
+                    filePath: candidatePath,
+                    lineNumber: lineIdx + 1,
+                    context: snippet,
+                  });
+                }
+              }
+
+              fallbackFileContexts = [...contextByFile.values()].sort((a, b) => {
+                const aCount = a.occurrences?.length || 0;
+                const bCount = b.occurrences?.length || 0;
+                return bCount - aCount;
+              });
+            }
+          }
+        }
+      } catch (err) {
+        console.warn("Fallback repo scan failed:", err.message);
+      }
+
+      if (fallbackFileContexts.length > 0) {
+        const staticRuntimeDependencies = summarizeStaticRuntimeDependencies(fallbackFileContexts);
+        const personalizedInsights = await generatePerFileDependencyInsights(
+          normalizedSelectedText,
+          fallbackFileContexts,
+          {
+            currentFile,
+            implicitDependencies: null,
+            staticRuntimeSummary: staticRuntimeDependencies,
+            model: process.env.OPENAI_MODEL || "gpt-4.1-mini",
+          }
+        );
+
+        return res.status(200).json({
+          success: true,
+          data: {
+            selectedText: normalizedSelectedText,
+            scanId,
+            searchCandidates,
+            symbolOccurrences: fallbackOccurrences,
+            dependencies: {
+              perNode: {},
+              chain: { nodes: [], edges: [] },
+            },
+            references: [],
+            staticRuntimeDependencies,
+            implicitDependencies: null,
+            personalizedInsights,
+            contentMatches: textMatches.slice(0, 500),
+            message: "No Neo4j symbol matches; showing literal text matches across the repo.",
+          },
+        });
+      }
+
+      return res.status(200).json({
+        success: true,
+        data: {
+          selectedText: normalizedSelectedText,
+          scanId,
+          searchCandidates,
+          symbolOccurrences: [],
+          dependencies: [],
+          llmAnalysis: null,
+          message: "No symbol occurrences found in database",
+        },
+      });
+    }
+
+    // Step 2: Get dependencies for each occurrence
+    const dependencyMap = {};
+    for (const occurrence of symbolOccurrences) {
+      try {
+        const deps = await getNodeDependencies(occurrence.id, scanId);
+        dependencyMap[occurrence.id] = deps;
+      } catch (err) {
+        console.warn(`Failed to get dependencies for ${occurrence.id}:`, err.message);
+        dependencyMap[occurrence.id] = { incoming: [], outgoing: [] };
+      }
+    }
+
+    // Step 3: Trace complete dependency chains
+    let symbolDependencies = { nodes: [], edges: [] };
+    try {
+      if (preferredSymbol) {
+        symbolDependencies = await traceSymbolDependencies(preferredSymbol, scanId, 4);
+      }
+    } catch (err) {
+      console.warn("Failed to trace symbol dependencies:", err.message);
+      symbolDependencies = { nodes: [], edges: [] };
+    }
+
+    // Step 4: Get symbol references
+    let references = [];
+    try {
+      if (preferredSymbol) {
+        references = await getSymbolReferences(preferredSymbol, scanId);
+      }
+    } catch (err) {
+      console.warn("Failed to get symbol references:", err.message);
+    }
+
+    const llmGraphContext = buildLlmGraphContext(
+      symbolOccurrences,
+      dependencyMap,
+      symbolDependencies
+    );
+
+    const dependencySummary = {
+      occurrenceCount: symbolOccurrences.length,
+      uniqueFiles: [...new Set(symbolOccurrences.map((occurrence) => occurrence.filePath).filter(Boolean))].length,
+      relationshipNodes: Object.keys(dependencyMap).length,
+      referenceFiles: references.length,
+      chainDepth: calculateChainDepth(symbolDependencies),
+      relationshipTypes: [
+        ...new Set(
+          Object.values(dependencyMap)
+            .flatMap((deps) => [...(deps?.incoming || []), ...(deps?.outgoing || [])])
+            .map((dep) => dep.relationshipType)
+            .filter(Boolean)
+        ),
+      ],
+    };
+
+    const fileDependencyContexts = buildFileDependencyContexts(
+      symbolOccurrences,
+      dependencyMap,
+      references
+    );
+
+    const staticRuntimeDependencies = summarizeStaticRuntimeDependencies(fileDependencyContexts);
+
+    // Step 5: Use LLM to analyze if requested
+    let llmAnalysis = null;
+    if (withLLM) {
+      llmAnalysis = await analyzeDependenciesWithLLM(
+        normalizedSelectedText,
+        llmGraphContext,
+        symbolOccurrences,
+        {
+          currentFile,
+          selectedSnippet,
+          surroundingContext,
+          lineRange,
+          references,
+          dependencySummary,
+        }
+      );
+    }
+
+    // Step 6: infer implicit/runtime dependencies from selected code + graph context
+    let implicitDependencies = null;
+    if (withLLM) {
+      implicitDependencies = await inferImplicitDependencies(
+        selectedSnippet || normalizedSelectedText,
+        {
+          selectedText: normalizedSelectedText,
+          currentFile,
+          lineRange: lineRange || null,
+          dependencySummary,
+          staticRuntimeDependencies,
+          topFiles: fileDependencyContexts.slice(0, 25).map((fileCtx) => ({
+            filePath: fileCtx.filePath,
+            occurrenceCount: fileCtx.occurrences.length,
+            dependencyCount: fileCtx.dependencies.length,
+          })),
+        }
+      );
+    }
+
+    // Step 7: generate personalized dependency response for each related file
+    let personalizedInsights = {
+      status: "skipped",
+      message: "Per-file personalization skipped",
+      files: [],
+      model: process.env.OPENAI_MODEL || "gpt-4.1-mini",
+    };
+
+    if (fileDependencyContexts.length > 0) {
+      personalizedInsights = await generatePerFileDependencyInsights(
+        normalizedSelectedText,
+        fileDependencyContexts,
+        {
+          currentFile,
+          implicitDependencies: implicitDependencies?.inferredDependencies || null,
+          staticRuntimeSummary: staticRuntimeDependencies,
+          model: process.env.OPENAI_MODEL || "gpt-4.1-mini",
+        }
+      );
+    }
+
+    res.status(200).json({
+      success: true,
+      data: {
+        selectedText: normalizedSelectedText,
+        searchCandidates,
+        preferredSymbol,
+        scanId,
+        summary: {
+          occurrencesFound: dependencySummary.occurrenceCount,
+          uniqueFiles: dependencySummary.uniqueFiles,
+          relationshipsFound: dependencySummary.relationshipNodes,
+          chainDepth: dependencySummary.chainDepth,
+          relationshipTypes: dependencySummary.relationshipTypes,
+        },
+        symbolOccurrences: symbolOccurrences.map(o => ({
+          id: o.id,
+          displayName: o.displayName,
+          type: o.type,
+          filePath: o.filePath,
+          lineNumber: o.lineNumber,
+          context: o.context,
+        })),
+        dependencies: {
+          perNode: dependencyMap,
+          chain: symbolDependencies,
+        },
+        references: references,
+        staticRuntimeDependencies,
+        implicitDependencies,
+        personalizedInsights,
+        llmContext: {
+          currentFile,
+          lineRange: lineRange || null,
+          selectedSnippet: selectedSnippet || normalizedSelectedText,
+          surroundingContext: surroundingContext || null,
+        },
+        llmAnalysis: llmAnalysis,
+      },
+    });
+  } catch (error) {
+    console.error("Error in analyzeDependenciesWithIntelligence:", error);
     next(error);
   }
 };
