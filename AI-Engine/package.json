@@ -1,0 +1,18 @@
+{
+  "name": "ai-engine-static-parser",
+  "version": "1.0.0",
+  "description": "Pure static code-analysis pipeline using Tree-sitter to extract dependency graphs.",
+  "main": "src/index.js",
+  "type": "commonjs",
+  "scripts": {
+    "analyze": "node src/index.js",
+    "analyze:demo": "node src/index.js --repo ../Backend --out ./output/dependency-graph.json",
+    "analyze:with-llm": "node src/index.js --repo ../Frontend --out ./output/frontend-graph-with-insights.json --with-llm"
+  },
+  "dependencies": {
+    "dotenv": "^16.6.1",
+    "openai": "^4.104.0",
+    "tree-sitter-wasms": "^0.1.13",
+    "web-tree-sitter": "^0.25.10"
+  }
+}
