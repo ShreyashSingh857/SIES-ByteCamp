@@ -400,8 +400,116 @@ function applyLineLevelEditToContent(content, edit) {
   };
 }
 
-function applyDetailedFileEdits(localRepoPath, detailedPlan) {
+function escapeRegex(value) {
+  return String(value || "").replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function buildRenameRegex(oldName) {
+  const source = String(oldName || "").trim();
+  if (!source) {
+    return null;
+  }
+
+  if (/^[A-Za-z_$][A-Za-z0-9_$]*$/.test(source)) {
+    return new RegExp(`(?<![A-Za-z0-9_$])${escapeRegex(source)}(?![A-Za-z0-9_$])`, "g");
+  }
+
+  return new RegExp(escapeRegex(source), "g");
+}
+
+function applyRenameCandidatesToContent(content, renameCandidates, filePath) {
+  const candidates = Array.isArray(renameCandidates) ? renameCandidates : [];
+  const originalLines = String(content || "").split(/\r?\n/);
+  const updatedLines = [...originalLines];
+  const appliedEdits = [];
+  const skippedEdits = [];
+
+  for (const candidate of candidates) {
+    const oldName = String(candidate?.oldName || "").trim();
+    const newName = String(candidate?.newName || "").trim();
+    const confidence = String(candidate?.confidence || "MEDIUM").toUpperCase();
+
+    if (!oldName || !newName || oldName === newName) {
+      continue;
+    }
+
+    if (confidence === "LOW") {
+      skippedEdits.push({
+        filePath,
+        lineNumber: 0,
+        oldText: oldName,
+        newText: newName,
+        symbol: oldName,
+        editType: "rename",
+        confidence,
+        reason: candidate?.reason || "Skipped low-confidence rename candidate",
+      });
+      continue;
+    }
+
+    const regex = buildRenameRegex(oldName);
+    if (!regex) {
+      continue;
+    }
+
+    let changedInThisCandidate = false;
+
+    for (let index = 0; index < updatedLines.length; index += 1) {
+      const line = updatedLines[index];
+      if (!regex.test(line)) {
+        regex.lastIndex = 0;
+        continue;
+      }
+      regex.lastIndex = 0;
+
+      const replaced = line.replace(regex, newName);
+      if (replaced !== line) {
+        changedInThisCandidate = true;
+        updatedLines[index] = replaced;
+        appliedEdits.push({
+          filePath,
+          lineNumber: index + 1,
+          oldText: line.trim().slice(0, 200),
+          newText: replaced.trim().slice(0, 200),
+          symbol: oldName,
+          editType: "rename",
+          confidence,
+          reason: candidate?.reason || `Auto-propagated rename: ${oldName} -> ${newName}`,
+        });
+      }
+    }
+
+    if (!changedInThisCandidate) {
+      skippedEdits.push({
+        filePath,
+        lineNumber: 0,
+        oldText: oldName,
+        newText: newName,
+        symbol: oldName,
+        editType: "rename",
+        confidence,
+        reason: candidate?.reason || "Symbol not found in this file",
+      });
+    }
+  }
+
+  return {
+    content: updatedLines.join("\n"),
+    changed: updatedLines.join("\n") !== originalLines.join("\n"),
+    appliedEdits,
+    skippedEdits,
+  };
+}
+
+function applyDetailedFileEdits(localRepoPath, detailedPlan, options = {}) {
   const edits = Array.isArray(detailedPlan?.plan?.fileEdits) ? detailedPlan.plan.fileEdits : [];
+  const renameCandidates = Array.isArray(detailedPlan?.plan?.renameCandidates)
+    ? detailedPlan.plan.renameCandidates
+    : [];
+  const candidateFiles = Array.isArray(options.candidateFiles)
+    ? options.candidateFiles.map((item) => normalizeRepoFilePath(item)).filter(Boolean)
+    : [];
+
   const groupedByFile = new Map();
 
   for (const edit of edits) {
@@ -420,6 +528,12 @@ function applyDetailedFileEdits(localRepoPath, detailedPlan) {
   const appliedEdits = [];
   const skippedEdits = [];
 
+  for (const filePath of candidateFiles) {
+    if (!groupedByFile.has(filePath)) {
+      groupedByFile.set(filePath, []);
+    }
+  }
+
   for (const [relativePath, fileEdits] of groupedByFile.entries()) {
     const absolute = path.resolve(localRepoPath, relativePath);
     if (!absolute.startsWith(localRepoPath) || !fs.existsSync(absolute) || !fs.statSync(absolute).isFile()) {
@@ -437,10 +551,27 @@ function applyDetailedFileEdits(localRepoPath, detailedPlan) {
       if (result.applied) {
         content = result.content;
         fileChanged = true;
-        appliedEdits.push(edit);
+        appliedEdits.push({
+          filePath: relativePath,
+          ...edit,
+        });
       } else {
-        skippedEdits.push({ ...edit, reason: edit.reason || "Exact text not found" });
+        skippedEdits.push({
+          filePath: relativePath,
+          ...edit,
+          reason: edit.reason || "Exact text not found",
+        });
       }
+    }
+
+    if (renameCandidates.length > 0) {
+      const renameResult = applyRenameCandidatesToContent(content, renameCandidates, relativePath);
+      content = renameResult.content;
+      if (renameResult.changed) {
+        fileChanged = true;
+      }
+      appliedEdits.push(...renameResult.appliedEdits);
+      skippedEdits.push(...renameResult.skippedEdits);
     }
 
     if (fileChanged) {
@@ -1875,9 +2006,14 @@ export const saveEditedFileContent = async (req, res, next) => {
       });
 
       if (autoApplyRelatedChanges && llmDetailedImpact?.status === "completed") {
+        const candidateFiles = [
+          normalizedFilePath,
+          ...relatedFiles.map((item) => item.filePath),
+        ];
+
         relatedAutoApply = {
           enabled: true,
-          ...applyDetailedFileEdits(localRepoPath, llmDetailedImpact),
+          ...applyDetailedFileEdits(localRepoPath, llmDetailedImpact, { candidateFiles }),
         };
       }
     }

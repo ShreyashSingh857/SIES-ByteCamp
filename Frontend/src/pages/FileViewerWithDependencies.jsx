@@ -498,6 +498,8 @@ const DependencyPanel = ({
     const renameCandidates = Array.isArray(detailedPlan?.renameCandidates) ? detailedPlan.renameCandidates : [];
     const detailedFileEdits = Array.isArray(detailedPlan?.fileEdits) ? detailedPlan.fileEdits : [];
     const autoApplySummary = lastSaveResult?.relatedAutoApply || null;
+    const appliedAutoEdits = Array.isArray(autoApplySummary?.appliedEdits) ? autoApplySummary.appliedEdits : [];
+    const skippedAutoEdits = Array.isArray(autoApplySummary?.skippedEdits) ? autoApplySummary.skippedEdits : [];
 
     return (
         <div
@@ -644,6 +646,40 @@ const DependencyPanel = ({
                         <div className="text-xs" style={{ color: 'var(--text-muted)' }}>
                             Applied: {autoApplySummary.appliedCount || 0} · Skipped: {autoApplySummary.skippedCount || 0}
                         </div>
+
+                        {appliedAutoEdits.length > 0 && (
+                            <div style={{ marginTop: '0.45rem' }}>
+                                <div className="text-xs" style={{ color: '#22c55e', fontWeight: 600, marginBottom: '0.25rem' }}>
+                                    Applied changes
+                                </div>
+                                <div style={{ display: 'grid', gap: '0.3rem', maxHeight: '150px', overflowY: 'auto' }}>
+                                    {appliedAutoEdits.slice(0, 20).map((edit, index) => (
+                                        <div key={`${edit.filePath || 'file'}-${edit.lineNumber || 0}-${index}`} className="text-xs" style={{ color: 'var(--text-muted)' }}>
+                                            <div style={{ color: 'var(--text)' }}>
+                                                {edit.filePath || 'unknown'}{edit.lineNumber ? `:L${edit.lineNumber}` : ''}
+                                            </div>
+                                            <div>Old: {String(edit.oldText || '').slice(0, 90) || '—'}</div>
+                                            <div style={{ color: '#22c55e' }}>New: {String(edit.newText || '').slice(0, 90) || '—'}</div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+
+                        {skippedAutoEdits.length > 0 && (
+                            <div style={{ marginTop: '0.45rem' }}>
+                                <div className="text-xs" style={{ color: '#f59e0b', fontWeight: 600, marginBottom: '0.25rem' }}>
+                                    Skipped changes
+                                </div>
+                                <div style={{ display: 'grid', gap: '0.25rem', maxHeight: '110px', overflowY: 'auto' }}>
+                                    {skippedAutoEdits.slice(0, 10).map((edit, index) => (
+                                        <div key={`skipped-${edit.filePath || 'file'}-${index}`} className="text-xs" style={{ color: 'var(--text-muted)' }}>
+                                            {(edit.filePath || 'unknown')} · {edit.reason || 'Skipped'}
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
                     </div>
                 )}
 
