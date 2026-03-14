@@ -5,6 +5,13 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
+// Neo4j verification
+import driver from './src/config/neo4j.js';
+
+driver.verifyConnectivity()
+  .then(() => console.log('✅ Neo4j connected'))
+  .catch((err) => console.error('❌ Neo4j connection failed:', err));
+
 // Route imports
 import helpRouter from "./src/routes/help.routes.js";
 import scanRouter from "./src/routes/scan.routes.js";
