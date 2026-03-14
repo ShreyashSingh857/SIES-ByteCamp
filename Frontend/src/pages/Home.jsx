@@ -1,9 +1,8 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Upload, GitBranch, Zap, Database, FileCode, ArrowRight, Activity, HelpCircle } from 'lucide-react';
+import { Upload, GitBranch, Zap, Database, FileCode, ArrowRight } from 'lucide-react';
 import { useSelector } from 'react-redux';
 import { useAuth } from '../contexts/AuthContext';
-import { useGetHealthQuery } from '../store/slices/apiSlice';
 
 const StatCard = ({ icon: Icon, label, value, color }) => (
   <div className="card flex items-center gap-4">
@@ -46,34 +45,19 @@ const Home = () => {
   const { user } = useAuth();
   const repos = useSelector((s) => s.graph.repos);
   const graphData = useSelector((s) => s.graph.graphData);
-  const { data: healthData, isLoading: healthLoading } = useGetHealthQuery(undefined, {
-    pollingInterval: 60000, // Poll every minute
-  });
 
   const scannedRepos = repos.filter((r) => r.status === 'scanned');
 
   return (
     <div className="max-w-5xl mx-auto space-y-6">
       {/* Greeting */}
-      {/* Greeting & Health Status */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h2 className="font-display font-semibold text-lg" style={{ color: 'var(--text)' }}>
-            Welcome back, {user?.name?.split(' ')[0] || 'there'} 👋
-          </h2>
-          <p className="text-sm mt-0.5" style={{ color: 'var(--text-muted)' }}>
-            Here's a snapshot of your polyglot dependency landscape.
-          </p>
-        </div>
-        
-        {/* Backend status indicator */}
-        <div className="flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium" style={{ background: 'var(--card)', border: '1px solid var(--border)', color: 'var(--text-muted)' }}>
-          <Activity size={14} style={{ color: healthData?.status === 'healthy' ? '#22c55e' : healthLoading ? '#3b82f6' : '#ef4444' }} />
-          <span>API Status: </span>
-          <span style={{ color: healthData?.status === 'healthy' ? '#22c55e' : healthLoading ? '#3b82f6' : '#ef4444' }}>
-             {healthLoading ? 'Checking...' : healthData?.status || 'Offline'}
-          </span>
-        </div>
+      <div>
+        <h2 className="font-display font-semibold text-lg" style={{ color: 'var(--text)' }}>
+          Welcome back, {user?.name?.split(' ')[0] || 'there'} 👋
+        </h2>
+        <p className="text-sm mt-0.5" style={{ color: 'var(--text-muted)' }}>
+          Here's a snapshot of your polyglot dependency landscape.
+        </p>
       </div>
 
       {/* Stats */}
@@ -89,7 +73,7 @@ const Home = () => {
         <h3 className="text-xs font-semibold uppercase tracking-wider mb-3" style={{ color: 'var(--text-muted)' }}>
           Quick Actions
         </h3>
-        <div className="grid sm:grid-cols-4 gap-3">
+        <div className="grid sm:grid-cols-3 gap-3">
           <QuickAction
             icon={Upload}     label="Upload Repos"   sub="Connect a GitHub repo to scan"
             to="/upload"      color="#3b82f6"        navigate={navigate}
@@ -101,10 +85,6 @@ const Home = () => {
           <QuickAction
             icon={Zap}        label="Impact Sim"     sub="Select a node and trace ripples"
             to="/impact"      color="#f59e0b"        navigate={navigate}
-          />
-          <QuickAction
-            icon={HelpCircle} label="Help Center"    sub="Browse FAQs and support"
-            to="/help"        color="#a855f7"        navigate={navigate}
           />
         </div>
       </div>

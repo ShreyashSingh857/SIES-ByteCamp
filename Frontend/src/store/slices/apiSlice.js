@@ -35,31 +35,6 @@ export const apiSlice = createApi({
       providesTags: ['Graph'],
       transformResponse: (response) => response.data,
     }),
-
-    // IMPACT ENDPOINT
-    getImpactAnalysis: builder.query({
-      query: (nodeId) => `/impact?nodeId=${nodeId}`,
-      transformResponse: (response) => response.data,
-    }),
-
-    // HEALTH ENDPOINT
-    getHealth: builder.query({
-      query: () => '/health',
-    }),
-
-    // HELP ENDPOINTS
-    getHelpTopics: builder.query({
-      query: () => '/help',
-      transformResponse: (response) => response.data,
-    }),
-    searchHelp: builder.query({
-      query: (keyword) => `/help/search?q=${keyword}`,
-      transformResponse: (response) => response.data,
-    }),
-    getHelpTopicById: builder.query({
-      query: (id) => `/help/${id}`,
-      transformResponse: (response) => response.data,
-    }),
   }),
 });
 
@@ -67,9 +42,4 @@ export const apiSlice = createApi({
 export const {
   useScanRepoMutation,
   useGetGraphQuery,
-  useGetImpactAnalysisQuery,
-  useGetHealthQuery,
-  useGetHelpTopicsQuery,
-  useSearchHelpQuery,
-  useGetHelpTopicByIdQuery,
 } = apiSlice;
