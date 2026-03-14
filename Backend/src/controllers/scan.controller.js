@@ -5,6 +5,13 @@ import { fileURLToPath } from "url";
 import { execFile } from "child_process";
 import { promisify } from "util";
 
+// In-memory storage for the latest scanned graph
+let latestGraphData = {
+  nodes: [],
+  edges: [],
+  summary: null,
+};
+
 const execFileAsync = promisify(execFile);
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -52,7 +59,7 @@ export const postScan = async (req, res, next) => {
 
     const { stdout } = await execFileAsync(
       process.execPath,
-      [AI_ENGINE_ENTRY, "--repo", cloneDir],
+      [AI_ENGINE_ENTRY, "--repo", cloneDir, "--with-llm"],
       {
         cwd: PROJECT_ROOT,
         maxBuffer: 20 * 1024 * 1024,
@@ -62,6 +69,14 @@ export const postScan = async (req, res, next) => {
     let parserResult = null;
     try {
       parserResult = JSON.parse(stdout);
+      // Store the parsed result in-memory for getGraph to serve
+      if (parserResult.nodes && parserResult.edges) {
+        latestGraphData = {
+          nodes: parserResult.nodes,
+          edges: parserResult.edges,
+          summary: parserResult.summary || null,
+        };
+      }
     } catch {
       parserResult = { raw: stdout };
     }
@@ -94,10 +109,7 @@ export const getGraph = async (_req, res, next) => {
   try {
     res.status(200).json({
       success: true,
-      data: {
-        nodes: [],
-        edges: [],
-      },
+      data: latestGraphData,
     });
   } catch (error) {
     next(error);
@@ -109,13 +121,52 @@ export const getGraph = async (_req, res, next) => {
  * @route   GET /api/impact
  * @access  Public
  */
-export const getImpact = async (_req, res, next) => {
+export const getImpact = async (req, res, next) => {
   try {
+    const { nodeId } = req.query;
+    if (!nodeId) {
+      return res.status(400).json({
+        success: false,
+        message: "nodeId is required for impact analysis",
+      });
+    }
+
+    const { edges } = latestGraphData;
+    const directImpact = new Set();
+
+    edges.forEach((edge) => {
+      if (edge.source === nodeId) directImpact.add(edge.target);
+      if (edge.target === nodeId) directImpact.add(edge.source);
+    });
+
+    const visited = new Set([nodeId, ...directImpact]);
+    const queue = [...directImpact];
+    const transitiveImpact = new Set();
+
+    while (queue.length > 0) {
+      const current = queue.shift();
+      edges.forEach((edge) => {
+        const neighbor =
+          edge.source === current
+            ? edge.target
+            : edge.target === current
+            ? edge.source
+            : null;
+
+        if (neighbor && !visited.has(neighbor)) {
+          visited.add(neighbor);
+          transitiveImpact.add(neighbor);
+          queue.push(neighbor);
+        }
+      });
+    }
+
     res.status(200).json({
       success: true,
       data: {
-        impactedModules: [],
-        summary: "No impact detected",
+        directImpact: [...directImpact],
+        transitiveImpact: [...transitiveImpact],
+        summary: `Impact analysis for node ${nodeId} completed across ${directImpact.size} direct and ${transitiveImpact.size} transitive connections.`,
       },
     });
   } catch (error) {
