@@ -76,7 +76,7 @@ const UploadRepo = () => {
 
   const scanRepos = async () => {
     const pending = repos.filter((r) => r.status === 'pending');
-    if (pending.length === 0) { navigate('/graph'); return; }
+    if (pending.length === 0) { navigate('/analyze'); return; }
 
     dispatch(setScanStatus('scanning'));
     dispatch(setScanProgress(0));
@@ -122,7 +122,7 @@ const UploadRepo = () => {
       }
 
       dispatch(setScanStatus('done'));
-      navigate('/graph');
+      navigate('/analyze');
     } catch (err) {
       console.error('Scan error:', err);
       setError(err?.data?.message || err?.message || 'Failed to scan repository.');
@@ -275,7 +275,7 @@ const UploadRepo = () => {
           {scanning ? (
             <><Loader2 size={15} className="animate-spin" /> Scanning…</>
           ) : (
-            <><GitBranch size={15} /> {pendingCount > 0 ? 'Scan & Build Graph' : 'View Graph'}</>
+            <><GitBranch size={15} /> {pendingCount > 0 ? 'Scan & Build Graph' : 'View Analyze'}</>
           )}
         </button>
       </div>

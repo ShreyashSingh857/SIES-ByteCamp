@@ -1,12 +1,13 @@
 import React from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
-import { Upload, GitBranch, Zap, Home, LogOut, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Upload, LayoutGrid, GitBranch, Zap, Home, LogOut, ChevronLeft, ChevronRight } from 'lucide-react';
 import Logo from '../Logo';
 import { useAuth } from '../../contexts/AuthContext';
 
 const NAV_ITEMS = [
   { to: '/home',          icon: Home,       label: 'Dashboard'    },
   { to: '/upload',        icon: Upload,     label: 'Upload Repos' },
+  { to: '/analyze',       icon: LayoutGrid, label: 'Analyze'      },
   { to: '/graph',         icon: GitBranch,  label: 'Graph View'   },
   { to: '/impact',        icon: Zap,        label: 'Impact Panel' },
 ];
