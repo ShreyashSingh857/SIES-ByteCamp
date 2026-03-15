@@ -20,6 +20,7 @@ import importRouter from "./src/routes/import.routes.js";
 import webhookRouter from "./src/routes/webhook.routes.js";
 import sseRouter from "./src/routes/sse.routes.js";
 import { startWebhookWorker } from "./src/workers/webhook.worker.js";
+import { stopAllLocalWatchers } from "./src/services/localWatcher.service.js";
 
 const app = express();
 
@@ -78,6 +79,16 @@ app.use((err, _req, res, _next) => {
   const message = err.message || "Internal Server Error";
   console.error(`[ERROR] ${status} - ${message}`);
   res.status(status).json({ success: false, message });
+});
+
+// Graceful shutdown: stop all file watchers when the process exits.
+process.on("SIGTERM", () => {
+  stopAllLocalWatchers();
+  process.exit(0);
+});
+process.on("SIGINT", () => {
+  stopAllLocalWatchers();
+  process.exit(0);
 });
 
 export default app;
