@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import cytoscape from 'cytoscape';
+import fcose from 'cytoscape-fcose';
 import { Filter, RefreshCw, ZoomIn, ZoomOut, Maximize2, Info, Search } from 'lucide-react';
 import { setSelectedNode, clearSelection, setGraphData, setFilterLangs, setFilterTypes, applyGraphPatch } from '../store/index';
 import { apiSlice, useGetGraphQuery } from '../store/slices/apiSlice';
@@ -14,6 +15,8 @@ import dbFieldIcon from '../assets/Icons/DBField.svg';
 import apiContractIcon from '../assets/Icons/APIContract.svg';
 import { buildDisplayGraph, computeNodeSizesByDepth, getDefaultVisibleTypes, normalizeEdgeType, normalizeNodeType } from './graphViewUtils';
 import { buildFileGraph, computeFileSizes } from './buildFileGraph';
+
+cytoscape.use(fcose);
 
 const GRAPH_NODE_TYPE_CONFIG = {
   service: { label: 'Service', color: '#1d4ed8', border: '#3b82f6', shape: 'round-rectangle', icon: serviceIcon },
@@ -134,7 +137,9 @@ const buildFileCyStyle = () => [
       'font-size': '11px',
       'font-weight': 'bold',
       color: 'data(borderColor)',
-      padding: '30px',
+      padding: '45px',
+      'min-width': '120px',
+      'min-height': '80px',
       'compound-sizing-wrt-labels': 'include',
     },
   },
@@ -163,6 +168,51 @@ const buildFileCyStyle = () => [
     selector: 'node[type = "file"].show-label',
     style: {
       label: 'data(label)',
+    },
+  },
+  {
+    selector: 'node[type = "file"].dependency-parent',
+    style: {
+      shape: 'round-rectangle',
+      width: '80px',
+      height: '55px',
+      'background-image': 'none',
+      'background-opacity': 0.04,
+      'border-width': '1.5px',
+      'border-style': 'dashed',
+      'border-color': 'data(borderColor)',
+      'background-color': 'data(bgColor)',
+      label: 'data(label)',
+      'text-valign': 'top',
+      'text-halign': 'center',
+      'font-size': '11px',
+      'font-weight': 'bold',
+      color: 'data(borderColor)',
+      padding: '50px',
+      'min-width': '140px',
+      'min-height': '90px',
+      'compound-sizing-wrt-labels': 'include',
+    },
+  },
+  {
+    selector: 'node[type = "file"].dependency-imports',
+    style: {
+      'border-width': '2px',
+      'border-color': '#3b82f6',
+    },
+  },
+  {
+    selector: 'node[type = "file"].dependency-importers',
+    style: {
+      'border-width': '2px',
+      'border-color': '#f97316',
+    },
+  },
+  {
+    selector: 'node[type = "file"].dependency-bidirectional',
+    style: {
+      'border-width': '2px',
+      'border-color': '#a855f7',
     },
   },
   {
@@ -207,6 +257,24 @@ const buildFileCyStyle = () => [
       'line-color': '#22c55e',
       'target-arrow-color': '#22c55e',
       'line-style': 'dashed',
+    },
+  },
+  {
+    selector: 'edge.dependency-outgoing',
+    style: {
+      'line-color': '#3b82f6',
+      'target-arrow-color': '#3b82f6',
+      'line-style': 'solid',
+      opacity: 0.7,
+    },
+  },
+  {
+    selector: 'edge.dependency-incoming',
+    style: {
+      'line-color': '#f97316',
+      'target-arrow-color': '#f97316',
+      'line-style': 'dashed',
+      opacity: 0.7,
     },
   },
   { selector: 'node.selected', style: { 'border-width': '3px', 'border-color': '#ef4444', 'overlay-color': '#ef4444', 'overlay-opacity': 0.08 } },
@@ -352,74 +420,101 @@ const GraphView = () => {
       const parentFile = fileGraph.fileNodes.find((node) => node.id === drillDownFileId);
       if (!parentFile) return [];
 
-      const childFunctions = fileGraph.fileFunctions.get(drillDownFileId) || [];
-      const neighborFileIds = new Set();
-      fileGraph.fileEdges.forEach((edge) => {
-        if (edge.source === drillDownFileId) neighborFileIds.add(edge.target);
-        if (edge.target === drillDownFileId) neighborFileIds.add(edge.source);
+      const dependencyEdges = fileGraph.fileEdges.filter((edge) => edge.source === drillDownFileId || edge.target === drillDownFileId);
+      const importedIds = new Set();
+      const importerIds = new Set();
+      dependencyEdges.forEach((edge) => {
+        if (edge.source === drillDownFileId) importedIds.add(edge.target);
+        if (edge.target === drillDownFileId) importerIds.add(edge.source);
       });
 
-      const neighborFiles = fileGraph.fileNodes.filter((node) => neighborFileIds.has(node.id));
+      const dependencyNodeIds = new Set([...importedIds, ...importerIds]);
+      const groupByNodeId = new Map();
+      dependencyNodeIds.forEach((nodeId) => {
+        const isImported = importedIds.has(nodeId);
+        const isImporter = importerIds.has(nodeId);
+        if (isImported && isImporter) groupByNodeId.set(nodeId, 'bidirectional');
+        else if (isImported) groupByNodeId.set(nodeId, 'imports');
+        else groupByNodeId.set(nodeId, 'importers');
+      });
+
+      const dependentFiles = fileGraph.fileNodes
+        .filter((node) => dependencyNodeIds.has(node.id))
+        .sort((a, b) => a.label.localeCompare(b.label));
+
+      const grouped = { imports: [], importers: [], bidirectional: [] };
+      dependentFiles.forEach((node) => {
+        const group = groupByNodeId.get(node.id) || 'imports';
+        grouped[group].push(node);
+      });
+
       const parentCfg = CLUSTER_CONFIG[parentFile.cluster] || CLUSTER_CONFIG.Other;
-      const elements = [
-        {
-          data: {
-            id: drillDownFileId,
-            label: parentFile.label,
-            type: 'file',
-            path: parentFile.path,
-            lang: parentFile.lang,
-            cluster: parentFile.cluster,
-            icon: fileIcon,
-            borderColor: parentCfg.border,
-            bgColor: parentCfg.bg,
-            nodeSize: 48,
-          },
-          classes: 'selected show-label',
+      const elements = [];
+
+      elements.push({
+        data: {
+          id: drillDownFileId,
+          label: parentFile.label,
+          type: 'file',
+          path: parentFile.path,
+          lang: parentFile.lang,
+          cluster: parentFile.cluster,
+          borderColor: parentCfg.border,
+          bgColor: parentCfg.bg,
+          nodeSize: 48,
         },
-      ];
+        position: { x: 0, y: 0 },
+        classes: 'dependency-parent selected show-label',
+      });
 
-      childFunctions.forEach((fn) => {
-        elements.push({
-          data: {
-            id: fn.id,
-            label: fn.label,
-            type: 'function',
-            parent: drillDownFileId,
-          },
+      const spacingY = 85;
+      const groupX = {
+        imports: -220,
+        bidirectional: 0,
+        importers: 220,
+      };
+
+      const buildPosition = (group, index, count) => {
+        const offset = (index - (count - 1) / 2) * spacingY;
+        return { x: groupX[group], y: offset + 30 };
+      };
+
+      ['imports', 'bidirectional', 'importers'].forEach((group) => {
+        grouped[group].forEach((node, index) => {
+          const cfg = CLUSTER_CONFIG[node.cluster] || CLUSTER_CONFIG.Other;
+          const className = group === 'imports'
+            ? 'dependency-imports'
+            : group === 'importers'
+              ? 'dependency-importers'
+              : 'dependency-bidirectional';
+
+          elements.push({
+            data: {
+              id: node.id,
+              label: node.label,
+              type: 'file',
+              path: node.path,
+              lang: node.lang,
+              cluster: node.cluster,
+              icon: fileIcon,
+              borderColor: cfg.border,
+              bgColor: cfg.bg,
+              nodeSize: fileSizes.get(node.id) || 36,
+              parent: drillDownFileId,
+              dependencyGroup: group,
+            },
+            position: buildPosition(group, index, grouped[group].length),
+            classes: `show-label ${className}`,
+          });
         });
       });
 
-      const childIds = new Set(childFunctions.map((item) => item.id));
-      fileGraph.callEdges.forEach((edge) => {
-        if (childIds.has(edge.source) && childIds.has(edge.target)) {
-          elements.push({ data: { ...edge, count: edge.count || 1 } });
-        }
-      });
-
-      neighborFiles.forEach((node) => {
-        const cfg = CLUSTER_CONFIG[node.cluster] || CLUSTER_CONFIG.Other;
+      dependencyEdges.forEach((edge) => {
+        const directionClass = edge.source === drillDownFileId ? 'dependency-outgoing' : 'dependency-incoming';
         elements.push({
-          data: {
-            id: node.id,
-            label: node.label,
-            type: 'file',
-            path: node.path,
-            lang: node.lang,
-            cluster: node.cluster,
-            icon: fileIcon,
-            borderColor: cfg.border,
-            bgColor: cfg.bg,
-            nodeSize: fileSizes.get(node.id) || 36,
-          },
-          classes: 'show-label',
+          data: { ...edge, count: edge.count || 1 },
+          classes: directionClass,
         });
-      });
-
-      fileGraph.fileEdges.forEach((edge) => {
-        if (edge.source === drillDownFileId || edge.target === drillDownFileId) {
-          elements.push({ data: { ...edge, count: edge.count || 1 } });
-        }
       });
 
       return elements;
@@ -683,15 +778,8 @@ const GraphView = () => {
           ? { nodes: fileGraphRef.current.fileNodes, edges: fileGraphRef.current.fileEdges }
           : { nodes: [], edges: [] };
 
-        if (id === selectedNodeRef.current) {
-          dispatch(clearSelection());
-          return;
-        }
-
         dispatch(setSelectedNode({ id, graphData: payloadGraph }));
-        if (drillDownFileIdRef.current) {
-          setDrillDownFileId(id);
-        }
+        setDrillDownFileId(id);
         return;
       }
 
@@ -739,14 +827,37 @@ const GraphView = () => {
       });
 
       const layout = drillDownFileId
-        ? { name: 'cose', animate: false, randomize: true, nodeRepulsion: 40000, idealEdgeLength: 140, fit: true, padding: 80 }
-        : { name: 'cose', animate: false, randomize: false, nodeRepulsion: 60000, idealEdgeLength: 200, gravity: 0.06, numIter: 1800, fit: true, padding: 100 };
+        ? {
+            name: 'preset',
+            animate: false,
+            fit: true,
+            padding: 60,
+          }
+        : {
+            name: 'fcose',
+            animate: false,
+            randomize: true,
+            idealEdgeLength: 180,
+            nodeRepulsion: () => 6500,
+            edgeElasticity: () => 0.45,
+            nestingFactor: 0.1,
+            gravity: 0.25,
+            gravityRange: 3.8,
+            gravityCompound: 1.0,
+            gravityRangeCompound: 1.5,
+            numIter: 2500,
+            tile: true,
+            tilingPaddingVertical: 40,
+            tilingPaddingHorizontal: 40,
+            fit: true,
+            padding: 60,
+            uniformNodeDimensions: false,
+          };
 
       const layoutKey = `files-${drillDownFileId || 'overview'}-${elements.length}`;
       if (layoutKey !== layoutKeyRef.current) {
         layoutKeyRef.current = layoutKey;
         cy.layout(layout).run();
-        cy.fit(undefined, 80);
         setViewportZoom(Number(cy.zoom().toFixed(2)));
       }
       return;
@@ -1155,7 +1266,10 @@ const GraphView = () => {
             <span className="inline-block w-5" style={{ borderTop: '2px solid #3b82f6' }} /> Imports
           </div>
           <div className="flex items-center gap-1.5 text-xs" style={{ color: 'var(--text-muted)' }}>
-            <span className="inline-block w-5" style={{ borderTop: '2px dashed #22c55e' }} /> Calls (drill-down)
+            <span className="inline-block w-5" style={{ borderTop: '2px dashed #f97316' }} /> Importers
+          </div>
+          <div className="flex items-center gap-1.5 text-xs" style={{ color: 'var(--text-muted)' }}>
+            <span className="w-3 h-3 rounded-sm border-2 inline-block" style={{ borderColor: '#a855f7' }} /> Bidirectional
           </div>
         </div>
       )}
