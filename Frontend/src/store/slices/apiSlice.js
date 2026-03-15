@@ -76,6 +76,34 @@ export const apiSlice = createApi({
       transformResponse: (response) => response.data,
     }),
 
+    // GET /api/editor/file?repoId=...&filePath=... — read local editable file content
+    getEditableFile: builder.query({
+      query: ({ repoId, filePath }) =>
+        `/editor/file?repoId=${encodeURIComponent(repoId)}&filePath=${encodeURIComponent(filePath)}`,
+      transformResponse: (response) => response.data,
+    }),
+
+    // POST /api/editor/impact-preview — preview impact for unsaved editor changes
+    previewEditorImpact: builder.mutation({
+      query: (body) => ({
+        url: '/editor/impact-preview',
+        method: 'POST',
+        body,
+      }),
+      transformResponse: (response) => response.data,
+    }),
+
+    // POST /api/editor/file/save — save file after impact acknowledgement
+    saveEditedFile: builder.mutation({
+      query: (body) => ({
+        url: '/editor/file/save',
+        method: 'POST',
+        body,
+      }),
+      transformResponse: (response) => response.data,
+      invalidatesTags: ['Graph'],
+    }),
+
     // GET /api/health — Liveness check
     getHealth: builder.query({
       query: () => '/health',
@@ -109,6 +137,9 @@ export const {
   useSeedGraphMutation,
   useGetMetricsQuery,
   useGetFileRelationsQuery,
+  useGetEditableFileQuery,
+  usePreviewEditorImpactMutation,
+  useSaveEditedFileMutation,
   useGetHealthQuery,
   useGetHelpTopicsQuery,
   useSearchHelpQuery,
