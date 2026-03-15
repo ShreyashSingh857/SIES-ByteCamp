@@ -109,4 +109,25 @@ export const requestAPI = {
     getPreventive: (params) => api.get('/requests/preventive', { params }),
 };
 
+// Chat API
+export async function sendChatMessage(sessionId, content, repoId = null, scanId = null) {
+    const response = await api.post(`/chat/${sessionId}/messages`, { content, repoId, scanId });
+    return response.data;
+}
+
+export async function createChatSession(repoId = null, scanId = null, title = 'Dependency Assistant') {
+    const response = await api.post('/chat', { repoId, scanId, title });
+    return response.data;
+}
+
+export async function getChatSessionHistory(sessionId) {
+    const response = await api.get(`/chat/${sessionId}`);
+    return response.data;
+}
+
+export async function resolveChatFileContext(sessionId, filePath, repoId = null, scanId = null) {
+    const response = await api.post(`/chat/${sessionId}/resolve-file`, { filePath, repoId, scanId });
+    return response.data;
+}
+
 export default api;

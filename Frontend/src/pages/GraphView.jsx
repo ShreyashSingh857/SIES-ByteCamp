@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import cytoscape from 'cytoscape';
 import fcose from 'cytoscape-fcose';
-import { Filter, RefreshCw, ZoomIn, ZoomOut, Maximize2, Info, Search } from 'lucide-react';
+import { Filter, RefreshCw, ZoomIn, ZoomOut, Maximize2, Info, Search, MessageCircle, X } from 'lucide-react';
 import { setSelectedNode, clearSelection, setGraphData, setFilterLangs, setFilterTypes, applyGraphPatch } from '../store/index';
 import { apiSlice, useGetGraphQuery } from '../store/slices/apiSlice';
 import serviceIcon from '../assets/Icons/Service.svg';
@@ -15,6 +15,7 @@ import dbFieldIcon from '../assets/Icons/DBField.svg';
 import apiContractIcon from '../assets/Icons/APIContract.svg';
 import { buildDisplayGraph, computeNodeSizesByDepth, getDefaultVisibleTypes, normalizeEdgeType, normalizeNodeType } from './graphViewUtils';
 import { buildFileGraph, computeFileSizes } from './buildFileGraph';
+import DependencyChatPanel from '../components/ui/DependencyChatPanel';
 
 cytoscape.use(fcose);
 
@@ -304,6 +305,7 @@ const GraphView = () => {
   const filterTypes       = useSelector((s) => s.graph.filterTypes);
   const filterLangs       = useSelector((s) => s.graph.filterLangs);
   const currentRepoId     = useSelector((s) => s.graph.currentRepoId);
+  const currentScanId     = useSelector((s) => s.graph.currentScanId);
   const storedGraphData   = useSelector((s) => s.graph.graphData);
   const graphDataRepoId   = useSelector((s) => s.graph.graphDataRepoId);
   // Wire up BFS results computed by graphSlice so the canvas highlighting is live
@@ -336,6 +338,7 @@ const GraphView = () => {
 
   const [showLegend, setShowLegend]   = useState(false);
   const [showFilters, setShowFilters] = useState(false);
+  const [chatOpen, setChatOpen] = useState(false);
   const [viewportZoom, setViewportZoom] = useState(1);
   const defaultTypes = useMemo(() => getDefaultVisibleTypes(perspective), [perspective]);
   const effectiveFilterTypes = filterTypes.length > 0 ? filterTypes : defaultTypes;
@@ -1351,6 +1354,35 @@ const GraphView = () => {
       <div className="flex-1 rounded-xl overflow-hidden" style={gridStyle}>
         <div key="graph-2d" ref={containerRef} style={{ width: '100%', height: '100%' }} />
       </div>
+
+      {chatOpen && (
+        <div
+          className="fixed bottom-24 right-4 z-[70] w-[360px] max-w-[calc(100vw-1.5rem)]"
+          style={{
+            background: 'var(--card)',
+            border: '1px solid var(--border)',
+            borderRadius: '0.9rem',
+            boxShadow: themeMode === 'dark' ? '0 16px 40px rgba(2,6,23,0.65)' : '0 14px 32px rgba(15,23,42,0.20)',
+          }}
+        >
+          <DependencyChatPanel repoId={currentRepoId} scanId={currentScanId} onClose={() => setChatOpen(false)} />
+        </div>
+      )}
+
+      <button
+        type="button"
+        aria-label={chatOpen ? 'Close AI chat' : 'Open AI chat'}
+        onClick={() => setChatOpen((v) => !v)}
+        className="fixed bottom-5 right-4 z-[71] flex h-12 w-12 items-center justify-center rounded-full transition-transform hover:scale-105"
+        style={{
+          background: 'var(--card)',
+          color: 'var(--text)',
+          border: '1px solid var(--border)',
+          boxShadow: themeMode === 'dark' ? '0 10px 24px rgba(2,6,23,0.55)' : '0 10px 24px rgba(15,23,42,0.16)',
+        }}
+      >
+        {chatOpen ? <X size={20} /> : <MessageCircle size={20} />}
+      </button>
     </div>
   );
 };

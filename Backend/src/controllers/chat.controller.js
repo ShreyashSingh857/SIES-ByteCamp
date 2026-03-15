@@ -10,6 +10,8 @@ import {
   deleteSession as deleteSessionQuery,
 } from "../db/chat.queries.js";
 import { readStoredGraph } from "../services/scan-workspace.service.js";
+import { extractFilenameFromMessage, resolveFileDependencies } from "../utils/graphResolver.js";
+import { buildChatSystemPrompt, buildFullGraphSummary } from "../utils/chatPromptBuilder.js";
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY || "" });
 
@@ -24,20 +26,6 @@ async function getOwnedSession(sessionId, userId) {
   } finally {
     await session.close();
   }
-}
-
-function buildGraphSummary(repoId) {
-  const graph = repoId ? readStoredGraph(repoId) : null;
-  if (!graph) return "No graph context available.";
-  const nodes = Array.isArray(graph.nodes) ? graph.nodes : [];
-  const edges = Array.isArray(graph.edges) ? graph.edges : [];
-  const top = nodes
-    .filter((n) => n?.type === "FILE")
-    .slice(0, 8)
-    .map((n) => n.name)
-    .filter(Boolean)
-    .join(", ");
-  return `Graph summary: nodes=${nodes.length}, edges=${edges.length}, topFiles=[${top || "none"}]`;
 }
 
 export async function listSessions(req, res, next) {
@@ -72,10 +60,16 @@ export async function getSessionHistory(req, res, next) {
 
 export async function sendMessage(req, res, next) {
   try {
-    if (!process.env.OPENAI_API_KEY) return res.status(500).json({ success: false, message: "OPENAI_API_KEY not configured" });
+    if (!process.env.OPENAI_API_KEY) {
+      return res.status(500).json({ success: false, message: "OPENAI_API_KEY not configured" });
+    }
+
     const { sessionId } = req.params;
-    const { content, repoId: bodyRepoId } = req.body || {};
-    if (!String(content || "").trim()) return res.status(400).json({ success: false, message: "content is required" });
+    const { content, repoId: bodyRepoId, scanId: bodyScanId } = req.body || {};
+
+    if (!String(content || "").trim()) {
+      return res.status(400).json({ success: false, message: "content is required" });
+    }
 
     const owned = await getOwnedSession(sessionId, req.user.id);
     if (!owned) return res.status(403).json({ success: false, message: "Forbidden" });
@@ -90,11 +84,33 @@ export async function sendMessage(req, res, next) {
       tokenCount: Math.ceil(String(content).length / 4),
     });
 
-    const history = await getSessionMessages(sessionId);
     const repoId = bodyRepoId || owned.repoId || null;
-    const systemPrompt = buildGraphSummary(repoId);
+    const scanId = bodyScanId || owned.scanId || null;
+
+    const storedGraph = repoId ? readStoredGraph(repoId) : null;
+    const graphSummary = buildFullGraphSummary(storedGraph);
+
+    const detectedFile = extractFilenameFromMessage(String(content));
+    let fileContext = null;
+
+    if (detectedFile && (scanId || repoId)) {
+      try {
+        fileContext = await resolveFileDependencies({ filePath: detectedFile, scanId, repoId });
+      } catch (err) {
+        console.warn("[chat.controller] Dependency resolution failed:", err.message);
+      }
+    }
+
+    const systemPrompt = buildChatSystemPrompt({
+      graphSummary,
+      fileContext,
+      targetFile: detectedFile,
+      repoId,
+    });
+
+    const history = await getSessionMessages(sessionId);
     const messages = [
-      { role: "system", content: `You are a code assistant for this repository. ${systemPrompt}` },
+      { role: "system", content: systemPrompt },
       ...history.map((m) => ({ role: m.role, content: m.content })),
     ];
 
@@ -116,7 +132,46 @@ export async function sendMessage(req, res, next) {
       tokenCount: completion.usage?.completion_tokens || Math.ceil(assistantText.length / 4),
     });
 
-    return res.status(200).json({ success: true, data: { userMessage, assistantMessage } });
+    return res.status(200).json({
+      success: true,
+      data: {
+        userMessage,
+        assistantMessage,
+        meta: {
+          detectedFile: detectedFile || null,
+          fileContextFound: !!fileContext,
+          fileContextSource: fileContext?.source || null,
+          graphNodes: graphSummary?.nodes || 0,
+          graphEdges: graphSummary?.edges || 0,
+        },
+      },
+    });
+  } catch (e) {
+    return next(e);
+  }
+}
+
+export async function resolveFileContext(req, res, next) {
+  try {
+    const { sessionId } = req.params;
+    const { filePath, repoId: bodyRepoId, scanId: bodyScanId } = req.body || {};
+
+    if (!filePath) {
+      return res.status(400).json({ success: false, message: "filePath is required" });
+    }
+
+    const owned = await getOwnedSession(sessionId, req.user.id);
+    if (!owned) return res.status(403).json({ success: false, message: "Forbidden" });
+
+    const repoId = bodyRepoId || owned.repoId || null;
+    const scanId = bodyScanId || owned.scanId || null;
+    const fileContext = await resolveFileDependencies({ filePath, scanId, repoId });
+
+    if (!fileContext) {
+      return res.status(404).json({ success: false, message: `File "${filePath}" not found in graph` });
+    }
+
+    return res.status(200).json({ success: true, data: fileContext });
   } catch (e) {
     return next(e);
   }
