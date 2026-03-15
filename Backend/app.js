@@ -21,6 +21,7 @@ import webhookRouter from "./src/routes/webhook.routes.js";
 import sseRouter from "./src/routes/sse.routes.js";
 import authRouter from "./src/routes/auth.route.js";
 import userRouter from "./src/routes/user.route.js";
+import chatRouter from "./src/routes/chat.routes.js";
 import { startWebhookWorker } from "./src/workers/webhook.worker.js";
 import { stopAllLocalWatchers } from "./src/services/localWatcher.service.js";
 
@@ -64,6 +65,7 @@ app.get("/api/health", (_req, res) => {
 app.use("/api/help", helpRouter);
 app.use("/api/auth", authRouter);
 app.use("/api/users", userRouter);
+app.use("/api/chat", chatRouter);
 app.use("/api", scanRouter);
 app.use("/api/import", importRouter);
 app.use("/api/webhook", webhookRouter);
