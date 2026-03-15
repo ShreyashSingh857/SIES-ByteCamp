@@ -25,6 +25,7 @@ const PublicRoute = ({ children }) => {
 const Landing = lazy(() => import('./pages/Landing'));
 const Login = lazy(() => import('./pages/Login'));
 const Signup = lazy(() => import('./pages/Signup'));
+const AuthCallback = lazy(() => import('./pages/AuthCallback'));
 const Home = lazy(() => import('./pages/Home'));
 const UploadRepo = lazy(() => import('./pages/UploadRepo'));
 const Analyze = lazy(() => import('./pages/Analyze'));
@@ -41,6 +42,7 @@ function AppRoutes() {
         <Route path="/" element={<Landing />} />
         <Route path="/login"  element={<PublicRoute><Login  /></PublicRoute>} />
         <Route path="/signup" element={<PublicRoute><Signup /></PublicRoute>} />
+        <Route path="/auth/callback" element={<AuthCallback />} />
 
         {/* Protected — share Layout */}
         <Route path="/*" element={<ProtectedRoute><Layout /></ProtectedRoute>}>

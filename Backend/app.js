@@ -19,6 +19,9 @@ import scanRouter from "./src/routes/scan.routes.js";
 import importRouter from "./src/routes/import.routes.js";
 import webhookRouter from "./src/routes/webhook.routes.js";
 import sseRouter from "./src/routes/sse.routes.js";
+import authRouter from "./src/routes/auth.route.js";
+import userRouter from "./src/routes/user.route.js";
+import chatRouter from "./src/routes/chat.routes.js";
 import { startWebhookWorker } from "./src/workers/webhook.worker.js";
 import { stopAllLocalWatchers } from "./src/services/localWatcher.service.js";
 
@@ -42,16 +45,7 @@ app.use(
   })
 );
 app.use(express.urlencoded({ extended: true, limit: "16kb" }));
-app.use(cookieParser());
-
-// ─── Routes ───────────────────────────────────────────────────────────────────
-app.use("/api/help", helpRouter);
-app.use("/api", scanRouter);
-app.use("/api/import", importRouter);
-app.use("/api/webhook", webhookRouter);
-app.use("/api/events", sseRouter);
-
-startWebhookWorker();
+app.use(cookieParser(process.env.COOKIE_SECRET || process.env.JWT_SECRET || 'dev-cookie-secret'));
 
 // ─── Health check ─────────────────────────────────────────────────────────────
 app.get("/", (_req, res) => {
@@ -66,6 +60,18 @@ app.get("/api/health", (_req, res) => {
     timestamp: new Date().toISOString(),
   });
 });
+
+// ─── Routes ───────────────────────────────────────────────────────────────────
+app.use("/api/help", helpRouter);
+app.use("/api/auth", authRouter);
+app.use("/api/users", userRouter);
+app.use("/api/chat", chatRouter);
+app.use("/api/import", importRouter);
+app.use("/api/webhook", webhookRouter);
+app.use("/api/events", sseRouter);
+app.use("/api", scanRouter);
+
+startWebhookWorker();
 
 // ─── 404 handler ──────────────────────────────────────────────────────────────
 app.use((_req, res) => {

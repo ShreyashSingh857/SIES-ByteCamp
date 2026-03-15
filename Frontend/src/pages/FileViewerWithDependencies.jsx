@@ -1007,6 +1007,11 @@ const FileViewerWithDependencies = () => {
             try {
                 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
                 const selectionContext = buildSelectionContext(code, selectedText);
+                const token = localStorage.getItem('accessToken');
+                const authHeaders = {
+                    'Content-Type': 'application/json',
+                    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+                };
 
                 // Prefer Redux scanId, then localStorage fallback.
                 const scanId = currentScanId || localStorage.getItem('currentScanId');
@@ -1020,7 +1025,7 @@ const FileViewerWithDependencies = () => {
                     // Fallback: use basic file-based analysis
                     const response = await fetch(`${API_URL}/analyze/dependencies`, {
                         method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
+                        headers: authHeaders,
                         body: JSON.stringify({
                             repoId: currentRepoId,
                             currentFile: filePath,
@@ -1053,7 +1058,7 @@ const FileViewerWithDependencies = () => {
                 // Use LLM-enhanced analysis with Neo4j
                 const response = await fetch(`${API_URL}/analyze/dependencies-llm`, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: authHeaders,
                     body: JSON.stringify({
                         repoId: currentRepoId,
                         scanId: scanId,

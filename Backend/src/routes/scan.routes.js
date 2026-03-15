@@ -1,4 +1,5 @@
 import { Router } from "express";
+import { requireAuth } from "../middlewares/auth.middleware.js";
 import {
 	postScan,
 	getGraph,
@@ -17,6 +18,8 @@ import {
 import localScanRouter from "./localScan.routes.js";
 
 const router = Router();
+
+router.use(requireAuth);
 
 // POST /api/scan   → trigger a scan
 router.post("/scan", postScan);

@@ -18,6 +18,7 @@ import {
 import { addRepo, removeRepo, updateRepoStatus, setScanStatus, setScanProgress, setCurrentRepoInfo } from '../store/index';
 import { useScanRepoMutation, useSeedGraphMutation } from '../store/slices/apiSlice';
 import { normalizeRepoUrl } from '../lib/utils';
+import RepoPicker from '../components/RepoPicker';
 
 export default function UploadRepo() {
     const dispatch = useDispatch();
@@ -32,6 +33,7 @@ export default function UploadRepo() {
     const [error, setError] = useState('');
     const [mode, setMode] = useState('github'); // 'github' | 'local'
     const [localPath, setLocalPath] = useState('');
+    const [pickerOpen, setPickerOpen] = useState(false);
     const inputRef = useRef(null);
 
     const isValidGitUrl = (u) =>
@@ -67,6 +69,39 @@ export default function UploadRepo() {
     const handleKeyDown = (e) => { if (e.key === 'Enter') handleAdd(); };
 
     const handleRemove = (id) => dispatch(removeRepo(id));
+
+    const handleRepoSelect = ({ url: pickedUrl, branch: pickedBranch }) => {
+        const selectedUrl = normalizeRepoUrl(String(pickedUrl || '').trim());
+        if (!selectedUrl) {
+            setError('Invalid repository selected.');
+            return;
+        }
+        if (repos.some((r) => normalizeRepoUrl(r.url) === selectedUrl)) {
+            setError('This repository has already been added.');
+            return;
+        }
+
+        setError('');
+        setUrl(selectedUrl);
+        setBranch(pickedBranch || 'main');
+
+        const name = selectedUrl.split('/').slice(-1)[0].replace(/\.git$/, '');
+        dispatch(addRepo({
+            id: Date.now(),
+            name,
+            url: selectedUrl,
+            branch: pickedBranch || 'main',
+            langs: [],
+            status: 'pending',
+            nodes: 0,
+            edges: 0,
+            services: 0,
+            schemas: 0,
+            scannedAt: null,
+        }));
+        setUrl('');
+        setBranch('main');
+    };
 
     const scanLocalRepos = async () => {
         const trimmedPath = localPath.trim();
@@ -269,6 +304,15 @@ export default function UploadRepo() {
                                             <AlertCircle className="w-4 h-4" /> {error}
                                         </p>
                                     )}
+                                    <button
+                                        type="button"
+                                        onClick={() => setPickerOpen(true)}
+                                        style={{ borderColor: 'var(--border)', color: 'var(--text)' }}
+                                        className="mt-2 inline-flex items-center gap-2 rounded-md border px-3 py-1.5 text-xs font-semibold hover:bg-slate-100"
+                                    >
+                                        <Github className="w-3.5 h-3.5" />
+                                        Browse My Repos
+                                    </button>
                                 </div>
 
                                 <div className="w-full md:w-48 space-y-2">
@@ -452,6 +496,7 @@ export default function UploadRepo() {
                 )}
 
             </div>
+            <RepoPicker open={pickerOpen} onClose={() => setPickerOpen(false)} onSelect={handleRepoSelect} />
         </div>
     );
 }
