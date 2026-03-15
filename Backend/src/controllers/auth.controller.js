@@ -30,6 +30,7 @@ export const githubRedirect = async (_req, res, next) => {
 		const state = randomBytes(24).toString('hex');
 		res.cookie(OAUTH_STATE_COOKIE, state, {
 			...cookieBaseOptions(),
+			sameSite: 'lax',
 			maxAge: 10 * 60 * 1000,
 			signed: true,
 		});
@@ -59,7 +60,7 @@ export const githubCallback = async (req, res, next) => {
 			return res.status(403).json({ success: false, message: 'Invalid OAuth state' });
 		}
 
-		res.clearCookie(OAUTH_STATE_COOKIE, { ...cookieBaseOptions(), signed: true });
+		res.clearCookie(OAUTH_STATE_COOKIE, { ...cookieBaseOptions(), sameSite: 'lax', signed: true });
 
 		const tokenData = await exchangeGithubCode(String(code));
 		const githubUser = await getGithubUser(tokenData.access_token);

@@ -57,16 +57,17 @@ export async function upsertUserInNeo4j(githubUser, accessToken, refreshToken = 
 		const result = await session.run(
 			`
 			MERGE (u:User {githubId: $githubId})
-			SET u.id = COALESCE(u.id, $newId),
-					u.githubLogin = $login,
-					u.name = $name,
-					u.email = $email,
-					u.avatarUrl = $avatarUrl,
-					u.accessToken = $accessToken,
-					u.refreshToken = $refreshToken,
-					u.tokenExpiresAt = $tokenExpiresAt,
-					u.lastSeenAt = datetime()
-			ON CREATE SET u.createdAt = datetime()
+			ON CREATE SET u.createdAt = datetime(),
+						u.id = $newId
+			ON MATCH SET u.id = COALESCE(u.id, $newId)
+			SET u.githubLogin = $login,
+				u.name = $name,
+				u.email = $email,
+				u.avatarUrl = $avatarUrl,
+				u.accessToken = $accessToken,
+				u.refreshToken = $refreshToken,
+				u.tokenExpiresAt = $tokenExpiresAt,
+				u.lastSeenAt = datetime()
 			RETURN u
 			`,
 			{
