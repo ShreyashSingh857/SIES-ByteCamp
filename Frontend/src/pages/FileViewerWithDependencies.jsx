@@ -902,59 +902,6 @@ const FileViewerWithDependencies = () => {
         return () => { cancelled = true; };
     }, [rawUrl, currentRepoId, filePath, API_URL]);
 
-        const loadFallbackFromGitHub = async () => {
-            if (!rawUrl) {
-                setError('Cannot build file source URL.');
-                setLoading(false);
-                return;
-            }
-
-            try {
-                const response = await fetch(rawUrl);
-                if (!response.ok) {
-                    throw new Error(`GitHub returned ${response.status} for this file.`);
-                }
-                const text = await response.text();
-                if (cancelled) return;
-                setCode(text);
-                setDraftCode(text);
-                setLoading(false);
-            } catch (err) {
-                if (cancelled) return;
-                setError(err.message || 'Failed to fetch file source.');
-                setLoading(false);
-            }
-        };
-
-        setLoading(true);
-        setError('');
-        setEditorError('');
-
-        if (editableFileData?.content !== undefined) {
-            const text = String(editableFileData.content || '');
-            setCode(text);
-            setDraftCode(text);
-            setLoading(false);
-            return () => {
-                cancelled = true;
-            };
-        }
-
-        if (editableFileError) {
-            loadFallbackFromGitHub();
-            return () => {
-                cancelled = true;
-            };
-        }
-
-        if (!editableFileLoading) {
-            loadFallbackFromGitHub();
-        }
-
-        return () => {
-            cancelled = true;
-        };
-    }, [editableFileData, editableFileError, editableFileLoading, rawUrl]);
 
     useEffect(() => {
         if (!currentRepoId) {
