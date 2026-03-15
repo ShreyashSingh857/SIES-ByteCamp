@@ -5,9 +5,8 @@ import Home        from './Home';
 import UploadRepo  from './UploadRepo';
 import Analyze     from './Analyze';
 import GraphView   from './GraphView';
-import ImpactPanel from './ImpactPanel';
 import DirListView from './DirListView';
 import FileViewer  from './FileViewer';
 import FileViewerWithDependencies from './FileViewerWithDependencies';
 
-export { Landing, Login, Signup, Home, UploadRepo, Analyze, GraphView, ImpactPanel, DirListView, FileViewer, FileViewerWithDependencies };
+export { Landing, Login, Signup, Home, UploadRepo, Analyze, GraphView, DirListView, FileViewer, FileViewerWithDependencies };

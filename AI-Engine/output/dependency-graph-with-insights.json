@@ -1,0 +1,4355 @@
+{
+  "repositoryPath": "D:\\GitHub\\SIES-ByteCamp\\Backend",
+  "summary": {
+    "scannedFiles": 20,
+    "parsedFiles": 20,
+    "nodes": 260,
+    "edges": 568,
+    "languages": [
+      "javascript"
+    ]
+  },
+  "nodes": [
+    {
+      "id": "file:app.js",
+      "type": "FILE",
+      "name": "app.js",
+      "language": "javascript"
+    },
+    {
+      "id": "module:express",
+      "type": "MODULE",
+      "name": "express"
+    },
+    {
+      "id": "module:cors",
+      "type": "MODULE",
+      "name": "cors"
+    },
+    {
+      "id": "module:cookie-parser",
+      "type": "MODULE",
+      "name": "cookie-parser"
+    },
+    {
+      "id": "module:./src/config/neo4j.js",
+      "type": "MODULE",
+      "name": "./src/config/neo4j.js"
+    },
+    {
+      "id": "symbol:catch",
+      "type": "SYMBOL",
+      "name": "catch"
+    },
+    {
+      "id": "symbol:then",
+      "type": "SYMBOL",
+      "name": "then"
+    },
+    {
+      "id": "symbol:verifyNeo4jConnectivity",
+      "type": "SYMBOL",
+      "name": "verifyNeo4jConnectivity"
+    },
+    {
+      "id": "symbol:log",
+      "type": "SYMBOL",
+      "name": "log"
+    },
+    {
+      "id": "symbol:error",
+      "type": "SYMBOL",
+      "name": "error"
+    },
+    {
+      "id": "symbol:warn",
+      "type": "SYMBOL",
+      "name": "warn"
+    },
+    {
+      "id": "module:./src/routes/help.routes.js",
+      "type": "MODULE",
+      "name": "./src/routes/help.routes.js"
+    },
+    {
+      "id": "module:./src/routes/scan.routes.js",
+      "type": "MODULE",
+      "name": "./src/routes/scan.routes.js"
+    },
+    {
+      "id": "module:./src/routes/import.routes.js",
+      "type": "MODULE",
+      "name": "./src/routes/import.routes.js"
+    },
+    {
+      "id": "symbol:express",
+      "type": "SYMBOL",
+      "name": "express"
+    },
+    {
+      "id": "symbol:use",
+      "type": "SYMBOL",
+      "name": "use"
+    },
+    {
+      "id": "symbol:cors",
+      "type": "SYMBOL",
+      "name": "cors"
+    },
+    {
+      "id": "symbol:json",
+      "type": "SYMBOL",
+      "name": "json"
+    },
+    {
+      "id": "symbol:urlencoded",
+      "type": "SYMBOL",
+      "name": "urlencoded"
+    },
+    {
+      "id": "symbol:cookieParser",
+      "type": "SYMBOL",
+      "name": "cookieParser"
+    },
+    {
+      "id": "symbol:get",
+      "type": "SYMBOL",
+      "name": "get"
+    },
+    {
+      "id": "symbol:status",
+      "type": "SYMBOL",
+      "name": "status"
+    },
+    {
+      "id": "symbol:uptime",
+      "type": "SYMBOL",
+      "name": "uptime"
+    },
+    {
+      "id": "symbol:toISOString",
+      "type": "SYMBOL",
+      "name": "toISOString"
+    },
+    {
+      "id": "file:index.js",
+      "type": "FILE",
+      "name": "index.js",
+      "language": "javascript"
+    },
+    {
+      "id": "function:index.js#startServer",
+      "type": "FUNCTION",
+      "name": "startServer",
+      "file": "index.js",
+      "line": 7
+    },
+    {
+      "id": "module:dotenv/config",
+      "type": "MODULE",
+      "name": "dotenv/config"
+    },
+    {
+      "id": "module:./app.js",
+      "type": "MODULE",
+      "name": "./app.js"
+    },
+    {
+      "id": "symbol:listen",
+      "type": "SYMBOL",
+      "name": "listen"
+    },
+    {
+      "id": "symbol:exit",
+      "type": "SYMBOL",
+      "name": "exit"
+    },
+    {
+      "id": "file:src/config/neo4j.js",
+      "type": "FILE",
+      "name": "src/config/neo4j.js",
+      "language": "javascript"
+    },
+    {
+      "id": "function:src/config/neo4j.js#getConfigError",
+      "type": "FUNCTION",
+      "name": "getConfigError",
+      "file": "src/config/neo4j.js",
+      "line": 17
+    },
+    {
+      "id": "function:src/config/neo4j.js#getSession",
+      "type": "FUNCTION",
+      "name": "getSession",
+      "file": "src/config/neo4j.js",
+      "line": 23
+    },
+    {
+      "id": "function:src/config/neo4j.js#verifyNeo4jConnectivity",
+      "type": "FUNCTION",
+      "name": "verifyNeo4jConnectivity",
+      "file": "src/config/neo4j.js",
+      "line": 30
+    },
+    {
+      "id": "module:neo4j-driver",
+      "type": "MODULE",
+      "name": "neo4j-driver"
+    },
+    {
+      "id": "symbol:Boolean",
+      "type": "SYMBOL",
+      "name": "Boolean"
+    },
+    {
+      "id": "symbol:driver",
+      "type": "SYMBOL",
+      "name": "driver"
+    },
+    {
+      "id": "symbol:basic",
+      "type": "SYMBOL",
+      "name": "basic"
+    },
+    {
+      "id": "symbol:session",
+      "type": "SYMBOL",
+      "name": "session"
+    },
+    {
+      "id": "symbol:verifyConnectivity",
+      "type": "SYMBOL",
+      "name": "verifyConnectivity"
+    },
+    {
+      "id": "file:src/controllers/auth.controller.js",
+      "type": "FILE",
+      "name": "src/controllers/auth.controller.js",
+      "language": "javascript"
+    },
+    {
+      "id": "file:src/controllers/help.controller.js",
+      "type": "FILE",
+      "name": "src/controllers/help.controller.js",
+      "language": "javascript"
+    },
+    {
+      "id": "function:src/controllers/help.controller.js#getHelpTopics",
+      "type": "FUNCTION",
+      "name": "getHelpTopics",
+      "file": "src/controllers/help.controller.js",
+      "line": 28
+    },
+    {
+      "id": "function:src/controllers/help.controller.js#searchHelp",
+      "type": "FUNCTION",
+      "name": "searchHelp",
+      "file": "src/controllers/help.controller.js",
+      "line": 45
+    },
+    {
+      "id": "function:src/controllers/help.controller.js#getHelpTopicById",
+      "type": "FUNCTION",
+      "name": "getHelpTopicById",
+      "file": "src/controllers/help.controller.js",
+      "line": 78
+    },
+    {
+      "id": "symbol:next",
+      "type": "SYMBOL",
+      "name": "next"
+    },
+    {
+      "id": "symbol:toLowerCase",
+      "type": "SYMBOL",
+      "name": "toLowerCase"
+    },
+    {
+      "id": "symbol:filter",
+      "type": "SYMBOL",
+      "name": "filter"
+    },
+    {
+      "id": "symbol:includes",
+      "type": "SYMBOL",
+      "name": "includes"
+    },
+    {
+      "id": "symbol:find",
+      "type": "SYMBOL",
+      "name": "find"
+    },
+    {
+      "id": "file:src/controllers/import.controller.js",
+      "type": "FILE",
+      "name": "src/controllers/import.controller.js",
+      "language": "javascript"
+    },
+    {
+      "id": "function:src/controllers/import.controller.js#analyzeWithLLMAndImport",
+      "type": "FUNCTION",
+      "name": "analyzeWithLLMAndImport",
+      "file": "src/controllers/import.controller.js",
+      "line": 18
+    },
+    {
+      "id": "function:src/controllers/import.controller.js#getScanStats",
+      "type": "FUNCTION",
+      "name": "getScanStats",
+      "file": "src/controllers/import.controller.js",
+      "line": 79
+    },
+    {
+      "id": "function:src/controllers/import.controller.js#listScans",
+      "type": "FUNCTION",
+      "name": "listScans",
+      "file": "src/controllers/import.controller.js",
+      "line": 115
+    },
+    {
+      "id": "function:src/controllers/import.controller.js#deleteScan",
+      "type": "FUNCTION",
+      "name": "deleteScan",
+      "file": "src/controllers/import.controller.js",
+      "line": 135
+    },
+    {
+      "id": "module:child_process",
+      "type": "MODULE",
+      "name": "child_process"
+    },
+    {
+      "id": "module:util",
+      "type": "MODULE",
+      "name": "util"
+    },
+    {
+      "id": "module:fs/promises",
+      "type": "MODULE",
+      "name": "fs/promises"
+    },
+    {
+      "id": "module:path",
+      "type": "MODULE",
+      "name": "path"
+    },
+    {
+      "id": "module:uuid",
+      "type": "MODULE",
+      "name": "uuid"
+    },
+    {
+      "id": "module:../services/neo4j-import.service.js",
+      "type": "MODULE",
+      "name": "../services/neo4j-import.service.js"
+    },
+    {
+      "id": "symbol:promisify",
+      "type": "SYMBOL",
+      "name": "promisify"
+    },
+    {
+      "id": "symbol:uuidv4",
+      "type": "SYMBOL",
+      "name": "uuidv4"
+    },
+    {
+      "id": "symbol:join",
+      "type": "SYMBOL",
+      "name": "join"
+    },
+    {
+      "id": "symbol:cwd",
+      "type": "SYMBOL",
+      "name": "cwd"
+    },
+    {
+      "id": "symbol:resolve",
+      "type": "SYMBOL",
+      "name": "resolve"
+    },
+    {
+      "id": "symbol:execAsync",
+      "type": "SYMBOL",
+      "name": "execAsync"
+    },
+    {
+      "id": "symbol:parse",
+      "type": "SYMBOL",
+      "name": "parse"
+    },
+    {
+      "id": "symbol:readFile",
+      "type": "SYMBOL",
+      "name": "readFile"
+    },
+    {
+      "id": "symbol:importDependencyGraphToNeo4j",
+      "type": "SYMBOL",
+      "name": "importDependencyGraphToNeo4j"
+    },
+    {
+      "id": "symbol:toString",
+      "type": "SYMBOL",
+      "name": "toString"
+    },
+    {
+      "id": "symbol:getScanDetails",
+      "type": "SYMBOL",
+      "name": "getScanDetails"
+    },
+    {
+      "id": "symbol:getAllScans",
+      "type": "SYMBOL",
+      "name": "getAllScans"
+    },
+    {
+      "id": "symbol:deleteOldScans",
+      "type": "SYMBOL",
+      "name": "deleteOldScans"
+    },
+    {
+      "id": "file:src/controllers/scan.controller.js",
+      "type": "FILE",
+      "name": "src/controllers/scan.controller.js",
+      "language": "javascript"
+    },
+    {
+      "id": "function:src/controllers/scan.controller.js#buildUniqueRepoDir",
+      "type": "FUNCTION",
+      "name": "buildUniqueRepoDir",
+      "file": "src/controllers/scan.controller.js",
+      "line": 36
+    },
+    {
+      "id": "function:src/controllers/scan.controller.js#getRepoIdFromCloneDir",
+      "type": "FUNCTION",
+      "name": "getRepoIdFromCloneDir",
+      "file": "src/controllers/scan.controller.js",
+      "line": 43
+    },
+    {
+      "id": "function:src/controllers/scan.controller.js#assertValidRepoId",
+      "type": "FUNCTION",
+      "name": "assertValidRepoId",
+      "file": "src/controllers/scan.controller.js",
+      "line": 47
+    },
+    {
+      "id": "function:src/controllers/scan.controller.js#getGraphFilePath",
+      "type": "FUNCTION",
+      "name": "getGraphFilePath",
+      "file": "src/controllers/scan.controller.js",
+      "line": 53
+    },
+    {
+      "id": "function:src/controllers/scan.controller.js#normalizeNeo4jNumber",
+      "type": "FUNCTION",
+      "name": "normalizeNeo4jNumber",
+      "file": "src/controllers/scan.controller.js",
+      "line": 58
+    },
+    {
+      "id": "function:src/controllers/scan.controller.js#sanitizeSelectedText",
+      "type": "FUNCTION",
+      "name": "sanitizeSelectedText",
+      "file": "src/controllers/scan.controller.js",
+      "line": 64
+    },
+    {
+      "id": "function:src/controllers/scan.controller.js#extractSearchCandidates",
+      "type": "FUNCTION",
+      "name": "extractSearchCandidates",
+      "file": "src/controllers/scan.controller.js",
+      "line": 71
+    },
+    {
+      "id": "function:src/controllers/scan.controller.js#getPreferredSymbolForTracing",
+      "type": "FUNCTION",
+      "name": "getPreferredSymbolForTracing",
+      "file": "src/controllers/scan.controller.js",
+      "line": 83
+    },
+    {
+      "id": "function:src/controllers/scan.controller.js#calculateChainDepth",
+      "type": "FUNCTION",
+      "name": "calculateChainDepth",
+      "file": "src/controllers/scan.controller.js",
+      "line": 90
+    },
+    {
+      "id": "function:src/controllers/scan.controller.js#normalizeRelationshipType",
+      "type": "FUNCTION",
+      "name": "normalizeRelationshipType",
+      "file": "src/controllers/scan.controller.js",
+      "line": 121
+    },
+    {
+      "id": "function:src/controllers/scan.controller.js#isTruthyFlag",
+      "type": "FUNCTION",
+      "name": "isTruthyFlag",
+      "file": "src/controllers/scan.controller.js",
+      "line": 125
+    },
+    {
+      "id": "function:src/controllers/scan.controller.js#classifyDependencyNature",
+      "type": "FUNCTION",
+      "name": "classifyDependencyNature",
+      "file": "src/controllers/scan.controller.js",
+      "line": 131
+    },
+    {
+      "id": "function:src/controllers/scan.controller.js#createFileContextBucket",
+      "type": "FUNCTION",
+      "name": "createFileContextBucket",
+      "file": "src/controllers/scan.controller.js",
+      "line": 153
+    },
+    {
+      "id": "function:src/controllers/scan.controller.js#buildFileDependencyContexts",
+      "type": "FUNCTION",
+      "name": "buildFileDependencyContexts",
+      "file": "src/controllers/scan.controller.js",
+      "line": 162
+    },
+    {
+      "id": "function:src/controllers/scan.controller.js#ensureBucket",
+      "type": "FUNCTION",
+      "name": "ensureBucket",
+      "file": "src/controllers/scan.controller.js",
+      "line": 165
+    },
+    {
+      "id": "function:src/controllers/scan.controller.js#summarizeStaticRuntimeDependencies",
+      "type": "FUNCTION",
+      "name": "summarizeStaticRuntimeDependencies",
+      "file": "src/controllers/scan.controller.js",
+      "line": 248
+    },
+    {
+      "id": "function:src/controllers/scan.controller.js#buildLlmGraphContext",
+      "type": "FUNCTION",
+      "name": "buildLlmGraphContext",
+      "file": "src/controllers/scan.controller.js",
+      "line": 285
+    },
+    {
+      "id": "function:src/controllers/scan.controller.js#buildSeedPayloadFromParser",
+      "type": "FUNCTION",
+      "name": "buildSeedPayloadFromParser",
+      "file": "src/controllers/scan.controller.js",
+      "line": 361
+    },
+    {
+      "id": "function:src/controllers/scan.controller.js#resolveImportedFileRawId",
+      "type": "FUNCTION",
+      "name": "resolveImportedFileRawId",
+      "file": "src/controllers/scan.controller.js",
+      "line": 370
+    },
+    {
+      "id": "function:src/controllers/scan.controller.js#postScan",
+      "type": "FUNCTION",
+      "name": "postScan",
+      "file": "src/controllers/scan.controller.js",
+      "line": 506
+    },
+    {
+      "id": "function:src/controllers/scan.controller.js#normalizeEdge",
+      "type": "FUNCTION",
+      "name": "normalizeEdge",
+      "file": "src/controllers/scan.controller.js",
+      "line": 576
+    },
+    {
+      "id": "function:src/controllers/scan.controller.js#getGraph",
+      "type": "FUNCTION",
+      "name": "getGraph",
+      "file": "src/controllers/scan.controller.js",
+      "line": 592
+    },
+    {
+      "id": "function:src/controllers/scan.controller.js#deleteGraph",
+      "type": "FUNCTION",
+      "name": "deleteGraph",
+      "file": "src/controllers/scan.controller.js",
+      "line": 631
+    },
+    {
+      "id": "function:src/controllers/scan.controller.js#seedSchema",
+      "type": "FUNCTION",
+      "name": "seedSchema",
+      "file": "src/controllers/scan.controller.js",
+      "line": 660
+    },
+    {
+      "id": "function:src/controllers/scan.controller.js#seedGraphToDb",
+      "type": "FUNCTION",
+      "name": "seedGraphToDb",
+      "file": "src/controllers/scan.controller.js",
+      "line": 674
+    },
+    {
+      "id": "function:src/controllers/scan.controller.js#getMetrics",
+      "type": "FUNCTION",
+      "name": "getMetrics",
+      "file": "src/controllers/scan.controller.js",
+      "line": 711
+    },
+    {
+      "id": "function:src/controllers/scan.controller.js#getImpact",
+      "type": "FUNCTION",
+      "name": "getImpact",
+      "file": "src/controllers/scan.controller.js",
+      "line": 737
+    },
+    {
+      "id": "function:src/controllers/scan.controller.js#getFileRelations",
+      "type": "FUNCTION",
+      "name": "getFileRelations",
+      "file": "src/controllers/scan.controller.js",
+      "line": 777
+    },
+    {
+      "id": "function:src/controllers/scan.controller.js#analyzeDependencies",
+      "type": "FUNCTION",
+      "name": "analyzeDependencies",
+      "file": "src/controllers/scan.controller.js",
+      "line": 824
+    },
+    {
+      "id": "function:src/controllers/scan.controller.js#analyzeDependenciesWithIntelligence",
+      "type": "FUNCTION",
+      "name": "analyzeDependenciesWithIntelligence",
+      "file": "src/controllers/scan.controller.js",
+      "line": 921
+    },
+    {
+      "id": "module:simple-git",
+      "type": "MODULE",
+      "name": "simple-git"
+    },
+    {
+      "id": "module:fs",
+      "type": "MODULE",
+      "name": "fs"
+    },
+    {
+      "id": "module:url",
+      "type": "MODULE",
+      "name": "url"
+    },
+    {
+      "id": "module:crypto",
+      "type": "MODULE",
+      "name": "crypto"
+    },
+    {
+      "id": "module:../db/neo4j.queries.js",
+      "type": "MODULE",
+      "name": "../db/neo4j.queries.js"
+    },
+    {
+      "id": "module:../services/llm.service.js",
+      "type": "MODULE",
+      "name": "../services/llm.service.js"
+    },
+    {
+      "id": "symbol:fileURLToPath",
+      "type": "SYMBOL",
+      "name": "fileURLToPath"
+    },
+    {
+      "id": "symbol:dirname",
+      "type": "SYMBOL",
+      "name": "dirname"
+    },
+    {
+      "id": "symbol:replace",
+      "type": "SYMBOL",
+      "name": "replace"
+    },
+    {
+      "id": "symbol:basename",
+      "type": "SYMBOL",
+      "name": "basename"
+    },
+    {
+      "id": "symbol:now",
+      "type": "SYMBOL",
+      "name": "now"
+    },
+    {
+      "id": "symbol:slice",
+      "type": "SYMBOL",
+      "name": "slice"
+    },
+    {
+      "id": "symbol:random",
+      "type": "SYMBOL",
+      "name": "random"
+    },
+    {
+      "id": "symbol:test",
+      "type": "SYMBOL",
+      "name": "test"
+    },
+    {
+      "id": "symbol:toNumber",
+      "type": "SYMBOL",
+      "name": "toNumber"
+    },
+    {
+      "id": "symbol:Number",
+      "type": "SYMBOL",
+      "name": "Number"
+    },
+    {
+      "id": "symbol:trim",
+      "type": "SYMBOL",
+      "name": "trim"
+    },
+    {
+      "id": "symbol:String",
+      "type": "SYMBOL",
+      "name": "String"
+    },
+    {
+      "id": "symbol:map",
+      "type": "SYMBOL",
+      "name": "map"
+    },
+    {
+      "id": "symbol:split",
+      "type": "SYMBOL",
+      "name": "split"
+    },
+    {
+      "id": "symbol:isArray",
+      "type": "SYMBOL",
+      "name": "isArray"
+    },
+    {
+      "id": "symbol:toUpperCase",
+      "type": "SYMBOL",
+      "name": "toUpperCase"
+    },
+    {
+      "id": "symbol:has",
+      "type": "SYMBOL",
+      "name": "has"
+    },
+    {
+      "id": "symbol:set",
+      "type": "SYMBOL",
+      "name": "set"
+    },
+    {
+      "id": "symbol:push",
+      "type": "SYMBOL",
+      "name": "push"
+    },
+    {
+      "id": "symbol:values",
+      "type": "SYMBOL",
+      "name": "values"
+    },
+    {
+      "id": "symbol:add",
+      "type": "SYMBOL",
+      "name": "add"
+    },
+    {
+      "id": "symbol:sort",
+      "type": "SYMBOL",
+      "name": "sort"
+    },
+    {
+      "id": "symbol:localeCompare",
+      "type": "SYMBOL",
+      "name": "localeCompare"
+    },
+    {
+      "id": "symbol:entries",
+      "type": "SYMBOL",
+      "name": "entries"
+    },
+    {
+      "id": "symbol:from",
+      "type": "SYMBOL",
+      "name": "from"
+    },
+    {
+      "id": "symbol:startsWith",
+      "type": "SYMBOL",
+      "name": "startsWith"
+    },
+    {
+      "id": "symbol:normalize",
+      "type": "SYMBOL",
+      "name": "normalize"
+    },
+    {
+      "id": "symbol:extname",
+      "type": "SYMBOL",
+      "name": "extname"
+    },
+    {
+      "id": "symbol:isAbsolute",
+      "type": "SYMBOL",
+      "name": "isAbsolute"
+    },
+    {
+      "id": "symbol:mkdirSync",
+      "type": "SYMBOL",
+      "name": "mkdirSync"
+    },
+    {
+      "id": "symbol:clone",
+      "type": "SYMBOL",
+      "name": "clone"
+    },
+    {
+      "id": "symbol:simpleGit",
+      "type": "SYMBOL",
+      "name": "simpleGit"
+    },
+    {
+      "id": "symbol:execFileAsync",
+      "type": "SYMBOL",
+      "name": "execFileAsync"
+    },
+    {
+      "id": "symbol:writeFileSync",
+      "type": "SYMBOL",
+      "name": "writeFileSync"
+    },
+    {
+      "id": "symbol:stringify",
+      "type": "SYMBOL",
+      "name": "stringify"
+    },
+    {
+      "id": "symbol:existsSync",
+      "type": "SYMBOL",
+      "name": "existsSync"
+    },
+    {
+      "id": "symbol:readFileSync",
+      "type": "SYMBOL",
+      "name": "readFileSync"
+    },
+    {
+      "id": "symbol:unlinkSync",
+      "type": "SYMBOL",
+      "name": "unlinkSync"
+    },
+    {
+      "id": "symbol:setupDatabaseSchema",
+      "type": "SYMBOL",
+      "name": "setupDatabaseSchema"
+    },
+    {
+      "id": "database:Database",
+      "type": "DATABASE",
+      "name": "Database"
+    },
+    {
+      "id": "symbol:randomUUID",
+      "type": "SYMBOL",
+      "name": "randomUUID"
+    },
+    {
+      "id": "symbol:seedParsedGraph",
+      "type": "SYMBOL",
+      "name": "seedParsedGraph"
+    },
+    {
+      "id": "symbol:getGraphMetrics",
+      "type": "SYMBOL",
+      "name": "getGraphMetrics"
+    },
+    {
+      "id": "symbol:getImpactedNodesByNode",
+      "type": "SYMBOL",
+      "name": "getImpactedNodesByNode"
+    },
+    {
+      "id": "symbol:getRelatedFilesByPath",
+      "type": "SYMBOL",
+      "name": "getRelatedFilesByPath"
+    },
+    {
+      "id": "symbol:readdirSync",
+      "type": "SYMBOL",
+      "name": "readdirSync"
+    },
+    {
+      "id": "symbol:forEach",
+      "type": "SYMBOL",
+      "name": "forEach"
+    },
+    {
+      "id": "symbol:max",
+      "type": "SYMBOL",
+      "name": "max"
+    },
+    {
+      "id": "symbol:min",
+      "type": "SYMBOL",
+      "name": "min"
+    },
+    {
+      "id": "symbol:findSymbolOccurrences",
+      "type": "SYMBOL",
+      "name": "findSymbolOccurrences"
+    },
+    {
+      "id": "symbol:generatePerFileDependencyInsights",
+      "type": "SYMBOL",
+      "name": "generatePerFileDependencyInsights"
+    },
+    {
+      "id": "symbol:getNodeDependencies",
+      "type": "SYMBOL",
+      "name": "getNodeDependencies"
+    },
+    {
+      "id": "symbol:traceSymbolDependencies",
+      "type": "SYMBOL",
+      "name": "traceSymbolDependencies"
+    },
+    {
+      "id": "symbol:getSymbolReferences",
+      "type": "SYMBOL",
+      "name": "getSymbolReferences"
+    },
+    {
+      "id": "symbol:keys",
+      "type": "SYMBOL",
+      "name": "keys"
+    },
+    {
+      "id": "symbol:flatMap",
+      "type": "SYMBOL",
+      "name": "flatMap"
+    },
+    {
+      "id": "symbol:analyzeDependenciesWithLLM",
+      "type": "SYMBOL",
+      "name": "analyzeDependenciesWithLLM"
+    },
+    {
+      "id": "symbol:inferImplicitDependencies",
+      "type": "SYMBOL",
+      "name": "inferImplicitDependencies"
+    },
+    {
+      "id": "file:src/db/neo4j.queries.js",
+      "type": "FILE",
+      "name": "src/db/neo4j.queries.js",
+      "language": "javascript"
+    },
+    {
+      "id": "function:src/db/neo4j.queries.js#setupDatabaseSchema",
+      "type": "FUNCTION",
+      "name": "setupDatabaseSchema",
+      "file": "src/db/neo4j.queries.js",
+      "line": 7
+    },
+    {
+      "id": "function:src/db/neo4j.queries.js#getImpactGraph",
+      "type": "FUNCTION",
+      "name": "getImpactGraph",
+      "file": "src/db/neo4j.queries.js",
+      "line": 73
+    },
+    {
+      "id": "function:src/db/neo4j.queries.js#getFullGraph",
+      "type": "FUNCTION",
+      "name": "getFullGraph",
+      "file": "src/db/neo4j.queries.js",
+      "line": 93
+    },
+    {
+      "id": "function:src/db/neo4j.queries.js#deleteScan",
+      "type": "FUNCTION",
+      "name": "deleteScan",
+      "file": "src/db/neo4j.queries.js",
+      "line": 110
+    },
+    {
+      "id": "function:src/db/neo4j.queries.js#getEndpointConsumers",
+      "type": "FUNCTION",
+      "name": "getEndpointConsumers",
+      "file": "src/db/neo4j.queries.js",
+      "line": 123
+    },
+    {
+      "id": "function:src/db/neo4j.queries.js#getFileRelationships",
+      "type": "FUNCTION",
+      "name": "getFileRelationships",
+      "file": "src/db/neo4j.queries.js",
+      "line": 141
+    },
+    {
+      "id": "function:src/db/neo4j.queries.js#getFunctionCalls",
+      "type": "FUNCTION",
+      "name": "getFunctionCalls",
+      "file": "src/db/neo4j.queries.js",
+      "line": 159
+    },
+    {
+      "id": "function:src/db/neo4j.queries.js#getExposedEndpoints",
+      "type": "FUNCTION",
+      "name": "getExposedEndpoints",
+      "file": "src/db/neo4j.queries.js",
+      "line": 177
+    },
+    {
+      "id": "function:src/db/neo4j.queries.js#getDatabaseTopology",
+      "type": "FUNCTION",
+      "name": "getDatabaseTopology",
+      "file": "src/db/neo4j.queries.js",
+      "line": 193
+    },
+    {
+      "id": "function:src/db/neo4j.queries.js#getDatabaseAccessors",
+      "type": "FUNCTION",
+      "name": "getDatabaseAccessors",
+      "file": "src/db/neo4j.queries.js",
+      "line": 210
+    },
+    {
+      "id": "function:src/db/neo4j.queries.js#getApiContracts",
+      "type": "FUNCTION",
+      "name": "getApiContracts",
+      "file": "src/db/neo4j.queries.js",
+      "line": 228
+    },
+    {
+      "id": "function:src/db/neo4j.queries.js#getApiCalls",
+      "type": "FUNCTION",
+      "name": "getApiCalls",
+      "file": "src/db/neo4j.queries.js",
+      "line": 246
+    },
+    {
+      "id": "function:src/db/neo4j.queries.js#getDbReads",
+      "type": "FUNCTION",
+      "name": "getDbReads",
+      "file": "src/db/neo4j.queries.js",
+      "line": 263
+    },
+    {
+      "id": "function:src/db/neo4j.queries.js#getImpactedNodesByNode",
+      "type": "FUNCTION",
+      "name": "getImpactedNodesByNode",
+      "file": "src/db/neo4j.queries.js",
+      "line": 280
+    },
+    {
+      "id": "function:src/db/neo4j.queries.js#getRelatedFilesByPath",
+      "type": "FUNCTION",
+      "name": "getRelatedFilesByPath",
+      "file": "src/db/neo4j.queries.js",
+      "line": 305
+    },
+    {
+      "id": "function:src/db/neo4j.queries.js#getGraphMetrics",
+      "type": "FUNCTION",
+      "name": "getGraphMetrics",
+      "file": "src/db/neo4j.queries.js",
+      "line": 414
+    },
+    {
+      "id": "function:src/db/neo4j.queries.js#seedParsedGraph",
+      "type": "FUNCTION",
+      "name": "seedParsedGraph",
+      "file": "src/db/neo4j.queries.js",
+      "line": 439
+    },
+    {
+      "id": "function:src/db/neo4j.queries.js#findSymbolOccurrences",
+      "type": "FUNCTION",
+      "name": "findSymbolOccurrences",
+      "file": "src/db/neo4j.queries.js",
+      "line": 487
+    },
+    {
+      "id": "function:src/db/neo4j.queries.js#getNodeDependencies",
+      "type": "FUNCTION",
+      "name": "getNodeDependencies",
+      "file": "src/db/neo4j.queries.js",
+      "line": 526
+    },
+    {
+      "id": "function:src/db/neo4j.queries.js#traceSymbolDependencies",
+      "type": "FUNCTION",
+      "name": "traceSymbolDependencies",
+      "file": "src/db/neo4j.queries.js",
+      "line": 577
+    },
+    {
+      "id": "function:src/db/neo4j.queries.js#getSymbolReferences",
+      "type": "FUNCTION",
+      "name": "getSymbolReferences",
+      "file": "src/db/neo4j.queries.js",
+      "line": 638
+    },
+    {
+      "id": "module:../config/neo4j.js",
+      "type": "MODULE",
+      "name": "../config/neo4j.js"
+    },
+    {
+      "id": "symbol:getSession",
+      "type": "SYMBOL",
+      "name": "getSession"
+    },
+    {
+      "id": "symbol:run",
+      "type": "SYMBOL",
+      "name": "run"
+    },
+    {
+      "id": "symbol:close",
+      "type": "SYMBOL",
+      "name": "close"
+    },
+    {
+      "id": "symbol:toObject",
+      "type": "SYMBOL",
+      "name": "toObject"
+    },
+    {
+      "id": "symbol:delete",
+      "type": "SYMBOL",
+      "name": "delete"
+    },
+    {
+      "id": "symbol:executeWrite",
+      "type": "SYMBOL",
+      "name": "executeWrite"
+    },
+    {
+      "id": "file:src/middlewares/addHere.js",
+      "type": "FILE",
+      "name": "src/middlewares/addHere.js",
+      "language": "javascript"
+    },
+    {
+      "id": "file:src/models/user.model.js",
+      "type": "FILE",
+      "name": "src/models/user.model.js",
+      "language": "javascript"
+    },
+    {
+      "id": "file:src/routes/auth.route.js",
+      "type": "FILE",
+      "name": "src/routes/auth.route.js",
+      "language": "javascript"
+    },
+    {
+      "id": "file:src/routes/help.routes.js",
+      "type": "FILE",
+      "name": "src/routes/help.routes.js",
+      "language": "javascript"
+    },
+    {
+      "id": "module:../controllers/help.controller.js",
+      "type": "MODULE",
+      "name": "../controllers/help.controller.js"
+    },
+    {
+      "id": "symbol:Router",
+      "type": "SYMBOL",
+      "name": "Router"
+    },
+    {
+      "id": "file:src/routes/import.routes.js",
+      "type": "FILE",
+      "name": "src/routes/import.routes.js",
+      "language": "javascript"
+    },
+    {
+      "id": "module:../controllers/import.controller.js",
+      "type": "MODULE",
+      "name": "../controllers/import.controller.js"
+    },
+    {
+      "id": "symbol:post",
+      "type": "SYMBOL",
+      "name": "post"
+    },
+    {
+      "id": "file:src/routes/scan.routes.js",
+      "type": "FILE",
+      "name": "src/routes/scan.routes.js",
+      "language": "javascript"
+    },
+    {
+      "id": "module:../controllers/scan.controller.js",
+      "type": "MODULE",
+      "name": "../controllers/scan.controller.js"
+    },
+    {
+      "id": "file:src/routes/user.route.js",
+      "type": "FILE",
+      "name": "src/routes/user.route.js",
+      "language": "javascript"
+    },
+    {
+      "id": "file:src/services/auth.service.js",
+      "type": "FILE",
+      "name": "src/services/auth.service.js",
+      "language": "javascript"
+    },
+    {
+      "id": "file:src/services/llm.service.js",
+      "type": "FILE",
+      "name": "src/services/llm.service.js",
+      "language": "javascript"
+    },
+    {
+      "id": "function:src/services/llm.service.js#truncateText",
+      "type": "FUNCTION",
+      "name": "truncateText",
+      "file": "src/services/llm.service.js",
+      "line": 12
+    },
+    {
+      "id": "function:src/services/llm.service.js#toArray",
+      "type": "FUNCTION",
+      "name": "toArray",
+      "file": "src/services/llm.service.js",
+      "line": 19
+    },
+    {
+      "id": "function:src/services/llm.service.js#extractTextResponse",
+      "type": "FUNCTION",
+      "name": "extractTextResponse",
+      "file": "src/services/llm.service.js",
+      "line": 32
+    },
+    {
+      "id": "function:src/services/llm.service.js#extractTextFromChatCompletion",
+      "type": "FUNCTION",
+      "name": "extractTextFromChatCompletion",
+      "file": "src/services/llm.service.js",
+      "line": 56
+    },
+    {
+      "id": "function:src/services/llm.service.js#extractFirstJsonObject",
+      "type": "FUNCTION",
+      "name": "extractFirstJsonObject",
+      "file": "src/services/llm.service.js",
+      "line": 74
+    },
+    {
+      "id": "function:src/services/llm.service.js#normalizeRiskLevel",
+      "type": "FUNCTION",
+      "name": "normalizeRiskLevel",
+      "file": "src/services/llm.service.js",
+      "line": 93
+    },
+    {
+      "id": "function:src/services/llm.service.js#normalizeImpactCategory",
+      "type": "FUNCTION",
+      "name": "normalizeImpactCategory",
+      "file": "src/services/llm.service.js",
+      "line": 101
+    },
+    {
+      "id": "function:src/services/llm.service.js#computeImpactCategory",
+      "type": "FUNCTION",
+      "name": "computeImpactCategory",
+      "file": "src/services/llm.service.js",
+      "line": 110
+    },
+    {
+      "id": "function:src/services/llm.service.js#normalizeConfidence",
+      "type": "FUNCTION",
+      "name": "normalizeConfidence",
+      "file": "src/services/llm.service.js",
+      "line": 123
+    },
+    {
+      "id": "function:src/services/llm.service.js#normalizeFileInsight",
+      "type": "FUNCTION",
+      "name": "normalizeFileInsight",
+      "file": "src/services/llm.service.js",
+      "line": 131
+    },
+    {
+      "id": "function:src/services/llm.service.js#buildFallbackFileInsight",
+      "type": "FUNCTION",
+      "name": "buildFallbackFileInsight",
+      "file": "src/services/llm.service.js",
+      "line": 164
+    },
+    {
+      "id": "function:src/services/llm.service.js#normalizeDependencyAnalysis",
+      "type": "FUNCTION",
+      "name": "normalizeDependencyAnalysis",
+      "file": "src/services/llm.service.js",
+      "line": 215
+    },
+    {
+      "id": "function:src/services/llm.service.js#runLlmRequest",
+      "type": "FUNCTION",
+      "name": "runLlmRequest",
+      "file": "src/services/llm.service.js",
+      "line": 283
+    },
+    {
+      "id": "function:src/services/llm.service.js#analyzeDependenciesWithLLM",
+      "type": "FUNCTION",
+      "name": "analyzeDependenciesWithLLM",
+      "file": "src/services/llm.service.js",
+      "line": 369
+    },
+    {
+      "id": "function:src/services/llm.service.js#generatePerFileDependencyInsights",
+      "type": "FUNCTION",
+      "name": "generatePerFileDependencyInsights",
+      "file": "src/services/llm.service.js",
+      "line": 461
+    },
+    {
+      "id": "function:src/services/llm.service.js#generateArchitectureSummary",
+      "type": "FUNCTION",
+      "name": "generateArchitectureSummary",
+      "file": "src/services/llm.service.js",
+      "line": 605
+    },
+    {
+      "id": "function:src/services/llm.service.js#inferImplicitDependencies",
+      "type": "FUNCTION",
+      "name": "inferImplicitDependencies",
+      "file": "src/services/llm.service.js",
+      "line": 656
+    },
+    {
+      "id": "module:openai",
+      "type": "MODULE",
+      "name": "openai"
+    },
+    {
+      "id": "symbol:match",
+      "type": "SYMBOL",
+      "name": "match"
+    },
+    {
+      "id": "symbol:create",
+      "type": "SYMBOL",
+      "name": "create"
+    },
+    {
+      "id": "file:src/services/neo4j-import.service.js",
+      "type": "FILE",
+      "name": "src/services/neo4j-import.service.js",
+      "language": "javascript"
+    },
+    {
+      "id": "function:src/services/neo4j-import.service.js#importDependencyGraphToNeo4j",
+      "type": "FUNCTION",
+      "name": "importDependencyGraphToNeo4j",
+      "file": "src/services/neo4j-import.service.js",
+      "line": 9
+    },
+    {
+      "id": "function:src/services/neo4j-import.service.js#getScanDetails",
+      "type": "FUNCTION",
+      "name": "getScanDetails",
+      "file": "src/services/neo4j-import.service.js",
+      "line": 106
+    },
+    {
+      "id": "function:src/services/neo4j-import.service.js#getAllScans",
+      "type": "FUNCTION",
+      "name": "getAllScans",
+      "file": "src/services/neo4j-import.service.js",
+      "line": 138
+    },
+    {
+      "id": "function:src/services/neo4j-import.service.js#deleteOldScans",
+      "type": "FUNCTION",
+      "name": "deleteOldScans",
+      "file": "src/services/neo4j-import.service.js",
+      "line": 163
+    },
+    {
+      "id": "function:src/services/neo4j-import.service.js#chunkArray",
+      "type": "FUNCTION",
+      "name": "chunkArray",
+      "file": "src/services/neo4j-import.service.js",
+      "line": 185
+    },
+    {
+      "id": "symbol:nodesDeleted",
+      "type": "SYMBOL",
+      "name": "nodesDeleted"
+    },
+    {
+      "id": "symbol:relationshipsDeleted",
+      "type": "SYMBOL",
+      "name": "relationshipsDeleted"
+    },
+    {
+      "id": "file:src/utils/addhere.js",
+      "type": "FILE",
+      "name": "src/utils/addhere.js",
+      "language": "javascript"
+    },
+    {
+      "id": "file:tests/api.test.js",
+      "type": "FILE",
+      "name": "tests/api.test.js",
+      "language": "javascript"
+    },
+    {
+      "id": "function:tests/api.test.js#makeRequest",
+      "type": "FUNCTION",
+      "name": "makeRequest",
+      "file": "tests/api.test.js",
+      "line": 34
+    },
+    {
+      "id": "function:tests/api.test.js#logTestResult",
+      "type": "FUNCTION",
+      "name": "logTestResult",
+      "file": "tests/api.test.js",
+      "line": 52
+    },
+    {
+      "id": "function:tests/api.test.js#toBeOneOf",
+      "type": "FUNCTION",
+      "name": "toBeOneOf",
+      "file": "tests/api.test.js",
+      "line": 476
+    },
+    {
+      "id": "module:axios",
+      "type": "MODULE",
+      "name": "axios"
+    },
+    {
+      "id": "module:@jest/globals",
+      "type": "MODULE",
+      "name": "@jest/globals"
+    },
+    {
+      "id": "service:axios",
+      "type": "EXTERNAL_SERVICE",
+      "name": "axios"
+    },
+    {
+      "id": "symbol:apiClient",
+      "type": "SYMBOL",
+      "name": "apiClient"
+    },
+    {
+      "id": "symbol:describe",
+      "type": "SYMBOL",
+      "name": "describe"
+    },
+    {
+      "id": "symbol:toBe",
+      "type": "SYMBOL",
+      "name": "toBe"
+    },
+    {
+      "id": "symbol:expect",
+      "type": "SYMBOL",
+      "name": "expect"
+    },
+    {
+      "id": "symbol:toContain",
+      "type": "SYMBOL",
+      "name": "toContain"
+    },
+    {
+      "id": "symbol:toBeDefined",
+      "type": "SYMBOL",
+      "name": "toBeDefined"
+    },
+    {
+      "id": "symbol:every",
+      "type": "SYMBOL",
+      "name": "every"
+    },
+    {
+      "id": "symbol:hasOwnProperty",
+      "type": "SYMBOL",
+      "name": "hasOwnProperty"
+    },
+    {
+      "id": "symbol:toHaveProperty",
+      "type": "SYMBOL",
+      "name": "toHaveProperty"
+    },
+    {
+      "id": "symbol:isInteger",
+      "type": "SYMBOL",
+      "name": "isInteger"
+    },
+    {
+      "id": "symbol:toBeGreaterThanOrEqual",
+      "type": "SYMBOL",
+      "name": "toBeGreaterThanOrEqual"
+    },
+    {
+      "id": "symbol:extend",
+      "type": "SYMBOL",
+      "name": "extend"
+    }
+  ],
+  "edges": [
+    {
+      "from": "file:app.js",
+      "to": "module:express",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "file:app.js",
+      "to": "module:cors",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "file:app.js",
+      "to": "module:cookie-parser",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "file:app.js",
+      "to": "module:./src/config/neo4j.js",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "file:app.js",
+      "to": "symbol:catch",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:app.js",
+      "to": "symbol:then",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:app.js",
+      "to": "symbol:verifyNeo4jConnectivity",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:app.js",
+      "to": "symbol:log",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:app.js",
+      "to": "symbol:error",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:app.js",
+      "to": "symbol:warn",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:app.js",
+      "to": "module:./src/routes/help.routes.js",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "file:app.js",
+      "to": "module:./src/routes/scan.routes.js",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "file:app.js",
+      "to": "module:./src/routes/import.routes.js",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "file:app.js",
+      "to": "symbol:express",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:app.js",
+      "to": "symbol:use",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:app.js",
+      "to": "symbol:cors",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:app.js",
+      "to": "symbol:json",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:app.js",
+      "to": "symbol:urlencoded",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:app.js",
+      "to": "symbol:cookieParser",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:app.js",
+      "to": "symbol:get",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:app.js",
+      "to": "symbol:status",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:app.js",
+      "to": "symbol:uptime",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:app.js",
+      "to": "symbol:toISOString",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:index.js",
+      "to": "module:dotenv/config",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "file:index.js",
+      "to": "module:./app.js",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "function:index.js#startServer",
+      "to": "symbol:listen",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:index.js#startServer",
+      "to": "symbol:log",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:index.js#startServer",
+      "to": "symbol:error",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:index.js#startServer",
+      "to": "symbol:exit",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:index.js",
+      "to": "function:index.js#startServer",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:src/config/neo4j.js",
+      "to": "module:dotenv/config",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "file:src/config/neo4j.js",
+      "to": "module:neo4j-driver",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "file:src/config/neo4j.js",
+      "to": "symbol:Boolean",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:src/config/neo4j.js",
+      "to": "symbol:driver",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:src/config/neo4j.js",
+      "to": "symbol:basic",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/config/neo4j.js#getSession",
+      "to": "function:src/config/neo4j.js#getConfigError",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/config/neo4j.js#getSession",
+      "to": "symbol:session",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/config/neo4j.js#verifyNeo4jConnectivity",
+      "to": "symbol:verifyConnectivity",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/help.controller.js#getHelpTopics",
+      "to": "symbol:json",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/help.controller.js#getHelpTopics",
+      "to": "symbol:status",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/help.controller.js#getHelpTopics",
+      "to": "symbol:next",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/help.controller.js#searchHelp",
+      "to": "symbol:json",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/help.controller.js#searchHelp",
+      "to": "symbol:status",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/help.controller.js#searchHelp",
+      "to": "symbol:toLowerCase",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/help.controller.js#searchHelp",
+      "to": "symbol:filter",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/help.controller.js#searchHelp",
+      "to": "symbol:includes",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/help.controller.js#searchHelp",
+      "to": "symbol:next",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/help.controller.js#getHelpTopicById",
+      "to": "symbol:find",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/help.controller.js#getHelpTopicById",
+      "to": "symbol:json",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/help.controller.js#getHelpTopicById",
+      "to": "symbol:status",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/help.controller.js#getHelpTopicById",
+      "to": "symbol:next",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:src/controllers/import.controller.js",
+      "to": "module:child_process",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "file:src/controllers/import.controller.js",
+      "to": "module:util",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "file:src/controllers/import.controller.js",
+      "to": "module:fs/promises",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "file:src/controllers/import.controller.js",
+      "to": "module:path",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "file:src/controllers/import.controller.js",
+      "to": "module:uuid",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "file:src/controllers/import.controller.js",
+      "to": "module:../services/neo4j-import.service.js",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "file:src/controllers/import.controller.js",
+      "to": "symbol:promisify",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/import.controller.js#analyzeWithLLMAndImport",
+      "to": "symbol:json",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/import.controller.js#analyzeWithLLMAndImport",
+      "to": "symbol:status",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/import.controller.js#analyzeWithLLMAndImport",
+      "to": "symbol:uuidv4",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/import.controller.js#analyzeWithLLMAndImport",
+      "to": "symbol:join",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/import.controller.js#analyzeWithLLMAndImport",
+      "to": "symbol:cwd",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/import.controller.js#analyzeWithLLMAndImport",
+      "to": "symbol:log",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/import.controller.js#analyzeWithLLMAndImport",
+      "to": "symbol:resolve",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/import.controller.js#analyzeWithLLMAndImport",
+      "to": "symbol:execAsync",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/import.controller.js#analyzeWithLLMAndImport",
+      "to": "symbol:includes",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/import.controller.js#analyzeWithLLMAndImport",
+      "to": "symbol:warn",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/import.controller.js#analyzeWithLLMAndImport",
+      "to": "symbol:parse",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/import.controller.js#analyzeWithLLMAndImport",
+      "to": "symbol:readFile",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/import.controller.js#analyzeWithLLMAndImport",
+      "to": "symbol:importDependencyGraphToNeo4j",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/import.controller.js#analyzeWithLLMAndImport",
+      "to": "symbol:error",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/import.controller.js#analyzeWithLLMAndImport",
+      "to": "symbol:toString",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/import.controller.js#getScanStats",
+      "to": "symbol:json",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/import.controller.js#getScanStats",
+      "to": "symbol:status",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/import.controller.js#getScanStats",
+      "to": "symbol:getScanDetails",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/import.controller.js#getScanStats",
+      "to": "symbol:error",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/import.controller.js#listScans",
+      "to": "symbol:getAllScans",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/import.controller.js#listScans",
+      "to": "symbol:json",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/import.controller.js#listScans",
+      "to": "symbol:error",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/import.controller.js#listScans",
+      "to": "symbol:status",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/import.controller.js#deleteScan",
+      "to": "symbol:json",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/import.controller.js#deleteScan",
+      "to": "symbol:status",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/import.controller.js#deleteScan",
+      "to": "symbol:deleteOldScans",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/import.controller.js#deleteScan",
+      "to": "symbol:error",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:src/controllers/scan.controller.js",
+      "to": "module:simple-git",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "file:src/controllers/scan.controller.js",
+      "to": "module:path",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "file:src/controllers/scan.controller.js",
+      "to": "module:fs",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "file:src/controllers/scan.controller.js",
+      "to": "module:url",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "file:src/controllers/scan.controller.js",
+      "to": "module:child_process",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "file:src/controllers/scan.controller.js",
+      "to": "module:util",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "file:src/controllers/scan.controller.js",
+      "to": "module:crypto",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "file:src/controllers/scan.controller.js",
+      "to": "module:../db/neo4j.queries.js",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "file:src/controllers/scan.controller.js",
+      "to": "module:../services/llm.service.js",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "file:src/controllers/scan.controller.js",
+      "to": "symbol:promisify",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:src/controllers/scan.controller.js",
+      "to": "symbol:fileURLToPath",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:src/controllers/scan.controller.js",
+      "to": "symbol:dirname",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:src/controllers/scan.controller.js",
+      "to": "symbol:resolve",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:src/controllers/scan.controller.js",
+      "to": "symbol:join",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#buildUniqueRepoDir",
+      "to": "symbol:replace",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#buildUniqueRepoDir",
+      "to": "symbol:basename",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#buildUniqueRepoDir",
+      "to": "symbol:toLowerCase",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#buildUniqueRepoDir",
+      "to": "symbol:now",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#buildUniqueRepoDir",
+      "to": "symbol:slice",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#buildUniqueRepoDir",
+      "to": "symbol:toString",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#buildUniqueRepoDir",
+      "to": "symbol:random",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#buildUniqueRepoDir",
+      "to": "symbol:join",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#getRepoIdFromCloneDir",
+      "to": "symbol:basename",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#assertValidRepoId",
+      "to": "symbol:test",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#getGraphFilePath",
+      "to": "function:src/controllers/scan.controller.js#assertValidRepoId",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#getGraphFilePath",
+      "to": "symbol:join",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#normalizeNeo4jNumber",
+      "to": "symbol:toNumber",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#normalizeNeo4jNumber",
+      "to": "symbol:Number",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#sanitizeSelectedText",
+      "to": "symbol:trim",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#sanitizeSelectedText",
+      "to": "symbol:replace",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#sanitizeSelectedText",
+      "to": "symbol:String",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#sanitizeSelectedText",
+      "to": "symbol:slice",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#extractSearchCandidates",
+      "to": "function:src/controllers/scan.controller.js#sanitizeSelectedText",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#extractSearchCandidates",
+      "to": "symbol:filter",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#extractSearchCandidates",
+      "to": "symbol:map",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#extractSearchCandidates",
+      "to": "symbol:split",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#extractSearchCandidates",
+      "to": "symbol:trim",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#extractSearchCandidates",
+      "to": "symbol:slice",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#getPreferredSymbolForTracing",
+      "to": "symbol:isArray",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#getPreferredSymbolForTracing",
+      "to": "symbol:find",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#getPreferredSymbolForTracing",
+      "to": "symbol:includes",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#normalizeRelationshipType",
+      "to": "symbol:toUpperCase",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#normalizeRelationshipType",
+      "to": "symbol:trim",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#normalizeRelationshipType",
+      "to": "symbol:String",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#isTruthyFlag",
+      "to": "symbol:toLowerCase",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#isTruthyFlag",
+      "to": "symbol:trim",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#isTruthyFlag",
+      "to": "symbol:String",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#classifyDependencyNature",
+      "to": "function:src/controllers/scan.controller.js#normalizeRelationshipType",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#classifyDependencyNature",
+      "to": "function:src/controllers/scan.controller.js#isTruthyFlag",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#classifyDependencyNature",
+      "to": "symbol:has",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#ensureBucket",
+      "to": "symbol:trim",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#ensureBucket",
+      "to": "symbol:String",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#ensureBucket",
+      "to": "symbol:has",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#ensureBucket",
+      "to": "symbol:set",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#ensureBucket",
+      "to": "function:src/controllers/scan.controller.js#createFileContextBucket",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#ensureBucket",
+      "to": "symbol:get",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#buildFileDependencyContexts",
+      "to": "function:src/controllers/scan.controller.js#ensureBucket",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#buildFileDependencyContexts",
+      "to": "symbol:push",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#buildFileDependencyContexts",
+      "to": "symbol:map",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#buildFileDependencyContexts",
+      "to": "function:src/controllers/scan.controller.js#normalizeRelationshipType",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#buildFileDependencyContexts",
+      "to": "function:src/controllers/scan.controller.js#classifyDependencyNature",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#buildFileDependencyContexts",
+      "to": "symbol:String",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#buildFileDependencyContexts",
+      "to": "symbol:filter",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#buildFileDependencyContexts",
+      "to": "symbol:trim",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#buildFileDependencyContexts",
+      "to": "symbol:values",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#buildFileDependencyContexts",
+      "to": "symbol:join",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#buildFileDependencyContexts",
+      "to": "symbol:has",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#buildFileDependencyContexts",
+      "to": "symbol:add",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#buildFileDependencyContexts",
+      "to": "symbol:sort",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#summarizeStaticRuntimeDependencies",
+      "to": "function:src/controllers/scan.controller.js#normalizeRelationshipType",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#summarizeStaticRuntimeDependencies",
+      "to": "symbol:add",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#summarizeStaticRuntimeDependencies",
+      "to": "symbol:sort",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#summarizeStaticRuntimeDependencies",
+      "to": "symbol:localeCompare",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#buildLlmGraphContext",
+      "to": "symbol:set",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#buildLlmGraphContext",
+      "to": "symbol:String",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#buildLlmGraphContext",
+      "to": "symbol:entries",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#buildLlmGraphContext",
+      "to": "symbol:get",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#buildLlmGraphContext",
+      "to": "symbol:slice",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#buildLlmGraphContext",
+      "to": "symbol:from",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#buildLlmGraphContext",
+      "to": "symbol:values",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#buildSeedPayloadFromParser",
+      "to": "symbol:toISOString",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#buildSeedPayloadFromParser",
+      "to": "symbol:filter",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#buildSeedPayloadFromParser",
+      "to": "symbol:map",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#resolveImportedFileRawId",
+      "to": "symbol:startsWith",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#resolveImportedFileRawId",
+      "to": "symbol:replace",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#resolveImportedFileRawId",
+      "to": "symbol:dirname",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#resolveImportedFileRawId",
+      "to": "symbol:normalize",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#resolveImportedFileRawId",
+      "to": "symbol:join",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#resolveImportedFileRawId",
+      "to": "symbol:Boolean",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#resolveImportedFileRawId",
+      "to": "symbol:extname",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#resolveImportedFileRawId",
+      "to": "symbol:push",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#resolveImportedFileRawId",
+      "to": "symbol:get",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#buildSeedPayloadFromParser",
+      "to": "symbol:set",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#buildSeedPayloadFromParser",
+      "to": "symbol:extname",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#buildSeedPayloadFromParser",
+      "to": "symbol:includes",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#buildSeedPayloadFromParser",
+      "to": "symbol:startsWith",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#buildSeedPayloadFromParser",
+      "to": "symbol:slice",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#buildSeedPayloadFromParser",
+      "to": "function:src/controllers/scan.controller.js#resolveImportedFileRawId",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#buildSeedPayloadFromParser",
+      "to": "symbol:get",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#postScan",
+      "to": "symbol:json",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#postScan",
+      "to": "symbol:status",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#postScan",
+      "to": "symbol:test",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#postScan",
+      "to": "symbol:isAbsolute",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#postScan",
+      "to": "function:src/controllers/scan.controller.js#buildUniqueRepoDir",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#postScan",
+      "to": "function:src/controllers/scan.controller.js#getRepoIdFromCloneDir",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#postScan",
+      "to": "symbol:mkdirSync",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#postScan",
+      "to": "symbol:clone",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#postScan",
+      "to": "symbol:simpleGit",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#postScan",
+      "to": "symbol:execFileAsync",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#postScan",
+      "to": "symbol:parse",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#postScan",
+      "to": "symbol:writeFileSync",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#postScan",
+      "to": "function:src/controllers/scan.controller.js#getGraphFilePath",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#postScan",
+      "to": "symbol:stringify",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#postScan",
+      "to": "symbol:next",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#getGraph",
+      "to": "function:src/controllers/scan.controller.js#getGraphFilePath",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#getGraph",
+      "to": "symbol:existsSync",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#getGraph",
+      "to": "symbol:json",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#getGraph",
+      "to": "symbol:status",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#getGraph",
+      "to": "symbol:parse",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#getGraph",
+      "to": "symbol:readFileSync",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#getGraph",
+      "to": "symbol:map",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#getGraph",
+      "to": "symbol:next",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#deleteGraph",
+      "to": "function:src/controllers/scan.controller.js#getGraphFilePath",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#deleteGraph",
+      "to": "symbol:existsSync",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#deleteGraph",
+      "to": "symbol:json",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#deleteGraph",
+      "to": "symbol:status",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#deleteGraph",
+      "to": "symbol:unlinkSync",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#deleteGraph",
+      "to": "symbol:next",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#seedSchema",
+      "to": "symbol:setupDatabaseSchema",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#seedSchema",
+      "to": "database:Database",
+      "type": "READS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#seedSchema",
+      "to": "symbol:json",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#seedSchema",
+      "to": "symbol:status",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#seedSchema",
+      "to": "symbol:next",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#seedGraphToDb",
+      "to": "function:src/controllers/scan.controller.js#getGraphFilePath",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#seedGraphToDb",
+      "to": "symbol:existsSync",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#seedGraphToDb",
+      "to": "symbol:json",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#seedGraphToDb",
+      "to": "symbol:status",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#seedGraphToDb",
+      "to": "symbol:parse",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#seedGraphToDb",
+      "to": "symbol:readFileSync",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#seedGraphToDb",
+      "to": "symbol:randomUUID",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#seedGraphToDb",
+      "to": "function:src/controllers/scan.controller.js#buildSeedPayloadFromParser",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#seedGraphToDb",
+      "to": "symbol:seedParsedGraph",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#seedGraphToDb",
+      "to": "symbol:next",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#getMetrics",
+      "to": "symbol:json",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#getMetrics",
+      "to": "symbol:status",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#getMetrics",
+      "to": "symbol:getGraphMetrics",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#getMetrics",
+      "to": "function:src/controllers/scan.controller.js#normalizeNeo4jNumber",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#getMetrics",
+      "to": "symbol:next",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#getImpact",
+      "to": "symbol:json",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#getImpact",
+      "to": "symbol:status",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#getImpact",
+      "to": "symbol:getImpactedNodesByNode",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#getImpact",
+      "to": "symbol:map",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#getImpact",
+      "to": "function:src/controllers/scan.controller.js#normalizeNeo4jNumber",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#getImpact",
+      "to": "symbol:includes",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#getImpact",
+      "to": "symbol:next",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#getFileRelations",
+      "to": "symbol:json",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#getFileRelations",
+      "to": "symbol:status",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#getFileRelations",
+      "to": "symbol:getRelatedFilesByPath",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#getFileRelations",
+      "to": "symbol:includes",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#getFileRelations",
+      "to": "symbol:next",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#analyzeDependencies",
+      "to": "symbol:json",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#analyzeDependencies",
+      "to": "symbol:status",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#analyzeDependencies",
+      "to": "function:src/controllers/scan.controller.js#getGraphFilePath",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#analyzeDependencies",
+      "to": "symbol:existsSync",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#analyzeDependencies",
+      "to": "symbol:parse",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#analyzeDependencies",
+      "to": "symbol:readFileSync",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#analyzeDependencies",
+      "to": "symbol:filter",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#analyzeDependencies",
+      "to": "symbol:trim",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#analyzeDependencies",
+      "to": "symbol:join",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#analyzeDependencies",
+      "to": "symbol:readdirSync",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#analyzeDependencies",
+      "to": "symbol:includes",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#analyzeDependencies",
+      "to": "symbol:slice",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#analyzeDependencies",
+      "to": "symbol:split",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#analyzeDependencies",
+      "to": "symbol:forEach",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#analyzeDependencies",
+      "to": "symbol:max",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#analyzeDependencies",
+      "to": "symbol:min",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#analyzeDependencies",
+      "to": "symbol:push",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#analyzeDependencies",
+      "to": "symbol:next",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#analyzeDependenciesWithIntelligence",
+      "to": "function:src/controllers/scan.controller.js#sanitizeSelectedText",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#analyzeDependenciesWithIntelligence",
+      "to": "function:src/controllers/scan.controller.js#extractSearchCandidates",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#analyzeDependenciesWithIntelligence",
+      "to": "function:src/controllers/scan.controller.js#getPreferredSymbolForTracing",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#analyzeDependenciesWithIntelligence",
+      "to": "symbol:json",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#analyzeDependenciesWithIntelligence",
+      "to": "symbol:status",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#analyzeDependenciesWithIntelligence",
+      "to": "symbol:findSymbolOccurrences",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#analyzeDependenciesWithIntelligence",
+      "to": "symbol:String",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#analyzeDependenciesWithIntelligence",
+      "to": "symbol:has",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#analyzeDependenciesWithIntelligence",
+      "to": "symbol:add",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#analyzeDependenciesWithIntelligence",
+      "to": "symbol:push",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#analyzeDependenciesWithIntelligence",
+      "to": "symbol:warn",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#analyzeDependenciesWithIntelligence",
+      "to": "function:src/controllers/scan.controller.js#getGraphFilePath",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#analyzeDependenciesWithIntelligence",
+      "to": "symbol:existsSync",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#analyzeDependenciesWithIntelligence",
+      "to": "symbol:parse",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#analyzeDependenciesWithIntelligence",
+      "to": "symbol:readFileSync",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#analyzeDependenciesWithIntelligence",
+      "to": "symbol:filter",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#analyzeDependenciesWithIntelligence",
+      "to": "symbol:trim",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#analyzeDependenciesWithIntelligence",
+      "to": "symbol:readdirSync",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#analyzeDependenciesWithIntelligence",
+      "to": "symbol:includes",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#analyzeDependenciesWithIntelligence",
+      "to": "symbol:join",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#analyzeDependenciesWithIntelligence",
+      "to": "symbol:slice",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#analyzeDependenciesWithIntelligence",
+      "to": "symbol:split",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#analyzeDependenciesWithIntelligence",
+      "to": "symbol:max",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#analyzeDependenciesWithIntelligence",
+      "to": "symbol:min",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#analyzeDependenciesWithIntelligence",
+      "to": "symbol:set",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#analyzeDependenciesWithIntelligence",
+      "to": "symbol:get",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#analyzeDependenciesWithIntelligence",
+      "to": "symbol:sort",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#analyzeDependenciesWithIntelligence",
+      "to": "symbol:values",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#analyzeDependenciesWithIntelligence",
+      "to": "function:src/controllers/scan.controller.js#summarizeStaticRuntimeDependencies",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#analyzeDependenciesWithIntelligence",
+      "to": "symbol:generatePerFileDependencyInsights",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#analyzeDependenciesWithIntelligence",
+      "to": "symbol:getNodeDependencies",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#analyzeDependenciesWithIntelligence",
+      "to": "symbol:traceSymbolDependencies",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#analyzeDependenciesWithIntelligence",
+      "to": "symbol:getSymbolReferences",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#analyzeDependenciesWithIntelligence",
+      "to": "function:src/controllers/scan.controller.js#buildLlmGraphContext",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#analyzeDependenciesWithIntelligence",
+      "to": "symbol:map",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#analyzeDependenciesWithIntelligence",
+      "to": "symbol:keys",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#analyzeDependenciesWithIntelligence",
+      "to": "function:src/controllers/scan.controller.js#calculateChainDepth",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#analyzeDependenciesWithIntelligence",
+      "to": "symbol:flatMap",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#analyzeDependenciesWithIntelligence",
+      "to": "function:src/controllers/scan.controller.js#buildFileDependencyContexts",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#analyzeDependenciesWithIntelligence",
+      "to": "symbol:analyzeDependenciesWithLLM",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#analyzeDependenciesWithIntelligence",
+      "to": "symbol:inferImplicitDependencies",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#analyzeDependenciesWithIntelligence",
+      "to": "symbol:error",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/controllers/scan.controller.js#analyzeDependenciesWithIntelligence",
+      "to": "symbol:next",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:src/db/neo4j.queries.js",
+      "to": "module:../config/neo4j.js",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "function:src/db/neo4j.queries.js#setupDatabaseSchema",
+      "to": "symbol:getSession",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/db/neo4j.queries.js#setupDatabaseSchema",
+      "to": "symbol:run",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/db/neo4j.queries.js#setupDatabaseSchema",
+      "to": "symbol:log",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/db/neo4j.queries.js#setupDatabaseSchema",
+      "to": "symbol:error",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/db/neo4j.queries.js#setupDatabaseSchema",
+      "to": "symbol:close",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/db/neo4j.queries.js#getImpactGraph",
+      "to": "symbol:getSession",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/db/neo4j.queries.js#getImpactGraph",
+      "to": "symbol:run",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/db/neo4j.queries.js#getImpactGraph",
+      "to": "symbol:map",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/db/neo4j.queries.js#getImpactGraph",
+      "to": "symbol:toObject",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/db/neo4j.queries.js#getImpactGraph",
+      "to": "symbol:close",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/db/neo4j.queries.js#getFullGraph",
+      "to": "symbol:getSession",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/db/neo4j.queries.js#getFullGraph",
+      "to": "symbol:run",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/db/neo4j.queries.js#getFullGraph",
+      "to": "symbol:toObject",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/db/neo4j.queries.js#getFullGraph",
+      "to": "symbol:close",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/db/neo4j.queries.js#deleteScan",
+      "to": "symbol:getSession",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/db/neo4j.queries.js#deleteScan",
+      "to": "symbol:run",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/db/neo4j.queries.js#deleteScan",
+      "to": "symbol:close",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/db/neo4j.queries.js#getEndpointConsumers",
+      "to": "symbol:getSession",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/db/neo4j.queries.js#getEndpointConsumers",
+      "to": "symbol:run",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/db/neo4j.queries.js#getEndpointConsumers",
+      "to": "symbol:map",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/db/neo4j.queries.js#getEndpointConsumers",
+      "to": "symbol:toObject",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/db/neo4j.queries.js#getEndpointConsumers",
+      "to": "symbol:close",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/db/neo4j.queries.js#getFileRelationships",
+      "to": "symbol:getSession",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/db/neo4j.queries.js#getFileRelationships",
+      "to": "symbol:run",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/db/neo4j.queries.js#getFileRelationships",
+      "to": "symbol:map",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/db/neo4j.queries.js#getFileRelationships",
+      "to": "symbol:toObject",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/db/neo4j.queries.js#getFileRelationships",
+      "to": "symbol:close",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/db/neo4j.queries.js#getFunctionCalls",
+      "to": "symbol:getSession",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/db/neo4j.queries.js#getFunctionCalls",
+      "to": "symbol:run",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/db/neo4j.queries.js#getFunctionCalls",
+      "to": "symbol:map",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/db/neo4j.queries.js#getFunctionCalls",
+      "to": "symbol:toObject",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/db/neo4j.queries.js#getFunctionCalls",
+      "to": "symbol:close",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/db/neo4j.queries.js#getExposedEndpoints",
+      "to": "symbol:getSession",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/db/neo4j.queries.js#getExposedEndpoints",
+      "to": "symbol:run",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/db/neo4j.queries.js#getExposedEndpoints",
+      "to": "symbol:map",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/db/neo4j.queries.js#getExposedEndpoints",
+      "to": "symbol:toObject",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/db/neo4j.queries.js#getExposedEndpoints",
+      "to": "symbol:close",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/db/neo4j.queries.js#getDatabaseTopology",
+      "to": "symbol:getSession",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/db/neo4j.queries.js#getDatabaseTopology",
+      "to": "symbol:run",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/db/neo4j.queries.js#getDatabaseTopology",
+      "to": "symbol:map",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/db/neo4j.queries.js#getDatabaseTopology",
+      "to": "symbol:toObject",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/db/neo4j.queries.js#getDatabaseTopology",
+      "to": "symbol:close",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/db/neo4j.queries.js#getDatabaseAccessors",
+      "to": "symbol:getSession",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/db/neo4j.queries.js#getDatabaseAccessors",
+      "to": "symbol:run",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/db/neo4j.queries.js#getDatabaseAccessors",
+      "to": "symbol:map",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/db/neo4j.queries.js#getDatabaseAccessors",
+      "to": "symbol:toObject",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/db/neo4j.queries.js#getDatabaseAccessors",
+      "to": "symbol:close",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/db/neo4j.queries.js#getApiContracts",
+      "to": "symbol:getSession",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/db/neo4j.queries.js#getApiContracts",
+      "to": "symbol:run",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/db/neo4j.queries.js#getApiContracts",
+      "to": "symbol:map",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/db/neo4j.queries.js#getApiContracts",
+      "to": "symbol:toObject",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/db/neo4j.queries.js#getApiContracts",
+      "to": "symbol:close",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/db/neo4j.queries.js#getApiCalls",
+      "to": "symbol:getSession",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/db/neo4j.queries.js#getApiCalls",
+      "to": "symbol:run",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/db/neo4j.queries.js#getApiCalls",
+      "to": "symbol:map",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/db/neo4j.queries.js#getApiCalls",
+      "to": "symbol:toObject",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/db/neo4j.queries.js#getApiCalls",
+      "to": "symbol:close",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/db/neo4j.queries.js#getDbReads",
+      "to": "symbol:getSession",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/db/neo4j.queries.js#getDbReads",
+      "to": "symbol:run",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/db/neo4j.queries.js#getDbReads",
+      "to": "symbol:map",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/db/neo4j.queries.js#getDbReads",
+      "to": "symbol:toObject",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/db/neo4j.queries.js#getDbReads",
+      "to": "symbol:close",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/db/neo4j.queries.js#getImpactedNodesByNode",
+      "to": "symbol:getSession",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/db/neo4j.queries.js#getImpactedNodesByNode",
+      "to": "symbol:run",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/db/neo4j.queries.js#getImpactedNodesByNode",
+      "to": "symbol:map",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/db/neo4j.queries.js#getImpactedNodesByNode",
+      "to": "symbol:toObject",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/db/neo4j.queries.js#getImpactedNodesByNode",
+      "to": "symbol:close",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/db/neo4j.queries.js#getRelatedFilesByPath",
+      "to": "symbol:getSession",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/db/neo4j.queries.js#getRelatedFilesByPath",
+      "to": "symbol:run",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/db/neo4j.queries.js#getRelatedFilesByPath",
+      "to": "symbol:filter",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/db/neo4j.queries.js#getRelatedFilesByPath",
+      "to": "symbol:map",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/db/neo4j.queries.js#getRelatedFilesByPath",
+      "to": "symbol:get",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/db/neo4j.queries.js#getRelatedFilesByPath",
+      "to": "symbol:delete",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/db/neo4j.queries.js#getRelatedFilesByPath",
+      "to": "symbol:sort",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/db/neo4j.queries.js#getRelatedFilesByPath",
+      "to": "symbol:localeCompare",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/db/neo4j.queries.js#getRelatedFilesByPath",
+      "to": "symbol:close",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/db/neo4j.queries.js#getGraphMetrics",
+      "to": "symbol:getSession",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/db/neo4j.queries.js#getGraphMetrics",
+      "to": "symbol:run",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/db/neo4j.queries.js#getGraphMetrics",
+      "to": "symbol:toObject",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/db/neo4j.queries.js#getGraphMetrics",
+      "to": "symbol:close",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/db/neo4j.queries.js#seedParsedGraph",
+      "to": "symbol:getSession",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/db/neo4j.queries.js#seedParsedGraph",
+      "to": "symbol:executeWrite",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/db/neo4j.queries.js#seedParsedGraph",
+      "to": "symbol:run",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/db/neo4j.queries.js#seedParsedGraph",
+      "to": "symbol:close",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/db/neo4j.queries.js#findSymbolOccurrences",
+      "to": "symbol:getSession",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/db/neo4j.queries.js#findSymbolOccurrences",
+      "to": "symbol:run",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/db/neo4j.queries.js#findSymbolOccurrences",
+      "to": "symbol:map",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/db/neo4j.queries.js#findSymbolOccurrences",
+      "to": "symbol:toObject",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/db/neo4j.queries.js#findSymbolOccurrences",
+      "to": "symbol:close",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/db/neo4j.queries.js#getNodeDependencies",
+      "to": "symbol:getSession",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/db/neo4j.queries.js#getNodeDependencies",
+      "to": "symbol:run",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/db/neo4j.queries.js#getNodeDependencies",
+      "to": "symbol:map",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/db/neo4j.queries.js#getNodeDependencies",
+      "to": "symbol:toObject",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/db/neo4j.queries.js#getNodeDependencies",
+      "to": "symbol:close",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/db/neo4j.queries.js#traceSymbolDependencies",
+      "to": "symbol:getSession",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/db/neo4j.queries.js#traceSymbolDependencies",
+      "to": "symbol:run",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/db/neo4j.queries.js#traceSymbolDependencies",
+      "to": "symbol:get",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/db/neo4j.queries.js#traceSymbolDependencies",
+      "to": "symbol:map",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/db/neo4j.queries.js#traceSymbolDependencies",
+      "to": "symbol:toString",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/db/neo4j.queries.js#traceSymbolDependencies",
+      "to": "symbol:close",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/db/neo4j.queries.js#getSymbolReferences",
+      "to": "symbol:getSession",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/db/neo4j.queries.js#getSymbolReferences",
+      "to": "symbol:run",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/db/neo4j.queries.js#getSymbolReferences",
+      "to": "symbol:map",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/db/neo4j.queries.js#getSymbolReferences",
+      "to": "symbol:toObject",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/db/neo4j.queries.js#getSymbolReferences",
+      "to": "symbol:close",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:src/routes/help.routes.js",
+      "to": "module:express",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "file:src/routes/help.routes.js",
+      "to": "module:../controllers/help.controller.js",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "file:src/routes/help.routes.js",
+      "to": "symbol:Router",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:src/routes/help.routes.js",
+      "to": "symbol:get",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:src/routes/import.routes.js",
+      "to": "module:express",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "file:src/routes/import.routes.js",
+      "to": "module:../controllers/import.controller.js",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "file:src/routes/import.routes.js",
+      "to": "symbol:Router",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:src/routes/import.routes.js",
+      "to": "symbol:post",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:src/routes/import.routes.js",
+      "to": "symbol:get",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:src/routes/import.routes.js",
+      "to": "symbol:delete",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:src/routes/scan.routes.js",
+      "to": "module:express",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "file:src/routes/scan.routes.js",
+      "to": "module:../controllers/scan.controller.js",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "file:src/routes/scan.routes.js",
+      "to": "symbol:Router",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:src/routes/scan.routes.js",
+      "to": "symbol:post",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:src/routes/scan.routes.js",
+      "to": "symbol:get",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:src/routes/scan.routes.js",
+      "to": "symbol:delete",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:src/services/llm.service.js",
+      "to": "module:dotenv/config",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "file:src/services/llm.service.js",
+      "to": "module:openai",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "function:src/services/llm.service.js#truncateText",
+      "to": "symbol:trim",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/services/llm.service.js#truncateText",
+      "to": "symbol:String",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/services/llm.service.js#truncateText",
+      "to": "symbol:slice",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/services/llm.service.js#toArray",
+      "to": "symbol:isArray",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/services/llm.service.js#toArray",
+      "to": "symbol:filter",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/services/llm.service.js#toArray",
+      "to": "symbol:map",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/services/llm.service.js#toArray",
+      "to": "symbol:String",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/services/llm.service.js#toArray",
+      "to": "symbol:trim",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/services/llm.service.js#toArray",
+      "to": "symbol:split",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/services/llm.service.js#extractTextResponse",
+      "to": "symbol:trim",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/services/llm.service.js#extractTextResponse",
+      "to": "symbol:String",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/services/llm.service.js#extractTextFromChatCompletion",
+      "to": "symbol:trim",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/services/llm.service.js#extractTextFromChatCompletion",
+      "to": "symbol:isArray",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/services/llm.service.js#extractTextFromChatCompletion",
+      "to": "symbol:join",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/services/llm.service.js#extractTextFromChatCompletion",
+      "to": "symbol:map",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/services/llm.service.js#extractFirstJsonObject",
+      "to": "symbol:match",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/services/llm.service.js#extractFirstJsonObject",
+      "to": "symbol:parse",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/services/llm.service.js#normalizeRiskLevel",
+      "to": "symbol:toUpperCase",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/services/llm.service.js#normalizeRiskLevel",
+      "to": "symbol:String",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/services/llm.service.js#normalizeRiskLevel",
+      "to": "symbol:includes",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/services/llm.service.js#normalizeImpactCategory",
+      "to": "symbol:replace",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/services/llm.service.js#normalizeImpactCategory",
+      "to": "symbol:toUpperCase",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/services/llm.service.js#normalizeImpactCategory",
+      "to": "symbol:String",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/services/llm.service.js#normalizeImpactCategory",
+      "to": "symbol:includes",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/services/llm.service.js#computeImpactCategory",
+      "to": "function:src/services/llm.service.js#normalizeRiskLevel",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/services/llm.service.js#computeImpactCategory",
+      "to": "symbol:isArray",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/services/llm.service.js#normalizeConfidence",
+      "to": "symbol:toUpperCase",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/services/llm.service.js#normalizeConfidence",
+      "to": "symbol:String",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/services/llm.service.js#normalizeFileInsight",
+      "to": "symbol:isArray",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/services/llm.service.js#normalizeFileInsight",
+      "to": "symbol:trim",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/services/llm.service.js#normalizeFileInsight",
+      "to": "symbol:String",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/services/llm.service.js#normalizeFileInsight",
+      "to": "function:src/services/llm.service.js#toArray",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/services/llm.service.js#normalizeFileInsight",
+      "to": "function:src/services/llm.service.js#normalizeImpactCategory",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/services/llm.service.js#normalizeFileInsight",
+      "to": "function:src/services/llm.service.js#truncateText",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/services/llm.service.js#normalizeFileInsight",
+      "to": "function:src/services/llm.service.js#normalizeRiskLevel",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/services/llm.service.js#normalizeFileInsight",
+      "to": "function:src/services/llm.service.js#computeImpactCategory",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/services/llm.service.js#normalizeFileInsight",
+      "to": "function:src/services/llm.service.js#normalizeConfidence",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/services/llm.service.js#buildFallbackFileInsight",
+      "to": "symbol:trim",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/services/llm.service.js#buildFallbackFileInsight",
+      "to": "symbol:String",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/services/llm.service.js#buildFallbackFileInsight",
+      "to": "symbol:isArray",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/services/llm.service.js#buildFallbackFileInsight",
+      "to": "symbol:map",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/services/llm.service.js#buildFallbackFileInsight",
+      "to": "symbol:slice",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/services/llm.service.js#buildFallbackFileInsight",
+      "to": "symbol:filter",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/services/llm.service.js#buildFallbackFileInsight",
+      "to": "function:src/services/llm.service.js#toArray",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/services/llm.service.js#buildFallbackFileInsight",
+      "to": "function:src/services/llm.service.js#computeImpactCategory",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/services/llm.service.js#normalizeDependencyAnalysis",
+      "to": "symbol:isArray",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/services/llm.service.js#normalizeDependencyAnalysis",
+      "to": "function:src/services/llm.service.js#truncateText",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/services/llm.service.js#normalizeDependencyAnalysis",
+      "to": "function:src/services/llm.service.js#toArray",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/services/llm.service.js#normalizeDependencyAnalysis",
+      "to": "symbol:toUpperCase",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/services/llm.service.js#normalizeDependencyAnalysis",
+      "to": "symbol:String",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/services/llm.service.js#normalizeDependencyAnalysis",
+      "to": "function:src/services/llm.service.js#normalizeRiskLevel",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/services/llm.service.js#normalizeDependencyAnalysis",
+      "to": "symbol:stringify",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/services/llm.service.js#runLlmRequest",
+      "to": "symbol:Number",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/services/llm.service.js#runLlmRequest",
+      "to": "symbol:create",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/services/llm.service.js#runLlmRequest",
+      "to": "function:src/services/llm.service.js#extractTextFromChatCompletion",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/services/llm.service.js#runLlmRequest",
+      "to": "function:src/services/llm.service.js#extractTextResponse",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/services/llm.service.js#analyzeDependenciesWithLLM",
+      "to": "function:src/services/llm.service.js#truncateText",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/services/llm.service.js#analyzeDependenciesWithLLM",
+      "to": "symbol:slice",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/services/llm.service.js#analyzeDependenciesWithLLM",
+      "to": "symbol:map",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/services/llm.service.js#analyzeDependenciesWithLLM",
+      "to": "symbol:join",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/services/llm.service.js#analyzeDependenciesWithLLM",
+      "to": "symbol:stringify",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/services/llm.service.js#analyzeDependenciesWithLLM",
+      "to": "function:src/services/llm.service.js#runLlmRequest",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/services/llm.service.js#analyzeDependenciesWithLLM",
+      "to": "function:src/services/llm.service.js#extractFirstJsonObject",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/services/llm.service.js#analyzeDependenciesWithLLM",
+      "to": "function:src/services/llm.service.js#normalizeDependencyAnalysis",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/services/llm.service.js#analyzeDependenciesWithLLM",
+      "to": "symbol:error",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/services/llm.service.js#generatePerFileDependencyInsights",
+      "to": "symbol:isArray",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/services/llm.service.js#generatePerFileDependencyInsights",
+      "to": "symbol:filter",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/services/llm.service.js#generatePerFileDependencyInsights",
+      "to": "symbol:map",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/services/llm.service.js#generatePerFileDependencyInsights",
+      "to": "function:src/services/llm.service.js#buildFallbackFileInsight",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/services/llm.service.js#generatePerFileDependencyInsights",
+      "to": "function:src/services/llm.service.js#truncateText",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/services/llm.service.js#generatePerFileDependencyInsights",
+      "to": "symbol:slice",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/services/llm.service.js#generatePerFileDependencyInsights",
+      "to": "symbol:join",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/services/llm.service.js#generatePerFileDependencyInsights",
+      "to": "symbol:stringify",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/services/llm.service.js#generatePerFileDependencyInsights",
+      "to": "function:src/services/llm.service.js#runLlmRequest",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/services/llm.service.js#generatePerFileDependencyInsights",
+      "to": "function:src/services/llm.service.js#extractFirstJsonObject",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/services/llm.service.js#generatePerFileDependencyInsights",
+      "to": "symbol:set",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/services/llm.service.js#generatePerFileDependencyInsights",
+      "to": "function:src/services/llm.service.js#normalizeFileInsight",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/services/llm.service.js#generatePerFileDependencyInsights",
+      "to": "symbol:get",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/services/llm.service.js#generatePerFileDependencyInsights",
+      "to": "symbol:error",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/services/llm.service.js#generateArchitectureSummary",
+      "to": "symbol:stringify",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/services/llm.service.js#generateArchitectureSummary",
+      "to": "symbol:join",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/services/llm.service.js#generateArchitectureSummary",
+      "to": "symbol:map",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/services/llm.service.js#generateArchitectureSummary",
+      "to": "function:src/services/llm.service.js#runLlmRequest",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/services/llm.service.js#generateArchitectureSummary",
+      "to": "symbol:error",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/services/llm.service.js#inferImplicitDependencies",
+      "to": "symbol:stringify",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/services/llm.service.js#inferImplicitDependencies",
+      "to": "function:src/services/llm.service.js#runLlmRequest",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/services/llm.service.js#inferImplicitDependencies",
+      "to": "function:src/services/llm.service.js#extractFirstJsonObject",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/services/llm.service.js#inferImplicitDependencies",
+      "to": "symbol:error",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:src/services/neo4j-import.service.js",
+      "to": "module:../config/neo4j.js",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "function:src/services/neo4j-import.service.js#importDependencyGraphToNeo4j",
+      "to": "symbol:session",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/services/neo4j-import.service.js#importDependencyGraphToNeo4j",
+      "to": "symbol:run",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/services/neo4j-import.service.js#importDependencyGraphToNeo4j",
+      "to": "function:src/services/neo4j-import.service.js#chunkArray",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/services/neo4j-import.service.js#importDependencyGraphToNeo4j",
+      "to": "symbol:toISOString",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/services/neo4j-import.service.js#importDependencyGraphToNeo4j",
+      "to": "symbol:error",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/services/neo4j-import.service.js#importDependencyGraphToNeo4j",
+      "to": "symbol:close",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/services/neo4j-import.service.js#getScanDetails",
+      "to": "symbol:session",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/services/neo4j-import.service.js#getScanDetails",
+      "to": "symbol:run",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/services/neo4j-import.service.js#getScanDetails",
+      "to": "symbol:get",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/services/neo4j-import.service.js#getScanDetails",
+      "to": "symbol:close",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/services/neo4j-import.service.js#getAllScans",
+      "to": "symbol:session",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/services/neo4j-import.service.js#getAllScans",
+      "to": "symbol:run",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/services/neo4j-import.service.js#getAllScans",
+      "to": "symbol:map",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/services/neo4j-import.service.js#getAllScans",
+      "to": "symbol:get",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/services/neo4j-import.service.js#getAllScans",
+      "to": "symbol:close",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/services/neo4j-import.service.js#deleteOldScans",
+      "to": "symbol:session",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/services/neo4j-import.service.js#deleteOldScans",
+      "to": "symbol:run",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/services/neo4j-import.service.js#deleteOldScans",
+      "to": "symbol:nodesDeleted",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/services/neo4j-import.service.js#deleteOldScans",
+      "to": "symbol:relationshipsDeleted",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/services/neo4j-import.service.js#deleteOldScans",
+      "to": "symbol:close",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/services/neo4j-import.service.js#chunkArray",
+      "to": "symbol:push",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/services/neo4j-import.service.js#chunkArray",
+      "to": "symbol:slice",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:tests/api.test.js",
+      "to": "module:axios",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "file:tests/api.test.js",
+      "to": "module:@jest/globals",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "file:tests/api.test.js",
+      "to": "symbol:create",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:tests/api.test.js",
+      "to": "service:axios",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:tests/api.test.js#makeRequest",
+      "to": "symbol:apiClient",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:tests/api.test.js#makeRequest",
+      "to": "symbol:error",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:tests/api.test.js#logTestResult",
+      "to": "symbol:log",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:tests/api.test.js",
+      "to": "symbol:describe",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:tests/api.test.js",
+      "to": "symbol:test",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:tests/api.test.js",
+      "to": "function:tests/api.test.js#makeRequest",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:tests/api.test.js",
+      "to": "symbol:toBe",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:tests/api.test.js",
+      "to": "symbol:expect",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:tests/api.test.js",
+      "to": "symbol:toContain",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:tests/api.test.js",
+      "to": "function:tests/api.test.js#logTestResult",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:tests/api.test.js",
+      "to": "symbol:toBeDefined",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:tests/api.test.js",
+      "to": "function:tests/api.test.js#toBeOneOf",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:tests/api.test.js",
+      "to": "symbol:isArray",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:tests/api.test.js",
+      "to": "symbol:every",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:tests/api.test.js",
+      "to": "symbol:hasOwnProperty",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:tests/api.test.js",
+      "to": "symbol:toHaveProperty",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:tests/api.test.js",
+      "to": "symbol:forEach",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:tests/api.test.js",
+      "to": "symbol:isInteger",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:tests/api.test.js",
+      "to": "symbol:post",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:tests/api.test.js",
+      "to": "symbol:toBeGreaterThanOrEqual",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:tests/api.test.js",
+      "to": "symbol:extend",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:tests/api.test.js#toBeOneOf",
+      "to": "symbol:includes",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:tests/api.test.js#toBeOneOf",
+      "to": "symbol:join",
+      "type": "CALLS"
+    }
+  ],
+  "llmInsights": {
+    "status": "skipped",
+    "reason": "OPENAI_API_KEY is not configured",
+    "generatedAt": "2026-03-14T22:08:38.505Z"
+  }
+}

@@ -7,7 +7,8 @@
   "scripts": {
     "analyze": "node src/index.js",
     "analyze:demo": "node src/index.js --repo ../Backend --out ./output/dependency-graph.json",
-    "analyze:with-llm": "node src/index.js --repo ../Frontend --out ./output/frontend-graph-with-insights.json --with-llm"
+    "analyze:with-llm": "node src/index.js --repo ../Frontend --out ./output/frontend-graph-with-insights.json --with-llm",
+    "agent:deps": "node src/agent.js"
   },
   "dependencies": {
     "@repomix/tree-sitter-wasms": "^0.1.16",

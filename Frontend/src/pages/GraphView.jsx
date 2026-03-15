@@ -3,8 +3,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import cytoscape from 'cytoscape';
 import { Filter, RefreshCw, ZoomIn, ZoomOut, Maximize2, Info, Search } from 'lucide-react';
-import { setSelectedNode, clearSelection, setGraphData, setFilterLangs, setFilterTypes } from '../store/index';
-import { useGetGraphQuery } from '../store/slices/apiSlice';
+import { setSelectedNode, clearSelection, setGraphData, setFilterLangs, setFilterTypes, applyGraphPatch } from '../store/index';
+import { apiSlice, useGetGraphQuery } from '../store/slices/apiSlice';
 import { EDGE_TYPE_CONFIG } from '../assets/mockdata';
 import serviceIcon from '../assets/Icons/Service.svg';
 import fileIcon from '../assets/Icons/File.svg';
@@ -28,6 +28,7 @@ const GRAPH_NODE_TYPE_CONFIG = {
 
 const NODE_TYPES = ['service', 'file', 'function', 'api_endpoint', 'db_table', 'db_field', 'api_contract'];
 const EDGE_PALETTE = ['#3b82f6', '#f59e0b', '#22c55e', '#a855f7', '#14b8a6', '#ef4444', '#0ea5e9', '#f97316'];
+const API_BASE_URL = import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
 
 const buildCyStyle = (nodeTypes, edgeConfig) => [
   {
@@ -111,6 +112,8 @@ const GraphView = () => {
   const filterTypes       = useSelector((s) => s.graph.filterTypes);
   const filterLangs       = useSelector((s) => s.graph.filterLangs);
   const currentRepoId     = useSelector((s) => s.graph.currentRepoId);
+  const storedGraphData   = useSelector((s) => s.graph.graphData);
+  const graphDataRepoId   = useSelector((s) => s.graph.graphDataRepoId);
   // Wire up BFS results computed by graphSlice so the canvas highlighting is live
   const directImpact      = useSelector((s) => s.graph.directImpact);
   const transitiveImpact  = useSelector((s) => s.graph.transitiveImpact);
@@ -119,7 +122,12 @@ const GraphView = () => {
   const { data: fetchedGraphData, isLoading } = useGetGraphQuery(currentRepoId, {
     skip: !currentRepoId,
   });
-  const graphData = fetchedGraphData || { nodes: [], edges: [] };
+  const graphData = useMemo(() => {
+    if (graphDataRepoId === currentRepoId) {
+      return storedGraphData || { nodes: [], edges: [] };
+    }
+    return fetchedGraphData || { nodes: [], edges: [] };
+  }, [currentRepoId, fetchedGraphData, graphDataRepoId, storedGraphData]);
   const nodeTypes = useMemo(() => NODE_TYPES, []);
   const [scope, setScope] = useState('overview');
   const [perspective, setPerspective] = useState('structure');
@@ -235,22 +243,21 @@ const GraphView = () => {
 
   const gridStyle = useMemo(() => {
     const z = Math.max(0.2, Math.min(3, viewportZoom));
-    const major = Math.max(36, Math.round(80 * z));
+    const major = Math.max(40, Math.round(80 * z));
     const minor = Math.max(10, Math.round(20 * z));
-    const isDark = themeMode === 'dark';
-    const majorAlpha = isDark ? Math.min(0.14, 0.05 + z * 0.02) : Math.min(0.22, 0.08 + z * 0.03);
-    const minorAlpha = isDark ? Math.min(0.08, 0.02 + z * 0.015) : Math.min(0.12, 0.04 + z * 0.02);
-    const gridRgb = isDark ? '59,130,246' : '148,163,184';
+    const majorAlpha = Math.min(0.8, 0.8 + z * 0.03);
+    const minorAlpha = Math.min(0.6, 0.6 + z * 0.02);
+    const gridRgb = '226,232,240'; // slate-200
 
     return {
-      backgroundColor: isDark ? '#020817' : '#f8fafc',
+      backgroundColor: '#f8fafc',
       backgroundImage:
         `linear-gradient(rgba(${gridRgb},${majorAlpha}) 1px, transparent 1px), ` +
         `linear-gradient(90deg, rgba(${gridRgb},${majorAlpha}) 1px, transparent 1px), ` +
         `linear-gradient(rgba(${gridRgb},${minorAlpha}) 1px, transparent 1px), ` +
         `linear-gradient(90deg, rgba(${gridRgb},${minorAlpha}) 1px, transparent 1px)`,
       backgroundSize: `${major}px ${major}px, ${major}px ${major}px, ${minor}px ${minor}px, ${minor}px ${minor}px`,
-      border: isDark ? '1px solid #1e293b' : '1px solid #cbd5e1',
+      border: '1px solid #e2e8f0', // slate-200
       minHeight: 0,
     };
   }, [viewportZoom, themeMode]);
@@ -277,10 +284,40 @@ const GraphView = () => {
   // Keep Redux graphData in sync with the RTK Query result so setSelectedNode
   // fallback BFS always has real data even if graphData isn't passed explicitly.
   useEffect(() => {
-    if (fetchedGraphData) {
-      dispatch(setGraphData(fetchedGraphData));
+    if (currentRepoId && fetchedGraphData) {
+      dispatch(setGraphData({ repoId: currentRepoId, graphData: fetchedGraphData }));
     }
-  }, [fetchedGraphData, dispatch]);
+  }, [currentRepoId, fetchedGraphData, dispatch]);
+
+  useEffect(() => {
+    if (!currentRepoId) {
+      return undefined;
+    }
+
+    const eventSource = new EventSource(`${API_BASE_URL}/events/${currentRepoId}`);
+
+    eventSource.onmessage = (event) => {
+      const message = JSON.parse(event.data);
+
+      if (message.type === 'GRAPH_PATCH') {
+        dispatch(applyGraphPatch({ repoId: currentRepoId, patch: message.patch }));
+      }
+
+      if (message.type === 'SCAN_COMPLETE') {
+        dispatch(apiSlice.util.invalidateTags(['Graph']));
+      }
+
+      if (message.type === 'SYNC_ERROR') {
+        console.error('Live sync error:', message.error);
+      }
+    };
+
+    eventSource.onerror = () => {
+      console.warn('SSE connection lost, browser will retry...');
+    };
+
+    return () => eventSource.close();
+  }, [currentRepoId, dispatch]);
 
   useEffect(() => {
     if (!containerRef.current || cyRef.current) return;
@@ -443,7 +480,7 @@ const GraphView = () => {
   };
 
   return (
-    <div className="flex flex-col gap-3" style={{ height: 'calc(100vh - 7rem)' }}>
+    <div className="flex flex-col gap-3 relative" style={{ height: 'calc(100vh - 7rem)' }}>
       {isLoading && (
         <div className="absolute top-4 right-4 z-50 px-4 py-2 rounded-lg" style={{ background: '#3b82f6', color: '#fff' }}>
           Loading graph data...
@@ -658,15 +695,6 @@ const GraphView = () => {
               style={{ background: '#475569', color: '#fff' }}
             >
               {scope === 'local' ? 'Back to overview' : 'Open local graph'}
-            </button>
-          )}
-          {!selectedData?.isSynthetic && (
-            <button
-              onClick={() => navigate('/impact')}
-              className="text-xs font-medium px-3 py-1 rounded-lg transition-all shrink-0"
-              style={{ background: '#ef4444', color: '#fff' }}
-            >
-              View Impact →
             </button>
           )}
         </div>

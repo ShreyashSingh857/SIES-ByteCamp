@@ -9,6 +9,7 @@ function parseArguments(argv) {
   const args = {
     repo: null,
     out: null,
+    files: null,
     withLlm: false,
     model: null,
   };
@@ -24,6 +25,12 @@ function parseArguments(argv) {
 
     if (token === '--out') {
       args.out = argv[index + 1] ?? null;
+      index += 1;
+      continue;
+    }
+
+    if (token === '--files') {
+      args.files = argv[index + 1] ?? null;
       index += 1;
       continue;
     }
@@ -49,14 +56,21 @@ function ensureDirectoryForFile(filePath) {
 }
 
 async function main() {
-  const { repo, out, withLlm, model } = parseArguments(process.argv.slice(2));
+  const { repo, out, files, withLlm, model } = parseArguments(process.argv.slice(2));
 
   if (!repo) {
-    console.error('Usage: node src/index.js --repo <repositoryPath> [--out <outputJsonPath>] [--with-llm] [--model <openai-model>]');
+    console.error('Usage: node src/index.js --repo <repositoryPath> [--out <outputJsonPath>] [--files <changedFilesJsonPath>] [--with-llm] [--model <openai-model>]');
     process.exit(1);
   }
 
+  let selectedFiles = null;
+  if (files) {
+    const filesPath = path.resolve(files);
+    selectedFiles = JSON.parse(fs.readFileSync(filesPath, 'utf8'));
+  }
+
   const result = await runStaticAnalysis(repo, {
+    files: Array.isArray(selectedFiles) ? selectedFiles : null,
     withLlm,
     model,
   });

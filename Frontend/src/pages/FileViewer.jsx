@@ -83,6 +83,7 @@ const FileViewer = () => {
   const [error, setError]    = useState('');
   const [copied, setCopied]  = useState(false);
   const normalizedRepoUrl = useMemo(() => normalizeRepoUrl(currentRepoUrl), [currentRepoUrl]);
+  const API_URL = import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
 
   const rawUrl = useMemo(
     () => buildGitHubRawUrl(normalizedRepoUrl, currentRepoBranch, filePath),
@@ -162,30 +163,48 @@ const FileViewer = () => {
   ]);
 
   useEffect(() => {
-    if (!rawUrl) {
-      setError('Cannot build GitHub raw URL — no repository URL stored.');
-      setLoading(false);
-      return;
+    let cancelled = false;
+
+    async function loadFileContent() {
+      setLoading(true);
+      setError('');
+      setCode('');
+
+      try {
+        if (rawUrl) {
+          const res = await fetch(rawUrl);
+          if (!res.ok) throw new Error(`GitHub returned ${res.status} for this file.`);
+          const text = await res.text();
+          if (!cancelled) setCode(text);
+          return;
+        }
+
+        if (!currentRepoId || !filePath) {
+          throw new Error('Cannot resolve file source for this repository.');
+        }
+
+        const localFileUrl = `${API_URL}/scan/local/${encodeURIComponent(currentRepoId)}/file?filePath=${encodeURIComponent(filePath)}`;
+        const res = await fetch(localFileUrl);
+        const payload = await res.json().catch(() => ({}));
+        if (!res.ok) {
+          throw new Error(payload?.message || `Failed to load local file (${res.status})`);
+        }
+
+        if (!cancelled) {
+          setCode(String(payload?.data?.content || ''));
+        }
+      } catch (err) {
+        if (!cancelled) {
+          setError(err.message || 'Failed to fetch file content.');
+        }
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
     }
 
-    setLoading(true);
-    setError('');
-    setCode('');
-
-    fetch(rawUrl)
-      .then((res) => {
-        if (!res.ok) throw new Error(`GitHub returned ${res.status} for this file.`);
-        return res.text();
-      })
-      .then((text) => {
-        setCode(text);
-        setLoading(false);
-      })
-      .catch((err) => {
-        setError(err.message || 'Failed to fetch file from GitHub.');
-        setLoading(false);
-      });
-  }, [rawUrl]);
+    loadFileContent();
+    return () => { cancelled = true; };
+  }, [rawUrl, currentRepoId, filePath, API_URL]);
 
   const handleCopy = () => {
     navigator.clipboard.writeText(code).then(() => {
@@ -315,7 +334,7 @@ const FileViewer = () => {
         {loading && (
           <div className="flex items-center justify-center gap-2 py-16 text-sm" style={{ color: 'var(--text-muted)' }}>
             <Loader2 size={16} className="animate-spin" />
-            Fetching from GitHub…
+            Loading file content...
           </div>
         )}
 

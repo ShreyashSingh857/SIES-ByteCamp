@@ -1,10 +1,9 @@
 import simpleGit from "simple-git";
 import path from "path";
 import fs from "fs";
-import { fileURLToPath } from "url";
+import crypto from "crypto";
 import { execFile } from "child_process";
 import { promisify } from "util";
-import { randomUUID } from "crypto";
 import {
   getImpactedNodesByNode,
   getRelatedFilesByPath,
@@ -21,39 +20,29 @@ import {
   generatePerFileDependencyInsights,
   generateArchitectureSummary,
   inferImplicitDependencies,
+  generateDetailedImpactRefactorPlan,
 } from "../services/llm.service.js";
+import { saveWebhookSubscription } from "../db/webhook.queries.js";
+import { registerWebhookForRepo } from "../services/github-webhook-registration.service.js";
+import { broadcast } from "../services/sse.service.js";
+import {
+  AI_ENGINE_ENTRY,
+  AI_ENGINE_AGENT_ENTRY,
+  PROJECT_ROOT,
+  WORKSPACE_ROOT,
+  REPOSITORIES_ROOT,
+  assertValidRepoId,
+  buildSeedPayloadFromParser,
+  buildUniqueRepoDir,
+  createScanId,
+  extractRepoFullName,
+  getGraphFilePath,
+  getRepoIdFromCloneDir,
+  normalizeParserEdge,
+  writeStoredGraph,
+} from "../services/scan-workspace.service.js";
 
 const execFileAsync = promisify(execFile);
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-const PROJECT_ROOT = path.resolve(__dirname, "../../..");
-const WORKSPACE_ROOT = path.join(PROJECT_ROOT, "workspace");
-const REPOSITORIES_ROOT = path.join(WORKSPACE_ROOT, "repositories");
-const GRAPHS_ROOT = path.join(WORKSPACE_ROOT, "graphs");
-const AI_ENGINE_ENTRY = path.join(PROJECT_ROOT, "AI-Engine", "src", "index.js");
-
-function buildUniqueRepoDir(repoUrl) {
-  const baseName = path.basename(repoUrl).replace(/\.git$/i, "") || "repo";
-  const safe = baseName.toLowerCase().replace(/[^a-z0-9-_]/g, "-");
-  const suffix = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
-  return path.join(REPOSITORIES_ROOT, `${safe}-${suffix}`);
-}
-
-function getRepoIdFromCloneDir(cloneDir) {
-  return path.basename(cloneDir);
-}
-
-function assertValidRepoId(repoId) {
-  if (!repoId || !/^[a-zA-Z0-9-_]+$/.test(repoId)) {
-    throw new Error("Invalid repoId format");
-  }
-}
-
-function getGraphFilePath(repoId) {
-  assertValidRepoId(repoId);
-  return path.join(GRAPHS_ROOT, `${repoId}.json`);
-}
 
 function normalizeNeo4jNumber(value) {
   if (typeof value === "number") return value;
@@ -92,6 +81,512 @@ function calculateChainDepth(symbolDependencies) {
   if (!edges.length) return 0;
   return 1;
 }
+
+const LOCAL_TEXT_FILE_EXTENSIONS = new Set([
+  ".js", ".jsx", ".ts", ".tsx", ".json", ".md", ".txt", ".css", ".scss", ".sass", ".less",
+  ".html", ".htm", ".xml", ".yml", ".yaml", ".env", ".properties", ".ini", ".toml",
+  ".py", ".java", ".go", ".rb", ".rs", ".php", ".cs", ".cpp", ".c", ".h", ".hpp",
+  ".sql", ".sh", ".bash", ".zsh", ".mjs", ".cjs", ".graphql",
+]);
+
+function normalizeRepoFilePath(filePath) {
+  return String(filePath || "")
+    .replace(/\\/g, "/")
+    .replace(/^\/+/, "")
+    .replace(/\/\.(?=\/|$)/g, "")
+    .trim();
+}
+
+function isLikelyTextFile(filePath) {
+  const extension = path.extname(String(filePath || "")).toLowerCase();
+  if (extension && LOCAL_TEXT_FILE_EXTENSIONS.has(extension)) {
+    return true;
+  }
+
+  const basename = path.basename(String(filePath || "")).toLowerCase();
+  return basename === "dockerfile" || basename === "makefile";
+}
+
+function resolveLocalRepoPath(repoId) {
+  assertValidRepoId(repoId);
+  const localPath = path.resolve(REPOSITORIES_ROOT, repoId);
+  if (!localPath.startsWith(path.resolve(REPOSITORIES_ROOT))) {
+    throw new Error("Invalid repository path");
+  }
+  if (!fs.existsSync(localPath) || !fs.statSync(localPath).isDirectory()) {
+    throw new Error(`Local repository not found for repoId: ${repoId}`);
+  }
+  return localPath;
+}
+
+function resolveFilePathWithinRepo(repoId, filePath) {
+  const normalizedFilePath = normalizeRepoFilePath(filePath);
+  if (!normalizedFilePath) {
+    throw new Error("filePath is required");
+  }
+
+  const localRepoPath = resolveLocalRepoPath(repoId);
+  const absoluteFilePath = path.resolve(localRepoPath, normalizedFilePath);
+
+  if (!absoluteFilePath.startsWith(localRepoPath)) {
+    throw new Error("filePath cannot escape the repository root");
+  }
+
+  return {
+    localRepoPath,
+    absoluteFilePath,
+    normalizedFilePath,
+  };
+}
+
+function createStableHash(input) {
+  return crypto.createHash("sha256").update(String(input || "")).digest("hex");
+}
+
+function computeLineDiffStats(originalContent, updatedContent) {
+  const originalLines = String(originalContent || "").split(/\r?\n/);
+  const updatedLines = String(updatedContent || "").split(/\r?\n/);
+  const maxLength = Math.max(originalLines.length, updatedLines.length);
+
+  let changedLineCount = 0;
+  let addedLineCount = 0;
+  let removedLineCount = 0;
+
+  for (let index = 0; index < maxLength; index += 1) {
+    const oldLine = originalLines[index];
+    const newLine = updatedLines[index];
+
+    if (oldLine === undefined && newLine !== undefined) {
+      addedLineCount += 1;
+      changedLineCount += 1;
+      continue;
+    }
+
+    if (oldLine !== undefined && newLine === undefined) {
+      removedLineCount += 1;
+      changedLineCount += 1;
+      continue;
+    }
+
+    if (oldLine !== newLine) {
+      changedLineCount += 1;
+    }
+  }
+
+  return {
+    changedLineCount,
+    addedLineCount,
+    removedLineCount,
+    originalLineCount: originalLines.length,
+    updatedLineCount: updatedLines.length,
+    changed: changedLineCount > 0,
+  };
+}
+
+function summarizeFileRelations(fileRelations) {
+  const incoming = fileRelations?.incoming || [];
+  const outgoing = fileRelations?.outgoing || [];
+  const staticIncoming = fileRelations?.staticIncoming || [];
+  const staticOutgoing = fileRelations?.staticOutgoing || [];
+  const runtimeIncoming = fileRelations?.runtimeIncoming || [];
+  const runtimeOutgoing = fileRelations?.runtimeOutgoing || [];
+
+  return {
+    incomingCount: incoming.length,
+    outgoingCount: outgoing.length,
+    staticIncomingCount: staticIncoming.length,
+    staticOutgoingCount: staticOutgoing.length,
+    runtimeIncomingCount: runtimeIncoming.length,
+    runtimeOutgoingCount: runtimeOutgoing.length,
+    totalRelatedFiles: new Set([...incoming, ...outgoing]).size,
+  };
+}
+
+function buildImpactAcknowledgementToken({ repoId, filePath, updatedContent, diffStats, relationSummary }) {
+  const payload = {
+    repoId,
+    filePath,
+    updatedContentHash: createStableHash(updatedContent),
+    diffStats,
+    relationSummary,
+  };
+
+  return createStableHash(JSON.stringify(payload));
+}
+
+async function runDependencyAgentForEditedContent({ localRepoPath, filePath, updatedContent, withLlm }) {
+  const absolutePath = path.resolve(localRepoPath, filePath);
+  const originalContent = fs.readFileSync(absolutePath, "utf8");
+
+  let stdout = "";
+  const args = [
+    AI_ENGINE_AGENT_ENTRY,
+    "--repo",
+    localRepoPath,
+    "--changed",
+    filePath,
+  ];
+
+  if (withLlm) {
+    args.push("--with-llm");
+  }
+
+  try {
+    fs.writeFileSync(absolutePath, updatedContent, "utf8");
+    const runResult = await execFileAsync(process.execPath, args, {
+      cwd: PROJECT_ROOT,
+      maxBuffer: 20 * 1024 * 1024,
+    });
+    stdout = runResult.stdout || "";
+  } finally {
+    fs.writeFileSync(absolutePath, originalContent, "utf8");
+  }
+
+  if (!stdout.trim()) {
+    return null;
+  }
+
+  try {
+    return JSON.parse(stdout);
+  } catch {
+    return {
+      status: "failed",
+      reason: "Unable to parse dependency agent output",
+      rawOutput: stdout,
+    };
+  }
+}
+
+async function runDependencyAgentFromDisk({ localRepoPath, filePath, withLlm }) {
+  const args = [
+    AI_ENGINE_AGENT_ENTRY,
+    "--repo",
+    localRepoPath,
+    "--changed",
+    filePath,
+  ];
+
+  if (withLlm) {
+    args.push("--with-llm");
+  }
+
+  const { stdout } = await execFileAsync(process.execPath, args, {
+    cwd: PROJECT_ROOT,
+    maxBuffer: 20 * 1024 * 1024,
+  });
+
+  if (!stdout?.trim()) {
+    return null;
+  }
+
+  try {
+    return JSON.parse(stdout);
+  } catch {
+    return {
+      status: "failed",
+      reason: "Unable to parse dependency agent output",
+      rawOutput: stdout,
+    };
+  }
+}
+
+function collectChangedLineSamples(originalContent, updatedContent, maxSamples = 60) {
+  const originalLines = String(originalContent || "").split(/\r?\n/);
+  const updatedLines = String(updatedContent || "").split(/\r?\n/);
+  const maxLength = Math.max(originalLines.length, updatedLines.length);
+  const samples = [];
+
+  for (let index = 0; index < maxLength; index += 1) {
+    const before = originalLines[index];
+    const after = updatedLines[index];
+
+    if (before === after) {
+      continue;
+    }
+
+    samples.push({
+      lineNumber: index + 1,
+      before: before ?? "",
+      after: after ?? "",
+    });
+
+    if (samples.length >= maxSamples) {
+      break;
+    }
+  }
+
+  return samples;
+}
+
+function readFileContentWithinRepo(localRepoPath, relativePath) {
+  const normalized = normalizeRepoFilePath(relativePath);
+  const absolute = path.resolve(localRepoPath, normalized);
+  if (!absolute.startsWith(localRepoPath)) {
+    return null;
+  }
+  if (!fs.existsSync(absolute) || !fs.statSync(absolute).isFile()) {
+    return null;
+  }
+
+  try {
+    return fs.readFileSync(absolute, "utf8");
+  } catch {
+    return null;
+  }
+}
+
+function collectRelatedFileContexts(localRepoPath, filePath, fileRelations, maxFiles = 12) {
+  const relationPaths = [
+    ...(fileRelations?.incoming || []),
+    ...(fileRelations?.outgoing || []),
+    ...(fileRelations?.staticIncoming || []),
+    ...(fileRelations?.staticOutgoing || []),
+    ...(fileRelations?.runtimeIncoming || []),
+    ...(fileRelations?.runtimeOutgoing || []),
+  ];
+
+  const uniquePaths = [...new Set(relationPaths.map((item) => normalizeRepoFilePath(item)).filter(Boolean))]
+    .filter((item) => item !== normalizeRepoFilePath(filePath))
+    .slice(0, maxFiles);
+
+  return uniquePaths
+    .map((relatedPath) => {
+      const content = readFileContentWithinRepo(localRepoPath, relatedPath);
+      if (typeof content !== "string") {
+        return null;
+      }
+
+      return {
+        filePath: relatedPath,
+        content,
+      };
+    })
+    .filter(Boolean);
+}
+
+function applyLineLevelEditToContent(content, edit) {
+  const lines = String(content || "").split(/\r?\n/);
+  const targetIndex = Number(edit.lineNumber || 0) - 1;
+  const oldText = String(edit.oldText || "");
+  const newText = String(edit.newText || "");
+
+  let applied = false;
+
+  if (targetIndex >= 0 && targetIndex < lines.length) {
+    if (oldText) {
+      if (lines[targetIndex].includes(oldText)) {
+        lines[targetIndex] = lines[targetIndex].replace(oldText, newText);
+        applied = true;
+      }
+    } else {
+      lines[targetIndex] = newText;
+      applied = true;
+    }
+  }
+
+  if (!applied && oldText) {
+    const joined = lines.join("\n");
+    if (joined.includes(oldText)) {
+      return {
+        content: joined.replace(oldText, newText),
+        applied: true,
+      };
+    }
+  }
+
+  return {
+    content: lines.join("\n"),
+    applied,
+  };
+}
+
+function escapeRegex(value) {
+  return String(value || "").replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function buildRenameRegex(oldName) {
+  const source = String(oldName || "").trim();
+  if (!source) {
+    return null;
+  }
+
+  if (/^[A-Za-z_$][A-Za-z0-9_$]*$/.test(source)) {
+    return new RegExp(`(?<![A-Za-z0-9_$])${escapeRegex(source)}(?![A-Za-z0-9_$])`, "g");
+  }
+
+  return new RegExp(escapeRegex(source), "g");
+}
+
+function applyRenameCandidatesToContent(content, renameCandidates, filePath) {
+  const candidates = Array.isArray(renameCandidates) ? renameCandidates : [];
+  const originalLines = String(content || "").split(/\r?\n/);
+  const updatedLines = [...originalLines];
+  const appliedEdits = [];
+  const skippedEdits = [];
+
+  for (const candidate of candidates) {
+    const oldName = String(candidate?.oldName || "").trim();
+    const newName = String(candidate?.newName || "").trim();
+    const confidence = String(candidate?.confidence || "MEDIUM").toUpperCase();
+
+    if (!oldName || !newName || oldName === newName) {
+      continue;
+    }
+
+    if (confidence === "LOW") {
+      skippedEdits.push({
+        filePath,
+        lineNumber: 0,
+        oldText: oldName,
+        newText: newName,
+        symbol: oldName,
+        editType: "rename",
+        confidence,
+        reason: candidate?.reason || "Skipped low-confidence rename candidate",
+      });
+      continue;
+    }
+
+    const regex = buildRenameRegex(oldName);
+    if (!regex) {
+      continue;
+    }
+
+    let changedInThisCandidate = false;
+
+    for (let index = 0; index < updatedLines.length; index += 1) {
+      const line = updatedLines[index];
+      if (!regex.test(line)) {
+        regex.lastIndex = 0;
+        continue;
+      }
+      regex.lastIndex = 0;
+
+      const replaced = line.replace(regex, newName);
+      if (replaced !== line) {
+        changedInThisCandidate = true;
+        updatedLines[index] = replaced;
+        appliedEdits.push({
+          filePath,
+          lineNumber: index + 1,
+          oldText: line.trim().slice(0, 200),
+          newText: replaced.trim().slice(0, 200),
+          symbol: oldName,
+          editType: "rename",
+          confidence,
+          reason: candidate?.reason || `Auto-propagated rename: ${oldName} -> ${newName}`,
+        });
+      }
+    }
+
+    if (!changedInThisCandidate) {
+      skippedEdits.push({
+        filePath,
+        lineNumber: 0,
+        oldText: oldName,
+        newText: newName,
+        symbol: oldName,
+        editType: "rename",
+        confidence,
+        reason: candidate?.reason || "Symbol not found in this file",
+      });
+    }
+  }
+
+  return {
+    content: updatedLines.join("\n"),
+    changed: updatedLines.join("\n") !== originalLines.join("\n"),
+    appliedEdits,
+    skippedEdits,
+  };
+}
+
+function applyDetailedFileEdits(localRepoPath, detailedPlan, options = {}) {
+  const edits = Array.isArray(detailedPlan?.plan?.fileEdits) ? detailedPlan.plan.fileEdits : [];
+  const renameCandidates = Array.isArray(detailedPlan?.plan?.renameCandidates)
+    ? detailedPlan.plan.renameCandidates
+    : [];
+  const candidateFiles = Array.isArray(options.candidateFiles)
+    ? options.candidateFiles.map((item) => normalizeRepoFilePath(item)).filter(Boolean)
+    : [];
+
+  const groupedByFile = new Map();
+
+  for (const edit of edits) {
+    const normalizedPath = normalizeRepoFilePath(edit.filePath);
+    if (!normalizedPath) {
+      continue;
+    }
+
+    if (!groupedByFile.has(normalizedPath)) {
+      groupedByFile.set(normalizedPath, []);
+    }
+
+    groupedByFile.get(normalizedPath).push(edit);
+  }
+
+  const appliedEdits = [];
+  const skippedEdits = [];
+
+  for (const filePath of candidateFiles) {
+    if (!groupedByFile.has(filePath)) {
+      groupedByFile.set(filePath, []);
+    }
+  }
+
+  for (const [relativePath, fileEdits] of groupedByFile.entries()) {
+    const absolute = path.resolve(localRepoPath, relativePath);
+    if (!absolute.startsWith(localRepoPath) || !fs.existsSync(absolute) || !fs.statSync(absolute).isFile()) {
+      for (const edit of fileEdits) {
+        skippedEdits.push({ ...edit, reason: edit.reason || "File not found" });
+      }
+      continue;
+    }
+
+    let content = fs.readFileSync(absolute, "utf8");
+    let fileChanged = false;
+
+    for (const edit of fileEdits) {
+      const result = applyLineLevelEditToContent(content, edit);
+      if (result.applied) {
+        content = result.content;
+        fileChanged = true;
+        appliedEdits.push({
+          filePath: relativePath,
+          ...edit,
+        });
+      } else {
+        skippedEdits.push({
+          filePath: relativePath,
+          ...edit,
+          reason: edit.reason || "Exact text not found",
+        });
+      }
+    }
+
+    if (renameCandidates.length > 0) {
+      const renameResult = applyRenameCandidatesToContent(content, renameCandidates, relativePath);
+      content = renameResult.content;
+      if (renameResult.changed) {
+        fileChanged = true;
+      }
+      appliedEdits.push(...renameResult.appliedEdits);
+      skippedEdits.push(...renameResult.skippedEdits);
+    }
+
+    if (fileChanged) {
+      fs.writeFileSync(absolute, content, "utf8");
+    }
+  }
+
+  return {
+    appliedCount: appliedEdits.length,
+    skippedCount: skippedEdits.length,
+    appliedEdits,
+    skippedEdits,
+  };
+}
+
 
 const STATIC_RELATIONSHIP_TYPES = new Set([
   "IMPORTS",
@@ -358,145 +853,6 @@ function buildLlmGraphContext(symbolOccurrences, dependencyMap, symbolDependenci
   };
 }
 
-function buildSeedPayloadFromParser(repoId, parserResult, scanId) {
-  const nowIso = new Date().toISOString();
-  const serviceId = `svc:${scanId}:${repoId}`;
-  const idMap = new Map();
-
-  const fileNodes = (parserResult?.nodes || []).filter((n) => n.type === "FILE");
-  const functionNodes = (parserResult?.nodes || []).filter((n) => n.type === "FUNCTION");
-  const filePathToRawId = new Map(fileNodes.map((n) => [n.name, n.id]));
-
-  const resolveImportedFileRawId = (sourceRawFileId, moduleSpecifier) => {
-    if (!sourceRawFileId || !moduleSpecifier || !moduleSpecifier.startsWith(".")) return null;
-
-    const sourcePath = sourceRawFileId.replace(/^file:/, "");
-    const sourceDir = path.posix.dirname(sourcePath);
-    const baseResolved = path.posix.normalize(path.posix.join(sourceDir, moduleSpecifier));
-
-    const candidates = [];
-    const hasExt = Boolean(path.posix.extname(baseResolved));
-
-    if (hasExt) {
-      candidates.push(baseResolved);
-    } else {
-      const exts = [".js", ".jsx", ".ts", ".tsx", ".mjs", ".cjs", ".json"];
-      for (const ext of exts) {
-        candidates.push(`${baseResolved}${ext}`);
-        candidates.push(path.posix.join(baseResolved, `index${ext}`));
-      }
-    }
-
-    for (const candidate of candidates) {
-      const matchedRawId = filePathToRawId.get(candidate);
-      if (matchedRawId) return matchedRawId;
-    }
-
-    return null;
-  };
-
-  const files = fileNodes.map((n) => {
-    const id = `file:${scanId}:${n.id}`;
-    idMap.set(n.id, id);
-    return {
-      id,
-      serviceId,
-      scanId,
-      path: n.name,
-      language: n.language || "unknown",
-      extension: path.extname(n.name || "") || "",
-      lineCount: 0,
-      importCount: 0,
-      exportCount: 0,
-      parsedAt: nowIso,
-    };
-  });
-
-  const functions = functionNodes.map((n) => {
-    const id = `fn:${scanId}:${n.id}`;
-    idMap.set(n.id, id);
-    return {
-      id,
-      fileId: `file:${scanId}:file:${n.file}`,
-      serviceId,
-      scanId,
-      name: n.name || "anonymous",
-      qualifiedName: `${n.file || "unknown"}.${n.name || "anonymous"}`,
-      isExported: false,
-      isAsync: false,
-      visibility: "default",
-      lineStart: n.line || 0,
-      lineEnd: n.line || 0,
-      paramTypes: [],
-      returnType: "unknown",
-    };
-  });
-
-  const containsEdges = [
-    ...files.map((f) => ({ fromId: serviceId, toId: f.id })),
-    ...functions.map((fn) => ({ fromId: fn.fileId, toId: fn.id })),
-  ];
-
-  const dependencyEdges = (parserResult?.edges || [])
-    .filter((e) => ["IMPORTS", "CALLS"].includes(e.type))
-    .map((e) => {
-      let fromRawId = e.from;
-      let toRawId = e.to;
-
-      if (
-        e.type === "IMPORTS" &&
-        typeof e.from === "string" &&
-        e.from.startsWith("file:") &&
-        typeof e.to === "string" &&
-        e.to.startsWith("module:")
-      ) {
-        const moduleSpecifier = e.to.slice("module:".length);
-        const resolvedRawFileId = resolveImportedFileRawId(e.from, moduleSpecifier);
-        if (resolvedRawFileId) {
-          toRawId = resolvedRawFileId;
-          fromRawId = e.from;
-        }
-      }
-
-      return {
-        fromId: idMap.get(fromRawId),
-        toId: idMap.get(toRawId),
-        type: e.type,
-      };
-    })
-    .filter((e) => e.fromId && e.toId);
-
-  return {
-    scanNode: {
-      id: scanId,
-      status: "COMPLETE",
-      repoUrls: [],
-      fileCount: files.length,
-      nodeCount: files.length + functions.length + 2,
-      edgeCount: containsEdges.length + dependencyEdges.length,
-      durationMs: 0,
-      userId: "system",
-      createdAt: nowIso,
-      completedAt: nowIso,
-    },
-    serviceNode: {
-      id: serviceId,
-      scanId,
-      name: repoId,
-      language: parserResult?.summary?.languages?.[0] || "unknown",
-      repoUrl: "",
-      rootPath: "/",
-      framework: "none",
-      fileCount: files.length,
-      detectedAt: nowIso,
-    },
-    files,
-    functions,
-    containsEdges,
-    dependencyEdges,
-  };
-}
-
 /**
  * @desc    Clone a public repo and return scan result
  * @route   POST /api/scan
@@ -504,7 +860,7 @@ function buildSeedPayloadFromParser(repoId, parserResult, scanId) {
  * @access  Public
  */
 export const postScan = async (req, res, next) => {
-  const { repoUrl } = req.body;
+  const { repoUrl, githubToken, branch } = req.body;
 
   if (!repoUrl || typeof repoUrl !== "string") {
     return res.status(400).json({ success: false, message: "repoUrl is required" });
@@ -522,10 +878,22 @@ export const postScan = async (req, res, next) => {
 
   const cloneDir = buildUniqueRepoDir(repoUrl);
   const repoId = getRepoIdFromCloneDir(cloneDir);
+  const scanId = createScanId();
+  const requestedBranch = typeof branch === "string" && branch.trim() ? branch.trim() : "main";
 
   try {
     fs.mkdirSync(REPOSITORIES_ROOT, { recursive: true });
-    await simpleGit().clone(repoUrl, cloneDir);
+    const cloneArgs = isLocalAbsolutePath
+      ? []
+      : ["--branch", requestedBranch, "--single-branch"];
+    try {
+      await simpleGit().clone(repoUrl, cloneDir, cloneArgs);
+    } catch (cloneError) {
+      if (isLocalAbsolutePath || !requestedBranch) {
+        throw cloneError;
+      }
+      await simpleGit().clone(repoUrl, cloneDir);
+    }
 
     const { stdout } = await execFileAsync(
       process.execPath,
@@ -543,15 +911,42 @@ export const postScan = async (req, res, next) => {
       parserResult = { raw: stdout };
     }
 
-    fs.mkdirSync(GRAPHS_ROOT, { recursive: true });
-    fs.writeFileSync(getGraphFilePath(repoId), JSON.stringify(parserResult, null, 2), "utf8");
+    writeStoredGraph(repoId, parserResult);
+
+    let webhookInfo = null;
+    const repoFullName = extractRepoFullName(repoUrl);
+    const effectiveGithubToken = githubToken || process.env.GITHUB_TOKEN || "";
+    if (repoFullName && effectiveGithubToken) {
+      try {
+        const { hookId, secret } = await registerWebhookForRepo(repoFullName, effectiveGithubToken);
+        await saveWebhookSubscription({
+          repoId,
+          scanId,
+          repoFullName,
+          repoUrl,
+          branch: requestedBranch,
+          localPath: cloneDir,
+          hookId,
+          secret,
+        });
+        webhookInfo = { registered: true, repoFullName, hookId };
+      } catch (webhookError) {
+        webhookInfo = {
+          registered: false,
+          repoFullName,
+          message: webhookError.message,
+        };
+      }
+    }
 
     res.status(200).json({
       success: true,
       message: "Repository cloned and parsed successfully",
       data: {
         repoId,
+        scanId,
         repoUrl,
+        branch: requestedBranch,
         workspaceDir: WORKSPACE_ROOT,
         repositoriesDir: REPOSITORIES_ROOT,
         clonedRepoPath: cloneDir,
@@ -559,6 +954,7 @@ export const postScan = async (req, res, next) => {
         graphPath: getGraphFilePath(repoId),
         graphApi: `/api/graph/${repoId}`,
         parserSummary: parserResult?.summary || null,
+        webhook: webhookInfo,
       },
     });
   } catch (error) {
@@ -574,14 +970,7 @@ export const postScan = async (req, res, next) => {
  * Also passes through edges that already use source/target (future-proofing).
  */
 function normalizeEdge(edge, index) {
-  const source = edge.source ?? edge.from ?? null;
-  const target = edge.target ?? edge.to ?? null;
-  return {
-    id: edge.id || `edge-${index}`,
-    source,
-    target,
-    type: edge.type || "UNKNOWN",
-  };
+  return normalizeParserEdge(edge, index);
 }
 
 /**
@@ -680,7 +1069,7 @@ export const seedGraphToDb = async (req, res, next) => {
     }
 
     const parserResult = JSON.parse(fs.readFileSync(graphFilePath, "utf8"));
-    const scanId = req.body?.scanId || `scan-${randomUUID()}`;
+    const scanId = req.body?.scanId || createScanId();
     const payload = buildSeedPayloadFromParser(repoId, parserResult, scanId);
     payload.scanNode.repoUrls = [req.body?.repoUrl || ""];
     payload.serviceNode.repoUrl = req.body?.repoUrl || "";
@@ -1274,6 +1663,407 @@ export const analyzeDependenciesWithIntelligence = async (req, res, next) => {
     });
   } catch (error) {
     console.error("Error in analyzeDependenciesWithIntelligence:", error);
+    next(error);
+  }
+};
+
+/**
+ * @desc    Read editable file content from cloned repository
+ * @route   GET /api/editor/file?repoId=...&filePath=...
+ * @access  Public
+ */
+export const getEditableFileContent = async (req, res, next) => {
+  try {
+    const repoId = String(req.query.repoId || "").trim();
+    const filePath = String(req.query.filePath || "").trim();
+
+    if (!repoId || !filePath) {
+      return res.status(400).json({
+        success: false,
+        message: "repoId and filePath are required",
+      });
+    }
+
+    if (!isLikelyTextFile(filePath)) {
+      return res.status(415).json({
+        success: false,
+        message: "Only text-like files are editable from this endpoint",
+      });
+    }
+
+    const { absoluteFilePath, normalizedFilePath } = resolveFilePathWithinRepo(repoId, filePath);
+
+    if (!fs.existsSync(absoluteFilePath) || !fs.statSync(absoluteFilePath).isFile()) {
+      return res.status(404).json({
+        success: false,
+        message: `File not found: ${normalizedFilePath}`,
+      });
+    }
+
+    const content = fs.readFileSync(absoluteFilePath, "utf8");
+    const stats = fs.statSync(absoluteFilePath);
+
+    return res.status(200).json({
+      success: true,
+      data: {
+        repoId,
+        filePath: normalizedFilePath,
+        content,
+        sizeBytes: stats.size,
+        updatedAt: stats.mtime.toISOString(),
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * @desc    Preview impact of edited content and generate dependency-agent recommendations
+ * @route   POST /api/editor/impact-preview
+ * @access  Public
+ */
+export const previewEditorImpact = async (req, res, next) => {
+  try {
+    const {
+      repoId,
+      scanId,
+      filePath,
+      updatedContent,
+      withLlm = false,
+    } = req.body || {};
+
+    if (!repoId || !filePath || typeof updatedContent !== "string") {
+      return res.status(400).json({
+        success: false,
+        message: "repoId, filePath and updatedContent are required",
+      });
+    }
+
+    if (!isLikelyTextFile(filePath)) {
+      return res.status(415).json({
+        success: false,
+        message: "Only text-like files are supported for impact preview",
+      });
+    }
+
+    const { localRepoPath, absoluteFilePath, normalizedFilePath } = resolveFilePathWithinRepo(repoId, filePath);
+
+    if (!fs.existsSync(absoluteFilePath) || !fs.statSync(absoluteFilePath).isFile()) {
+      return res.status(404).json({
+        success: false,
+        message: `File not found: ${normalizedFilePath}`,
+      });
+    }
+
+    const originalContent = fs.readFileSync(absoluteFilePath, "utf8");
+    const diffStats = computeLineDiffStats(originalContent, updatedContent);
+
+    let fileRelations = {
+      incoming: [],
+      outgoing: [],
+      staticIncoming: [],
+      staticOutgoing: [],
+      runtimeIncoming: [],
+      runtimeOutgoing: [],
+    };
+
+    let relationError = null;
+    if (scanId) {
+      try {
+        fileRelations = await getRelatedFilesByPath(scanId, normalizedFilePath);
+      } catch (error) {
+        relationError = error.message;
+      }
+    }
+
+    const relationSummary = summarizeFileRelations(fileRelations);
+
+    let agentRecommendations = null;
+    if (diffStats.changed) {
+      agentRecommendations = await runDependencyAgentForEditedContent({
+        localRepoPath,
+        filePath: normalizedFilePath,
+        updatedContent,
+        withLlm: Boolean(withLlm),
+      });
+    }
+
+    let llmDetailedImpact = {
+      status: "skipped",
+      message: "Detailed LLM plan is disabled",
+      plan: {
+        summary: "",
+        warnings: [],
+        renameCandidates: [],
+        fileEdits: [],
+      },
+    };
+
+    if (diffStats.changed && withLlm) {
+      const changedLines = collectChangedLineSamples(originalContent, updatedContent);
+      const relatedFiles = collectRelatedFileContexts(localRepoPath, normalizedFilePath, fileRelations);
+
+      llmDetailedImpact = await generateDetailedImpactRefactorPlan({
+        repoId,
+        scanId: scanId || null,
+        changedFilePath: normalizedFilePath,
+        changedLines,
+        originalContent,
+        updatedContent,
+        relationSummary,
+        relatedFiles,
+      });
+    }
+
+    const acknowledgementToken = buildImpactAcknowledgementToken({
+      repoId,
+      filePath: normalizedFilePath,
+      updatedContent,
+      diffStats,
+      relationSummary,
+    });
+
+    const preview = {
+      repoId,
+      scanId: scanId || null,
+      filePath: normalizedFilePath,
+      diffStats,
+      relationSummary,
+      fileRelations,
+      relationError,
+      agentRecommendations,
+      llmDetailedImpact,
+      acknowledgementToken,
+      generatedAt: new Date().toISOString(),
+    };
+
+    broadcast(repoId, {
+      type: "AGENT_IMPACT_PREVIEW",
+      repoId,
+      scanId: scanId || null,
+      filePath: normalizedFilePath,
+      changed: diffStats.changed,
+      changedLineCount: diffStats.changedLineCount,
+      relationSummary,
+      timestamp: new Date().toISOString(),
+    });
+
+    return res.status(200).json({ success: true, data: preview });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * @desc    Save edited file content after impact acknowledgment
+ * @route   POST /api/editor/file/save
+ * @access  Public
+ */
+export const saveEditedFileContent = async (req, res, next) => {
+  try {
+    const {
+      repoId,
+      scanId,
+      filePath,
+      updatedContent,
+      acknowledged,
+      acknowledgementToken,
+      withLlm = false,
+      autoApplyRelatedChanges = false,
+    } = req.body || {};
+
+    if (!repoId || !filePath || typeof updatedContent !== "string") {
+      return res.status(400).json({
+        success: false,
+        message: "repoId, filePath and updatedContent are required",
+      });
+    }
+
+    if (!acknowledged) {
+      return res.status(400).json({
+        success: false,
+        message: "Impact acknowledgement is required before saving",
+      });
+    }
+
+    if (!isLikelyTextFile(filePath)) {
+      return res.status(415).json({
+        success: false,
+        message: "Only text-like files are editable from this endpoint",
+      });
+    }
+
+    const { localRepoPath, absoluteFilePath, normalizedFilePath } = resolveFilePathWithinRepo(repoId, filePath);
+
+    if (!fs.existsSync(absoluteFilePath) || !fs.statSync(absoluteFilePath).isFile()) {
+      return res.status(404).json({
+        success: false,
+        message: `File not found: ${normalizedFilePath}`,
+      });
+    }
+
+    const originalContent = fs.readFileSync(absoluteFilePath, "utf8");
+    const diffStats = computeLineDiffStats(originalContent, updatedContent);
+
+    if (!diffStats.changed) {
+      return res.status(200).json({
+        success: true,
+        data: {
+          saved: false,
+          reason: "No content changes detected",
+          repoId,
+          filePath: normalizedFilePath,
+          diffStats,
+        },
+      });
+    }
+
+    let fileRelations = {
+      incoming: [],
+      outgoing: [],
+      staticIncoming: [],
+      staticOutgoing: [],
+      runtimeIncoming: [],
+      runtimeOutgoing: [],
+    };
+
+    if (scanId) {
+      try {
+        fileRelations = await getRelatedFilesByPath(scanId, normalizedFilePath);
+      } catch {
+        fileRelations = {
+          incoming: [],
+          outgoing: [],
+          staticIncoming: [],
+          staticOutgoing: [],
+          runtimeIncoming: [],
+          runtimeOutgoing: [],
+        };
+      }
+    }
+
+    const relationSummary = summarizeFileRelations(fileRelations);
+    const expectedToken = buildImpactAcknowledgementToken({
+      repoId,
+      filePath: normalizedFilePath,
+      updatedContent,
+      diffStats,
+      relationSummary,
+    });
+
+    if (!acknowledgementToken || acknowledgementToken !== expectedToken) {
+      return res.status(409).json({
+        success: false,
+        message: "Impact preview is outdated. Please preview impact again before saving.",
+        data: {
+          expectedAcknowledgementToken: expectedToken,
+        },
+      });
+    }
+
+    fs.writeFileSync(absoluteFilePath, updatedContent, "utf8");
+
+    const stats = fs.statSync(absoluteFilePath);
+    const agentRecommendations = await runDependencyAgentFromDisk({
+      localRepoPath,
+      filePath: normalizedFilePath,
+      withLlm: Boolean(withLlm),
+    });
+
+    let llmDetailedImpact = {
+      status: "skipped",
+      message: "Detailed LLM plan is disabled",
+      plan: {
+        summary: "",
+        warnings: [],
+        renameCandidates: [],
+        fileEdits: [],
+      },
+    };
+
+    let relatedAutoApply = {
+      enabled: Boolean(autoApplyRelatedChanges),
+      appliedCount: 0,
+      skippedCount: 0,
+      appliedEdits: [],
+      skippedEdits: [],
+    };
+
+    if (withLlm) {
+      const changedLines = collectChangedLineSamples(originalContent, updatedContent);
+      const relatedFiles = collectRelatedFileContexts(localRepoPath, normalizedFilePath, fileRelations);
+
+      llmDetailedImpact = await generateDetailedImpactRefactorPlan({
+        repoId,
+        scanId: scanId || null,
+        changedFilePath: normalizedFilePath,
+        changedLines,
+        originalContent,
+        updatedContent,
+        relationSummary,
+        relatedFiles,
+      });
+
+      if (autoApplyRelatedChanges && llmDetailedImpact?.status === "completed") {
+        const candidateFiles = [
+          normalizedFilePath,
+          ...relatedFiles.map((item) => item.filePath),
+        ];
+
+        relatedAutoApply = {
+          enabled: true,
+          ...applyDetailedFileEdits(localRepoPath, llmDetailedImpact, { candidateFiles }),
+        };
+      }
+    }
+
+    broadcast(repoId, {
+      type: "EDITOR_FILE_SAVED",
+      repoId,
+      scanId: scanId || null,
+      filePath: normalizedFilePath,
+      changedLineCount: diffStats.changedLineCount,
+      timestamp: new Date().toISOString(),
+    });
+
+    broadcast(repoId, {
+      type: "AGENT_RECOMMENDATIONS",
+      repoId,
+      scanId: scanId || null,
+      filePath: normalizedFilePath,
+      summary: agentRecommendations?.summary || null,
+      timestamp: new Date().toISOString(),
+    });
+
+    if (relatedAutoApply.enabled) {
+      broadcast(repoId, {
+        type: "AGENT_RELATED_AUTOFIX",
+        repoId,
+        scanId: scanId || null,
+        filePath: normalizedFilePath,
+        appliedCount: relatedAutoApply.appliedCount,
+        skippedCount: relatedAutoApply.skippedCount,
+        timestamp: new Date().toISOString(),
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      data: {
+        saved: true,
+        repoId,
+        scanId: scanId || null,
+        filePath: normalizedFilePath,
+        updatedAt: stats.mtime.toISOString(),
+        diffStats,
+        relationSummary,
+        agentRecommendations,
+        llmDetailedImpact,
+        relatedAutoApply,
+      },
+    });
+  } catch (error) {
     next(error);
   }
 };

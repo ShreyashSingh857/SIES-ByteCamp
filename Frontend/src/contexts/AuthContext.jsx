@@ -34,10 +34,25 @@ export const AuthProvider = ({ children }) => {
     if (!email || !password) {
       return { success: false, error: 'Email and password are required.' };
     }
-    const userData = { ...MOCK_USER, email };
-    localStorage.setItem('pdm_token', 'mock-jwt-token-phase1');
-    localStorage.setItem('pdm_user', JSON.stringify(userData));
-    setUser(userData);
+    
+    // Check if there's an existing registered user we can match against
+    let existingUser = null;
+    try {
+      const stored = localStorage.getItem('pdm_user');
+      if (stored) {
+         const parsed = JSON.parse(stored);
+         if (parsed.email === email) {
+            existingUser = parsed;
+         }
+      }
+    } catch(e) {}
+
+    // Fallback: generate a name from email prefix
+    const namePrefix = email.split('@')[0];
+    const generatedName = existingUser?.name || (namePrefix.charAt(0).toUpperCase() + namePrefix.slice(1));
+    
+    const userData = { ...MOCK_USER, email, name: generatedName };
+    
     return { success: true, user: userData };
   };
 
