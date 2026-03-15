@@ -4,6 +4,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import SyntaxHighlighter from 'react-syntax-highlighter';
 import { atomOneDark, atomOneLight } from 'react-syntax-highlighter/dist/esm/styles/hljs';
 import { useGetFileRelationsQuery } from '../store/slices/apiSlice';
+import { buildGitHubBlobUrl, buildGitHubRawUrl, normalizeRepoUrl } from '../lib/utils';
 import {
     ArrowLeft,
     Github,
@@ -60,22 +61,6 @@ const getLanguage = (filename = '') => {
     if (lower === 'makefile') return 'makefile';
     const ext = lower.split('.').pop();
     return EXT_LANG_MAP[ext] || 'plaintext';
-};
-
-const parseRepoInfo = (repoUrl = '') => {
-    try {
-        const url = new URL(repoUrl);
-        const [, owner, repo] = url.pathname.replace(/\.git$/, '').split('/');
-        return { owner, repo };
-    } catch {
-        return { owner: '', repo: '' };
-    }
-};
-
-const buildRawUrl = (repoUrl, branch, filePath) => {
-    const { owner, repo } = parseRepoInfo(repoUrl);
-    if (!owner || !repo) return null;
-    return `https://raw.githubusercontent.com/${owner}/${repo}/${branch}/${filePath}`;
 };
 
 const buildSelectionContext = (fullCode, selectedValue) => {
@@ -369,7 +354,7 @@ const DependencyPanel = ({
         >
             {/* Header */}
             <div
-                className="flex-shrink-0 border-b flex items-center justify-between px-4 py-3"
+                className="shrink-0 border-b flex items-center justify-between px-4 py-3"
                 style={{ borderColor: 'var(--border)' }}
             >
                 <div className="flex items-center gap-2 min-w-0">
@@ -394,7 +379,7 @@ const DependencyPanel = ({
                 {selectedText && (
                     <button
                         onClick={onClear}
-                        className="p-1 rounded hover:bg-opacity-80 transition-all flex-shrink-0"
+                        className="p-1 rounded hover:bg-opacity-80 transition-all shrink-0"
                         style={{ background: 'var(--bg-muted)', color: 'var(--text-muted)' }}
                     >
                         <X size={14} />
@@ -613,6 +598,7 @@ const FileViewerWithDependencies = () => {
     const currentRepoId = useSelector((s) => s.graph.currentRepoId);
     const currentScanId = useSelector((s) => s.graph.currentScanId);
     const isDark = useSelector((s) => s.theme?.isDark ?? true);
+    const normalizedRepoUrl = useMemo(() => normalizeRepoUrl(currentRepoUrl), [currentRepoUrl]);
 
     const [code, setCode] = useState('');
     const [loading, setLoading] = useState(true);
@@ -624,16 +610,16 @@ const FileViewerWithDependencies = () => {
     const [depLoading, setDepLoading] = useState(false);
     const [depError, setDepError] = useState('');
     const codeEditorRef = useRef(null);
+    const API_URL = import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
 
     const rawUrl = useMemo(
-        () => buildRawUrl(currentRepoUrl, currentRepoBranch, filePath),
-        [currentRepoUrl, currentRepoBranch, filePath],
+        () => buildGitHubRawUrl(normalizedRepoUrl, currentRepoBranch, filePath),
+        [normalizedRepoUrl, currentRepoBranch, filePath],
     );
 
     const githubFileUrl = useMemo(() => {
-        if (!currentRepoUrl || !filePath) return null;
-        return `${currentRepoUrl}/blob/${currentRepoBranch}/${filePath}`;
-    }, [currentRepoUrl, currentRepoBranch, filePath]);
+        return buildGitHubBlobUrl(normalizedRepoUrl, currentRepoBranch, filePath);
+    }, [normalizedRepoUrl, currentRepoBranch, filePath]);
 
     const {
         data: fileRelationsData,
@@ -661,30 +647,48 @@ const FileViewerWithDependencies = () => {
 
     // Fetch file code
     useEffect(() => {
-        if (!rawUrl) {
-            setError('Cannot build GitHub raw URL — no repository URL stored.');
-            setLoading(false);
-            return;
+        let cancelled = false;
+
+        async function loadFileContent() {
+            setLoading(true);
+            setError('');
+            setCode('');
+
+            try {
+                if (rawUrl) {
+                    const res = await fetch(rawUrl);
+                    if (!res.ok) throw new Error(`GitHub returned ${res.status} for this file.`);
+                    const text = await res.text();
+                    if (!cancelled) setCode(text);
+                    return;
+                }
+
+                if (!currentRepoId || !filePath) {
+                    throw new Error('Cannot resolve file source for this repository.');
+                }
+
+                const localFileUrl = `${API_URL}/scan/local/${encodeURIComponent(currentRepoId)}/file?filePath=${encodeURIComponent(filePath)}`;
+                const res = await fetch(localFileUrl);
+                const payload = await res.json().catch(() => ({}));
+                if (!res.ok) {
+                    throw new Error(payload?.message || `Failed to load local file (${res.status})`);
+                }
+
+                if (!cancelled) {
+                    setCode(String(payload?.data?.content || ''));
+                }
+            } catch (err) {
+                if (!cancelled) {
+                    setError(err.message || 'Failed to fetch file content.');
+                }
+            } finally {
+                if (!cancelled) setLoading(false);
+            }
         }
 
-        setLoading(true);
-        setError('');
-        setCode('');
-
-        fetch(rawUrl)
-            .then((res) => {
-                if (!res.ok) throw new Error(`GitHub returned ${res.status} for this file.`);
-                return res.text();
-            })
-            .then((text) => {
-                setCode(text);
-                setLoading(false);
-            })
-            .catch((err) => {
-                setError(err.message || 'Failed to fetch file from GitHub.');
-                setLoading(false);
-            });
-    }, [rawUrl]);
+        loadFileContent();
+        return () => { cancelled = true; };
+    }, [rawUrl, currentRepoId, filePath, API_URL]);
 
     // Handle text selection in code editor
     useEffect(() => {
@@ -940,7 +944,7 @@ const FileViewerWithDependencies = () => {
             </div>
 
             {/* Header bar */}
-            <div className="flex-shrink-0 px-4" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap' }}>
+            <div className="shrink-0 px-4" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap' }}>
                 <div className="flex items-center gap-2 min-w-0">
                     <FileCode2 size={15} style={{ color: '#3b82f6', flexShrink: 0 }} />
                     <span className="font-semibold code-text text-sm truncate" style={{ color: 'var(--text)' }}>
@@ -1007,7 +1011,7 @@ const FileViewerWithDependencies = () => {
                 >
                     {/* Language badge bar */}
                     <div
-                        className="flex-shrink-0 flex items-center justify-between px-4 py-2"
+                        className="shrink-0 flex items-center justify-between px-4 py-2"
                         style={{
                             borderBottom: '1px solid var(--border)',
                             background: 'var(--bg-muted)',
@@ -1030,7 +1034,7 @@ const FileViewerWithDependencies = () => {
                     {loading && (
                         <div className="flex-1 flex items-center justify-center gap-2 text-sm" style={{ color: 'var(--text-muted)' }}>
                             <Loader2 size={16} className="animate-spin" />
-                            Fetching from GitHub…
+                            Loading file content...
                         </div>
                     )}
 

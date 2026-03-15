@@ -150,3 +150,67 @@ export const deleteLocalWatch = async (req, res, next) => {
     next(error);
   }
 };
+
+/**
+ * @desc   Read file content from a local repo registered through local scan
+ * @route  GET /api/scan/local/:repoId/file?filePath=src/index.js
+ * @access Public
+ */
+export const getLocalFileContent = async (req, res, next) => {
+  try {
+    const { repoId } = req.params;
+    const rawFilePath = String(req.query.filePath || '').trim();
+
+    if (!repoId) {
+      return res.status(400).json({ success: false, message: 'repoId is required' });
+    }
+
+    if (!rawFilePath) {
+      return res.status(400).json({ success: false, message: 'filePath query param is required' });
+    }
+
+    const normalizedRelativePath = rawFilePath.replace(/\\/g, '/').replace(/^\/+/, '');
+    if (!normalizedRelativePath || normalizedRelativePath.includes('..') || path.isAbsolute(normalizedRelativePath)) {
+      return res.status(400).json({ success: false, message: 'Invalid filePath' });
+    }
+
+    const graphPath = getGraphFilePath(repoId);
+    if (!fs.existsSync(graphPath)) {
+      return res.status(404).json({ success: false, message: `No graph found for repoId: ${repoId}` });
+    }
+
+    let parserResult = null;
+    try {
+      parserResult = JSON.parse(fs.readFileSync(graphPath, 'utf8'));
+    } catch {
+      return res.status(500).json({ success: false, message: 'Stored graph file is not valid JSON' });
+    }
+
+    const repoRoot = parserResult?.repositoryPath;
+    if (!repoRoot || !path.isAbsolute(repoRoot) || !fs.existsSync(repoRoot)) {
+      return res.status(400).json({ success: false, message: 'This repo is not available as a local filesystem path' });
+    }
+
+    const rootAbs = path.resolve(repoRoot);
+    const resolvedTarget = path.resolve(rootAbs, normalizedRelativePath);
+    if (!(resolvedTarget === rootAbs || resolvedTarget.startsWith(`${rootAbs}${path.sep}`))) {
+      return res.status(400).json({ success: false, message: 'Invalid filePath traversal' });
+    }
+
+    if (!fs.existsSync(resolvedTarget) || !fs.statSync(resolvedTarget).isFile()) {
+      return res.status(404).json({ success: false, message: `File not found: ${normalizedRelativePath}` });
+    }
+
+    const content = fs.readFileSync(resolvedTarget, 'utf8');
+    return res.status(200).json({
+      success: true,
+      data: {
+        repoId,
+        filePath: normalizedRelativePath,
+        content,
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
