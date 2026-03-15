@@ -5,7 +5,6 @@ import cytoscape from 'cytoscape';
 import { Filter, RefreshCw, ZoomIn, ZoomOut, Maximize2, Info, Search } from 'lucide-react';
 import { setSelectedNode, clearSelection, setGraphData, setFilterLangs, setFilterTypes, applyGraphPatch } from '../store/index';
 import { apiSlice, useGetGraphQuery } from '../store/slices/apiSlice';
-import { EDGE_TYPE_CONFIG } from '../assets/mockdata';
 import serviceIcon from '../assets/Icons/Service.svg';
 import fileIcon from '../assets/Icons/File.svg';
 import functionIcon from '../assets/Icons/Function.svg';
@@ -14,6 +13,7 @@ import dbTableIcon from '../assets/Icons/DBTable.svg';
 import dbFieldIcon from '../assets/Icons/DBField.svg';
 import apiContractIcon from '../assets/Icons/APIContract.svg';
 import { buildDisplayGraph, computeNodeSizesByDepth, getDefaultVisibleTypes, normalizeEdgeType, normalizeNodeType } from './graphViewUtils';
+import { buildFileGraph, computeFileSizes } from './buildFileGraph';
 
 const GRAPH_NODE_TYPE_CONFIG = {
   service: { label: 'Service', color: '#1d4ed8', border: '#3b82f6', shape: 'round-rectangle', icon: serviceIcon },
@@ -29,6 +29,24 @@ const GRAPH_NODE_TYPE_CONFIG = {
 const NODE_TYPES = ['service', 'file', 'function', 'api_endpoint', 'db_table', 'db_field', 'api_contract'];
 const EDGE_PALETTE = ['#3b82f6', '#f59e0b', '#22c55e', '#a855f7', '#14b8a6', '#ef4444', '#0ea5e9', '#f97316'];
 const API_BASE_URL = import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
+const LEGACY_EDGE_TYPE_CONFIG = {
+  CALLS: { color: '#3b82f6', style: 'solid', label: 'Calls' },
+  USES_FIELD: { color: '#f59e0b', style: 'dashed', label: 'Uses Field' },
+  IMPLEMENTS: { color: '#22c55e', style: 'solid', label: 'Implements' },
+  CONSUMES: { color: '#a855f7', style: 'dotted', label: 'Consumes' },
+};
+
+const CLUSTER_CONFIG = {
+  Frontend: { color: '#0369a1', border: '#38bdf8', bg: 'rgba(14,165,233,0.05)' },
+  Backend: { color: '#15803d', border: '#4ade80', bg: 'rgba(34,197,94,0.05)' },
+  Database: { color: '#b45309', border: '#fbbf24', bg: 'rgba(245,158,11,0.05)' },
+  'AI Engine': { color: '#7c3aed', border: '#c084fc', bg: 'rgba(168,85,247,0.05)' },
+  Workers: { color: '#be123c', border: '#fb7185', bg: 'rgba(244,63,94,0.05)' },
+  Tests: { color: '#475569', border: '#94a3b8', bg: 'rgba(148,163,184,0.05)' },
+  Utilities: { color: '#0f766e', border: '#2dd4bf', bg: 'rgba(20,184,166,0.05)' },
+  Core: { color: '#1d4ed8', border: '#60a5fa', bg: 'rgba(96,165,250,0.05)' },
+  Other: { color: '#334155', border: '#64748b', bg: 'rgba(100,116,139,0.05)' },
+};
 
 const buildCyStyle = (nodeTypes, edgeConfig) => [
   {
@@ -100,12 +118,118 @@ const buildCyStyle = (nodeTypes, edgeConfig) => [
   { selector: 'edge.dimmed',           style: { 'opacity': 0.1  } },
 ];
 
+const buildFileCyStyle = () => [
+  {
+    selector: 'node.cluster-parent',
+    style: {
+      shape: 'round-rectangle',
+      'background-opacity': 0.04,
+      'border-width': '1.5px',
+      'border-style': 'dashed',
+      'border-color': 'data(borderColor)',
+      'background-color': 'data(bgColor)',
+      label: 'data(label)',
+      'text-valign': 'top',
+      'text-halign': 'center',
+      'font-size': '11px',
+      'font-weight': 'bold',
+      color: 'data(borderColor)',
+      padding: '30px',
+      'compound-sizing-wrt-labels': 'include',
+    },
+  },
+  {
+    selector: 'node[type = "file"]',
+    style: {
+      shape: 'round-rectangle',
+      width: 'data(nodeSize)',
+      height: 'data(nodeSize)',
+      'background-image': 'data(icon)',
+      'background-fit': 'cover',
+      'background-opacity': 0,
+      'border-width': '1.5px',
+      'border-color': 'data(borderColor)',
+      label: '',
+      'text-valign': 'bottom',
+      'text-halign': 'center',
+      'font-size': '8px',
+      'font-family': 'monospace',
+      color: '#94a3b8',
+      'text-margin-y': '4px',
+      'overlay-opacity': 0,
+    },
+  },
+  {
+    selector: 'node[type = "file"].show-label',
+    style: {
+      label: 'data(label)',
+    },
+  },
+  {
+    selector: 'node[type = "function"]',
+    style: {
+      shape: 'ellipse',
+      width: 22,
+      height: 22,
+      'background-color': '#22c55e',
+      'border-width': '1px',
+      'border-color': '#15803d',
+      label: 'data(label)',
+      'font-size': '7px',
+      'font-family': 'monospace',
+      color: '#94a3b8',
+      'text-valign': 'bottom',
+      'text-margin-y': '3px',
+      'overlay-opacity': 0,
+    },
+  },
+  {
+    selector: 'edge',
+    style: {
+      width: 'mapData(count, 1, 5, 1.2, 3.5)',
+      'line-color': '#334155',
+      'target-arrow-color': '#334155',
+      'target-arrow-shape': 'triangle',
+      'curve-style': 'bezier',
+      opacity: 0.5,
+    },
+  },
+  {
+    selector: 'edge[edgeType = "IMPORTS"]',
+    style: {
+      'line-color': '#3b82f6',
+      'target-arrow-color': '#3b82f6',
+    },
+  },
+  {
+    selector: 'edge[edgeType = "CALLS"]',
+    style: {
+      'line-color': '#22c55e',
+      'target-arrow-color': '#22c55e',
+      'line-style': 'dashed',
+    },
+  },
+  { selector: 'node.selected', style: { 'border-width': '3px', 'border-color': '#ef4444', 'overlay-color': '#ef4444', 'overlay-opacity': 0.08 } },
+  { selector: 'node.direct-impact', style: { 'border-width': '3px', 'border-color': '#f97316', 'overlay-color': '#f97316', 'overlay-opacity': 0.08 } },
+  { selector: 'node.transitive-impact', style: { 'border-width': '2px', 'border-color': '#eab308', 'overlay-color': '#eab308', 'overlay-opacity': 0.06 } },
+  { selector: 'node.search-match', style: { 'border-width': '3px', 'border-color': '#38bdf8' } },
+  { selector: 'node.dimmed', style: { opacity: 0.18 } },
+  { selector: 'edge.dimmed', style: { opacity: 0.06 } },
+];
+
 const GraphView = () => {
   const dispatch     = useDispatch();
   const navigate     = useNavigate();
   const cyRef        = useRef(null);
   const containerRef = useRef(null);
   const layoutKeyRef = useRef('');
+  const selectedNodeRef = useRef(null);
+  const showAllLabelsRef = useRef(false);
+  const graphModeRef = useRef('files');
+  const graphDataRef = useRef({ nodes: [], edges: [] });
+  const graphNodeIdsRef = useRef(new Set());
+  const fileGraphRef = useRef(null);
+  const drillDownFileIdRef = useRef(null);
 
   const selectedNode      = useSelector((s) => s.graph.selectedNode);
   const themeMode         = useSelector((s) => s.theme.mode);
@@ -129,6 +253,10 @@ const GraphView = () => {
     return fetchedGraphData || { nodes: [], edges: [] };
   }, [currentRepoId, fetchedGraphData, graphDataRepoId, storedGraphData]);
   const nodeTypes = useMemo(() => NODE_TYPES, []);
+  const [graphMode, setGraphMode] = useState('files');
+  const [drillDownFileId, setDrillDownFileId] = useState(null);
+  const [hideSingletons, setHideSingletons] = useState(false);
+  const [hiddenClusters, setHiddenClusters] = useState(new Set());
   const [scope, setScope] = useState('overview');
   const [perspective, setPerspective] = useState('structure');
   const [localDepth, setLocalDepth] = useState(2);
@@ -206,9 +334,167 @@ const GraphView = () => {
       links: base.links.filter((edge) => ids.has(edge.source) && ids.has(edge.target)),
     };
   }, [graphData, scope, perspective, selectedNode, localDepth, expandedFolders, expandedFiles, effectiveFilterTypes, hideLeafNodes, filterLangs, rawGraph]);
+
+  const fileGraph = useMemo(() => {
+    if (graphMode !== 'files') return null;
+    return buildFileGraph(graphData);
+  }, [graphData, graphMode]);
+
+  const fileSizes = useMemo(() => {
+    if (!fileGraph) return new Map();
+    return computeFileSizes(fileGraph.fileNodes, fileGraph.fileEdges);
+  }, [fileGraph]);
+
+  const fileCyElements = useMemo(() => {
+    if (!fileGraph || graphMode !== 'files') return null;
+
+    if (drillDownFileId) {
+      const parentFile = fileGraph.fileNodes.find((node) => node.id === drillDownFileId);
+      if (!parentFile) return [];
+
+      const childFunctions = fileGraph.fileFunctions.get(drillDownFileId) || [];
+      const neighborFileIds = new Set();
+      fileGraph.fileEdges.forEach((edge) => {
+        if (edge.source === drillDownFileId) neighborFileIds.add(edge.target);
+        if (edge.target === drillDownFileId) neighborFileIds.add(edge.source);
+      });
+
+      const neighborFiles = fileGraph.fileNodes.filter((node) => neighborFileIds.has(node.id));
+      const parentCfg = CLUSTER_CONFIG[parentFile.cluster] || CLUSTER_CONFIG.Other;
+      const elements = [
+        {
+          data: {
+            id: drillDownFileId,
+            label: parentFile.label,
+            type: 'file',
+            path: parentFile.path,
+            lang: parentFile.lang,
+            cluster: parentFile.cluster,
+            icon: fileIcon,
+            borderColor: parentCfg.border,
+            bgColor: parentCfg.bg,
+            nodeSize: 48,
+          },
+          classes: 'selected show-label',
+        },
+      ];
+
+      childFunctions.forEach((fn) => {
+        elements.push({
+          data: {
+            id: fn.id,
+            label: fn.label,
+            type: 'function',
+            parent: drillDownFileId,
+          },
+        });
+      });
+
+      const childIds = new Set(childFunctions.map((item) => item.id));
+      fileGraph.callEdges.forEach((edge) => {
+        if (childIds.has(edge.source) && childIds.has(edge.target)) {
+          elements.push({ data: { ...edge, count: edge.count || 1 } });
+        }
+      });
+
+      neighborFiles.forEach((node) => {
+        const cfg = CLUSTER_CONFIG[node.cluster] || CLUSTER_CONFIG.Other;
+        elements.push({
+          data: {
+            id: node.id,
+            label: node.label,
+            type: 'file',
+            path: node.path,
+            lang: node.lang,
+            cluster: node.cluster,
+            icon: fileIcon,
+            borderColor: cfg.border,
+            bgColor: cfg.bg,
+            nodeSize: fileSizes.get(node.id) || 36,
+          },
+          classes: 'show-label',
+        });
+      });
+
+      fileGraph.fileEdges.forEach((edge) => {
+        if (edge.source === drillDownFileId || edge.target === drillDownFileId) {
+          elements.push({ data: { ...edge, count: edge.count || 1 } });
+        }
+      });
+
+      return elements;
+    }
+
+    let visibleFiles = fileGraph.fileNodes.filter((node) => !hiddenClusters.has(node.cluster));
+    if (filterLangs.length > 0) {
+      const langSet = new Set(filterLangs);
+      visibleFiles = visibleFiles.filter((node) => langSet.has(node.lang));
+    }
+
+    if (hideSingletons) {
+      const connected = new Set();
+      fileGraph.fileEdges.forEach((edge) => {
+        connected.add(edge.source);
+        connected.add(edge.target);
+      });
+      visibleFiles = visibleFiles.filter((node) => connected.has(node.id));
+    }
+
+    const visibleFileIds = new Set(visibleFiles.map((node) => node.id));
+    const elements = [];
+    const clusterIds = new Set();
+
+    fileGraph.clusters.forEach((cluster) => {
+      if (hiddenClusters.has(cluster.label)) return;
+      const hasVisible = visibleFiles.some((node) => node.cluster === cluster.label);
+      if (!hasVisible) return;
+
+      const cfg = CLUSTER_CONFIG[cluster.label] || CLUSTER_CONFIG.Other;
+      clusterIds.add(cluster.id);
+      elements.push({
+        data: {
+          id: cluster.id,
+          label: cluster.label,
+          type: 'cluster',
+          borderColor: cfg.border,
+          bgColor: cfg.bg,
+        },
+        classes: 'cluster-parent',
+      });
+    });
+
+    visibleFiles.forEach((node) => {
+      const cfg = CLUSTER_CONFIG[node.cluster] || CLUSTER_CONFIG.Other;
+      const clusterId = `cluster:${node.cluster}`;
+      elements.push({
+        data: {
+          id: node.id,
+          label: node.label,
+          type: 'file',
+          lang: node.lang,
+          path: node.path,
+          cluster: node.cluster,
+          icon: fileIcon,
+          borderColor: cfg.border,
+          bgColor: cfg.bg,
+          nodeSize: fileSizes.get(node.id) || 32,
+          parent: clusterIds.has(clusterId) ? clusterId : undefined,
+        },
+      });
+    });
+
+    fileGraph.fileEdges.forEach((edge) => {
+      if (visibleFileIds.has(edge.source) && visibleFileIds.has(edge.target)) {
+        elements.push({ data: { ...edge, count: edge.count || 1 } });
+      }
+    });
+
+    return elements;
+  }, [fileGraph, graphMode, drillDownFileId, hideSingletons, hiddenClusters, fileSizes, filterLangs]);
+
   const edgeConfig = useMemo(() => {
     const present = new Set(displayGraph.links.map((edge) => edge.edgeType || 'RELATED'));
-    const merged = { ...EDGE_TYPE_CONFIG };
+    const merged = { ...LEGACY_EDGE_TYPE_CONFIG };
     [...present].forEach((type, index) => {
       if (!merged[type]) {
         merged[type] = {
@@ -220,26 +506,59 @@ const GraphView = () => {
     });
     return merged;
   }, [displayGraph.links]);
+
+  const fileOverviewNodes = useMemo(() => {
+    if (!fileGraph) return [];
+    return fileGraph.fileNodes.filter((node) => {
+      if (hiddenClusters.has(node.cluster)) return false;
+      if (filterLangs.length > 0 && !filterLangs.includes(node.lang)) return false;
+      if (!hideSingletons) return true;
+      const connected = fileGraph.fileEdges.some((edge) => edge.source === node.id || edge.target === node.id);
+      return connected;
+    });
+  }, [fileGraph, filterLangs, hiddenClusters, hideSingletons]);
+
   const searchMatches = useMemo(() => {
     const query = searchText.trim().toLowerCase();
     if (!query) return [];
-    return displayGraph.nodes.filter((node) => `${node.label} ${node.path || ''}`.toLowerCase().includes(query)).map((node) => node.id);
-  }, [displayGraph, searchText]);
-  const selectedData = selectedNode ? displayGraph.nodes.find((node) => node.id === selectedNode) || graphData.nodes.find((node) => node.id === selectedNode) : null;
+    if (graphMode === 'files') {
+      const sourceNodes = drillDownFileId
+        ? (fileCyElements || []).filter((item) => item?.data?.type === 'file' || item?.data?.type === 'function').map((item) => item.data)
+        : fileOverviewNodes;
+      return sourceNodes
+        .filter((node) => `${node.label || ''} ${node.path || ''}`.toLowerCase().includes(query))
+        .map((node) => node.id);
+    }
+
+    return displayGraph.nodes
+      .filter((node) => `${node.label} ${node.path || ''}`.toLowerCase().includes(query))
+      .map((node) => node.id);
+  }, [displayGraph, searchText, graphMode, fileCyElements, drillDownFileId, fileOverviewNodes]);
+
+  const selectedData = useMemo(() => {
+    if (!selectedNode) return null;
+    if (graphMode === 'files') {
+      return fileGraph?.fileNodes.find((node) => node.id === selectedNode) || null;
+    }
+    return displayGraph.nodes.find((node) => node.id === selectedNode) || graphData.nodes.find((node) => node.id === selectedNode) || null;
+  }, [selectedNode, graphMode, fileGraph, displayGraph, graphData]);
+
   const selectedIsFolder = Boolean(selectedData?.isSynthetic && selectedData?.type === 'folder');
   const selectedFolderPath = selectedIsFolder ? selectedData.path : null;
   const selectedIsFile = selectedData?.type === 'file' && !selectedData?.isSynthetic;
 
   useEffect(() => {
+    if (graphMode === 'files') return;
     if (scope === 'local' && selectedNode) return;
     if (!selectedNode) setScope('overview');
-  }, [selectedNode, scope]);
+  }, [selectedNode, scope, graphMode]);
 
   useEffect(() => {
+    if (graphMode === 'files') return;
     if (scope === 'local' && selectedNode && !graphNodeIds.has(selectedNode)) {
       setScope('overview');
     }
-  }, [graphNodeIds, scope, selectedNode]);
+  }, [graphNodeIds, scope, selectedNode, graphMode]);
 
   const gridStyle = useMemo(() => {
     const z = Math.max(0.2, Math.min(3, viewportZoom));
@@ -320,11 +639,25 @@ const GraphView = () => {
   }, [currentRepoId, dispatch]);
 
   useEffect(() => {
+    selectedNodeRef.current = selectedNode;
+    showAllLabelsRef.current = showAllLabels;
+    graphModeRef.current = graphMode;
+    graphDataRef.current = graphData;
+    graphNodeIdsRef.current = graphNodeIds;
+    fileGraphRef.current = fileGraph;
+    drillDownFileIdRef.current = drillDownFileId;
+  }, [selectedNode, showAllLabels, graphMode, graphData, graphNodeIds, fileGraph, drillDownFileId]);
+
+  useEffect(() => {
+    layoutKeyRef.current = '';
+  }, [graphMode, drillDownFileId]);
+
+  useEffect(() => {
     if (!containerRef.current || cyRef.current) return;
     const cy = cytoscape({
       container: containerRef.current,
       elements: [],
-      style: buildCyStyle(['folder', ...nodeTypes], edgeConfig),
+      style: graphMode === 'files' ? buildFileCyStyle() : buildCyStyle(['folder', ...nodeTypes], edgeConfig),
       boxSelectionEnabled: false,
       minZoom: 0.2,
       maxZoom: 3,
@@ -339,11 +672,34 @@ const GraphView = () => {
     });
     cy.on('tap', 'node', (evt) => {
       const id = evt.target.id();
-      if (id === selectedNode) {
+      const type = evt.target.data('type');
+      const mode = graphModeRef.current;
+
+      if (mode === 'files') {
+        if (type === 'cluster') return;
+        if (type !== 'file') return;
+
+        const payloadGraph = fileGraphRef.current
+          ? { nodes: fileGraphRef.current.fileNodes, edges: fileGraphRef.current.fileEdges }
+          : { nodes: [], edges: [] };
+
+        if (id === selectedNodeRef.current) {
+          dispatch(clearSelection());
+          return;
+        }
+
+        dispatch(setSelectedNode({ id, graphData: payloadGraph }));
+        if (drillDownFileIdRef.current) {
+          setDrillDownFileId(id);
+        }
+        return;
+      }
+
+      if (id === selectedNodeRef.current) {
         dispatch(clearSelection());
       } else {
-        dispatch(setSelectedNode({ id, graphData }));
-        if (graphNodeIds.has(id)) {
+        dispatch(setSelectedNode({ id, graphData: graphDataRef.current }));
+        if (graphNodeIdsRef.current.has(id)) {
           setScope('local');
         }
       }
@@ -353,21 +709,49 @@ const GraphView = () => {
     });
     cy.on('mouseover', 'node', (evt) => evt.target.addClass('show-label'));
     cy.on('mouseout', 'node', () => {
-      const showByZoom = cy.zoom() >= 1.05 || showAllLabels;
+      const showByZoom = cy.zoom() >= 1.05 || showAllLabelsRef.current;
       cy.nodes().removeClass('show-label');
       if (showByZoom) cy.nodes().addClass('show-label');
-      if (selectedNode) cy.$id(selectedNode).addClass('show-label');
+      if (selectedNodeRef.current) cy.$id(selectedNodeRef.current).addClass('show-label');
     });
     cyRef.current = cy;
     return () => {
       cy.destroy();
       cyRef.current = null;
     };
-  }, [dispatch, graphData, nodeTypes, selectedNode, showAllLabels, edgeConfig]);
+  }, [dispatch, edgeConfig, graphMode, nodeTypes]);
 
   useEffect(() => {
     const cy = cyRef.current;
     if (!cy) return;
+    const nextStyle = graphMode === 'files' ? buildFileCyStyle() : buildCyStyle(['folder', ...nodeTypes], edgeConfig);
+    cy.style(nextStyle);
+  }, [graphMode, nodeTypes, edgeConfig]);
+
+  useEffect(() => {
+    const cy = cyRef.current;
+    if (!cy) return;
+    if (graphMode === 'files') {
+      const elements = fileCyElements || [];
+      cy.batch(() => {
+        cy.elements().remove();
+        cy.add(elements);
+      });
+
+      const layout = drillDownFileId
+        ? { name: 'cose', animate: false, randomize: true, nodeRepulsion: 40000, idealEdgeLength: 140, fit: true, padding: 80 }
+        : { name: 'cose', animate: false, randomize: false, nodeRepulsion: 60000, idealEdgeLength: 200, gravity: 0.06, numIter: 1800, fit: true, padding: 100 };
+
+      const layoutKey = `files-${drillDownFileId || 'overview'}-${elements.length}`;
+      if (layoutKey !== layoutKeyRef.current) {
+        layoutKeyRef.current = layoutKey;
+        cy.layout(layout).run();
+        cy.fit(undefined, 80);
+        setViewportZoom(Number(cy.zoom().toFixed(2)));
+      }
+      return;
+    }
+
     const elements = [
       ...displayGraph.nodes.map((node) => ({ data: { ...node, icon: GRAPH_NODE_TYPE_CONFIG[node.type]?.icon || fileIcon } })),
       ...displayGraph.links.map((edge) => ({ data: { ...edge, count: edge.count || 1 } })),
@@ -390,7 +774,7 @@ const GraphView = () => {
       cy.center();
       setViewportZoom(Number(cy.zoom().toFixed(2)));
     }
-  }, [displayGraph, scope, perspective]);
+  }, [graphMode, fileCyElements, drillDownFileId, displayGraph, scope, perspective]);
 
   useEffect(() => {
     const cy = cyRef.current;
@@ -467,17 +851,39 @@ const GraphView = () => {
   const handleReset   = () => {
     dispatch(clearSelection());
     setScope('overview');
+    setDrillDownFileId(null);
     setExpandedFolders(new Set());
     setExpandedFiles(new Set());
+    setHiddenClusters(new Set());
+    setHideSingletons(false);
     setSearchText('');
     cyRef.current?.fit(undefined, 30);
   };
   const handleSearchFocus = () => {
     const match = searchMatches[0];
     if (!match) return;
+    if (graphMode === 'files' && fileGraph) {
+      dispatch(setSelectedNode({
+        id: match,
+        graphData: {
+          nodes: fileGraph.fileNodes,
+          edges: fileGraph.fileEdges,
+        },
+      }));
+      return;
+    }
+
     dispatch(setSelectedNode({ id: match, graphData }));
     if (graphNodeIds.has(match)) setScope('local');
   };
+
+  const shownNodesCount = graphMode === 'files'
+    ? (fileCyElements || []).filter((item) => item?.data && !item?.data?.source && !item?.data?.target && item?.data?.type !== 'cluster').length
+    : displayGraph.nodes.length;
+
+  const shownEdgesCount = graphMode === 'files'
+    ? (fileCyElements || []).filter((item) => item?.data?.source && item?.data?.target).length
+    : displayGraph.links.length;
 
   return (
     <div className="flex flex-col gap-3 relative" style={{ height: 'calc(100vh - 7rem)' }}>
@@ -502,30 +908,78 @@ const GraphView = () => {
         </div>
 
         <div className="flex items-center gap-1 rounded-lg p-1" style={{ background: 'var(--card)', border: '1px solid var(--border)' }}>
-          {['structure', 'all'].map((value) => (
+          {['files', 'legacy'].map((mode) => (
             <button
-              key={value}
-              onClick={() => setPerspective(value)}
+              key={mode}
+              onClick={() => {
+                setGraphMode(mode);
+                dispatch(clearSelection());
+                setDrillDownFileId(null);
+              }}
               className="px-2.5 py-1.5 rounded-md text-xs font-medium"
-              style={{ background: perspective === value ? 'rgba(59,130,246,0.12)' : 'transparent', color: perspective === value ? '#3b82f6' : 'var(--text-muted)' }}
+              style={{
+                background: graphMode === mode ? 'rgba(59,130,246,0.12)' : 'transparent',
+                color: graphMode === mode ? '#3b82f6' : 'var(--text-muted)',
+              }}
             >
-              {value === 'all' ? 'Combined' : 'Structure'}
+              {mode === 'files' ? 'File Graph ✦' : 'Legacy'}
             </button>
           ))}
         </div>
 
-        <div className="flex items-center gap-1 rounded-lg p-1" style={{ background: 'var(--card)', border: '1px solid var(--border)' }}>
-          {['overview', 'local'].map((value) => (
+        {graphMode === 'legacy' && (
+          <>
+            <div className="flex items-center gap-1 rounded-lg p-1" style={{ background: 'var(--card)', border: '1px solid var(--border)' }}>
+              {['structure', 'all'].map((value) => (
+                <button
+                  key={value}
+                  onClick={() => setPerspective(value)}
+                  className="px-2.5 py-1.5 rounded-md text-xs font-medium"
+                  style={{ background: perspective === value ? 'rgba(59,130,246,0.12)' : 'transparent', color: perspective === value ? '#3b82f6' : 'var(--text-muted)' }}
+                >
+                  {value === 'all' ? 'Combined' : 'Structure'}
+                </button>
+              ))}
+            </div>
+
+            <div className="flex items-center gap-1 rounded-lg p-1" style={{ background: 'var(--card)', border: '1px solid var(--border)' }}>
+              {['overview', 'local'].map((value) => (
+                <button
+                  key={value}
+                  onClick={() => setScope(value)}
+                  className="px-2.5 py-1.5 rounded-md text-xs font-medium"
+                  style={{ background: scope === value ? 'rgba(59,130,246,0.12)' : 'transparent', color: scope === value ? '#3b82f6' : 'var(--text-muted)' }}
+                >
+                  {value === 'overview' ? 'Overview' : `Local ${localDepth}`}
+                </button>
+              ))}
+            </div>
+          </>
+        )}
+
+        {graphMode === 'files' && (
+          <div className="flex items-center gap-1 rounded-lg p-1" style={{ background: 'var(--card)', border: '1px solid var(--border)' }}>
+            {drillDownFileId && (
+              <button
+                onClick={() => { setDrillDownFileId(null); dispatch(clearSelection()); }}
+                className="px-2.5 py-1.5 rounded-md text-xs font-medium"
+                style={{ background: 'rgba(239,68,68,0.12)', color: '#ef4444' }}
+              >
+                ← All files
+              </button>
+            )}
             <button
-              key={value}
-              onClick={() => setScope(value)}
+              onClick={() => setHideSingletons((value) => !value)}
               className="px-2.5 py-1.5 rounded-md text-xs font-medium"
-              style={{ background: scope === value ? 'rgba(59,130,246,0.12)' : 'transparent', color: scope === value ? '#3b82f6' : 'var(--text-muted)' }}
+              style={{
+                background: hideSingletons ? 'rgba(59,130,246,0.12)' : 'transparent',
+                color: hideSingletons ? '#3b82f6' : 'var(--text-muted)',
+              }}
             >
-              {value === 'overview' ? 'Overview' : `Local ${localDepth}`}
+              {hideSingletons ? 'Show isolated' : 'Hide isolated'}
             </button>
-          ))}
-        </div>
+          </div>
+        )}
 
         <div className="flex items-center gap-2 px-2.5 py-1.5 rounded-lg" style={{ background: 'var(--card)', border: '1px solid var(--border)' }}>
           <Search size={13} style={{ color: 'var(--text-muted)' }} />
@@ -558,8 +1012,8 @@ const GraphView = () => {
         </button>
 
         <div className="ml-auto flex items-center gap-3 text-xs" style={{ color: 'var(--text-muted)' }}>
-          <span>{displayGraph.nodes.length} shown</span>
-          <span>{displayGraph.links.length} edges</span>
+          <span>{shownNodesCount} shown</span>
+          <span>{shownEdgesCount} edges</span>
           <span>{graphData.nodes.length} raw</span>
         </div>
       </div>
@@ -567,30 +1021,68 @@ const GraphView = () => {
       {/* Filter panel */}
       {showFilters && (
         <div className="card flex flex-wrap items-center gap-2 py-3">
-          <span className="text-xs font-medium" style={{ color: 'var(--text-muted)' }}>Node type:</span>
-          {nodeTypes.map((type) => {
-            const cfg = GRAPH_NODE_TYPE_CONFIG[type] || {};
-            const active = effectiveFilterTypes.includes(type);
-            return (
-              <button
-                key={type}
-                onClick={() => {
-                  const base = filterTypes.length > 0 ? filterTypes : defaultTypes;
-                  const next = base.includes(type) ? base.filter((t) => t !== type) : [...base, type];
-                  dispatch(setFilterTypes(next));
-                }}
-                className="text-xs px-2.5 py-1 rounded-full font-medium transition-all"
-                style={{ background: active ? `${cfg.border || '#3b82f6'}20` : 'var(--bg-muted)', color: active ? cfg.border || '#3b82f6' : 'var(--text-muted)', border: `1px solid ${active ? (cfg.border || '#3b82f6') + '50' : 'var(--border)'}` }}
-              >
-                <img src={cfg.icon || fileIcon} alt={type} className="inline-block w-4 h-4 mr-1 rounded align-text-bottom" />
-                {cfg.label || type}
-              </button>
-            );
-          })}
-          {filterTypes.length > 0 && (
-            <button onClick={() => dispatch(setFilterTypes([]))} className="text-xs px-2 py-1 rounded-full transition-all" style={{ color: 'var(--text-muted)', border: '1px solid var(--border)' }}>
-              Reset type defaults
-            </button>
+          {graphMode === 'legacy' ? (
+            <>
+              <span className="text-xs font-medium" style={{ color: 'var(--text-muted)' }}>Node type:</span>
+              {nodeTypes.map((type) => {
+                const cfg = GRAPH_NODE_TYPE_CONFIG[type] || {};
+                const active = effectiveFilterTypes.includes(type);
+                return (
+                  <button
+                    key={type}
+                    onClick={() => {
+                      const base = filterTypes.length > 0 ? filterTypes : defaultTypes;
+                      const next = base.includes(type) ? base.filter((t) => t !== type) : [...base, type];
+                      dispatch(setFilterTypes(next));
+                    }}
+                    className="text-xs px-2.5 py-1 rounded-full font-medium transition-all"
+                    style={{ background: active ? `${cfg.border || '#3b82f6'}20` : 'var(--bg-muted)', color: active ? cfg.border || '#3b82f6' : 'var(--text-muted)', border: `1px solid ${active ? (cfg.border || '#3b82f6') + '50' : 'var(--border)'}` }}
+                  >
+                    <img src={cfg.icon || fileIcon} alt={type} className="inline-block w-4 h-4 mr-1 rounded align-text-bottom" />
+                    {cfg.label || type}
+                  </button>
+                );
+              })}
+              {filterTypes.length > 0 && (
+                <button onClick={() => dispatch(setFilterTypes([]))} className="text-xs px-2 py-1 rounded-full transition-all" style={{ color: 'var(--text-muted)', border: '1px solid var(--border)' }}>
+                  Reset type defaults
+                </button>
+              )}
+            </>
+          ) : (
+            <>
+              <span className="text-xs font-medium" style={{ color: 'var(--text-muted)' }}>Clusters:</span>
+              {Object.keys(CLUSTER_CONFIG).map((cluster) => {
+                const active = !hiddenClusters.has(cluster);
+                const cfg = CLUSTER_CONFIG[cluster] || CLUSTER_CONFIG.Other;
+                return (
+                  <button
+                    key={cluster}
+                    onClick={() => {
+                      setHiddenClusters((current) => {
+                        const next = new Set(current);
+                        if (next.has(cluster)) next.delete(cluster);
+                        else next.add(cluster);
+                        return next;
+                      });
+                    }}
+                    className="text-xs px-2.5 py-1 rounded-full font-medium transition-all"
+                    style={{ background: active ? `${cfg.border}20` : 'var(--bg-muted)', color: active ? cfg.border : 'var(--text-muted)', border: `1px solid ${active ? `${cfg.border}60` : 'var(--border)'}` }}
+                  >
+                    {cluster}
+                  </button>
+                );
+              })}
+              {hiddenClusters.size > 0 && (
+                <button
+                  onClick={() => setHiddenClusters(new Set())}
+                  className="text-xs px-2 py-1 rounded-full transition-all"
+                  style={{ color: 'var(--text-muted)', border: '1px solid var(--border)' }}
+                >
+                  Reset clusters
+                </button>
+              )}
+            </>
           )}
 
           <span className="text-xs font-medium ml-3" style={{ color: 'var(--text-muted)' }}>Language:</span>
@@ -619,7 +1111,7 @@ const GraphView = () => {
       )}
 
       {/* Legend */}
-      {showLegend && (
+      {showLegend && graphMode === 'legacy' && (
         <div className="card flex flex-wrap gap-x-5 gap-y-2 py-3">
           <div className="flex flex-wrap gap-3">
             {['folder', ...nodeTypes].map((type) => {
@@ -651,6 +1143,23 @@ const GraphView = () => {
         </div>
       )}
 
+      {showLegend && graphMode === 'files' && (
+        <div className="card flex flex-wrap gap-3 py-3">
+          {Object.entries(CLUSTER_CONFIG).map(([name, cfg]) => (
+            <div key={name} className="flex items-center gap-1.5 text-xs" style={{ color: 'var(--text-muted)' }}>
+              <span className="w-3 h-3 rounded-sm border-2 inline-block" style={{ borderColor: cfg.border, background: cfg.bg }} />
+              {name}
+            </div>
+          ))}
+          <div className="flex items-center gap-1.5 text-xs" style={{ color: 'var(--text-muted)' }}>
+            <span className="inline-block w-5" style={{ borderTop: '2px solid #3b82f6' }} /> Imports
+          </div>
+          <div className="flex items-center gap-1.5 text-xs" style={{ color: 'var(--text-muted)' }}>
+            <span className="inline-block w-5" style={{ borderTop: '2px dashed #22c55e' }} /> Calls (drill-down)
+          </div>
+        </div>
+      )}
+
       {/* Selected node info bar */}
       {selectedData && (
         <div
@@ -658,9 +1167,33 @@ const GraphView = () => {
           style={{ background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.25)' }}
         >
           <span className="font-semibold code-text" style={{ color: '#ef4444' }}>{selectedData.label || selectedData.name || selectedData.id}</span>
-          <span className="text-xs" style={{ color: 'var(--text-muted)' }}>{selectedData.lang || selectedData.language || 'mixed'} · {selectedData.type}</span>
+          {graphMode === 'files' && selectedData.type === 'file' ? (
+            <span className="text-xs px-2 py-0.5 rounded-full font-medium" style={{
+              background: (CLUSTER_CONFIG[selectedData.cluster] || CLUSTER_CONFIG.Other).bg,
+              color: (CLUSTER_CONFIG[selectedData.cluster] || CLUSTER_CONFIG.Other).border,
+            }}>
+              {selectedData.cluster}
+            </span>
+          ) : null}
+          <span className="text-xs" style={{ color: 'var(--text-muted)' }}>
+            {selectedData.lang || selectedData.language || 'mixed'} · {selectedData.type}
+            {graphMode === 'files' && selectedData.type === 'file' && fileGraph
+              ? ` · ${(fileGraph.fileFunctions.get(selectedData.id) || []).length} functions`
+              : ''}
+          </span>
           <span className="text-xs flex-1 truncate hidden sm:block" style={{ color: 'var(--text-muted)' }}>{selectedData.path || selectedData.name}</span>
-          {selectedIsFolder && (
+
+          {graphMode === 'files' && selectedData?.type === 'file' && (
+            <button
+              onClick={() => setDrillDownFileId(drillDownFileId === selectedData.id ? null : selectedData.id)}
+              className="text-xs font-medium px-3 py-1 rounded-lg transition-all shrink-0"
+              style={{ background: drillDownFileId === selectedData.id ? '#15803d' : '#0369a1', color: '#fff' }}
+            >
+              {drillDownFileId === selectedData.id ? '← Back to overview' : 'Drill into file →'}
+            </button>
+          )}
+
+          {graphMode === 'legacy' && selectedIsFolder && (
             <button
               onClick={() => setExpandedFolders((current) => {
                 const next = new Set(current);
@@ -674,7 +1207,7 @@ const GraphView = () => {
               {expandedFolders.has(selectedFolderPath) ? 'Collapse folder' : 'Expand folder'}
             </button>
           )}
-          {selectedIsFile && (
+          {graphMode === 'legacy' && selectedIsFile && (
             <button
               onClick={() => setExpandedFiles((current) => {
                 const next = new Set(current);
@@ -688,7 +1221,7 @@ const GraphView = () => {
               {expandedFiles.has(selectedData.id) ? 'Hide details' : 'Expand details'}
             </button>
           )}
-          {!selectedIsFolder && (
+          {graphMode === 'legacy' && !selectedIsFolder && (
             <button
               onClick={() => setScope((current) => current === 'local' ? 'overview' : 'local')}
               className="text-xs font-medium px-3 py-1 rounded-lg transition-all shrink-0"
