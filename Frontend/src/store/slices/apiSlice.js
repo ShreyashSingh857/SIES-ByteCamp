@@ -126,11 +126,33 @@ export const apiSlice = createApi({
       query: (id) => `/help/${id}`,
       transformResponse: (response) => response.data,
     }),
+
+    // POST /api/scan/local — Scan a local directory and start live file watching
+    // Returns same shape as scanRepo: { repoId, scanId, graphApi, parserSummary, isLocal, watching }
+    scanLocalRepo: builder.mutation({
+      query: (data) => ({
+        url: '/scan/local',
+        method: 'POST',
+        body: data,
+      }),
+      invalidatesTags: ['Graph'],
+      transformResponse: (response) => response.data,
+    }),
+
+    // DELETE /api/scan/local/:repoId — Stop watching a local repo
+    stopLocalWatch: builder.mutation({
+      query: (repoId) => ({
+        url: `/scan/local/${repoId}`,
+        method: 'DELETE',
+      }),
+    }),
   }),
 });
 
 export const {
   useScanRepoMutation,
+  useScanLocalRepoMutation,
+  useStopLocalWatchMutation,
   useGetGraphQuery,
   useDeleteGraphMutation,
   useSeedSchemaMutation,

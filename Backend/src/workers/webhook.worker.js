@@ -70,13 +70,16 @@ async function updateRepository(localPath, { after, ref, branch }) {
 }
 
 async function processWebhookJob(job) {
-  const { repoId, scanId, localPath, branch, after, ref, changedFiles, removedFiles } = job.data;
+  const { repoId, scanId, localPath, branch, after, ref, changedFiles, removedFiles, isLocal } = job.data;
 
   if (!repoId || !scanId || !localPath) {
     throw new Error("Webhook job is missing repoId, scanId, or localPath");
   }
 
-  await updateRepository(localPath, { after, ref, branch });
+  // For local-path repos there is no remote to pull from - skip git operations entirely.
+  if (!isLocal) {
+    await updateRepository(localPath, { after, ref, branch });
+  }
 
   const partialGraph = await runPartialScan(localPath, changedFiles);
   const parserPatch = patchStoredGraph(repoId, partialGraph, { removedFiles });

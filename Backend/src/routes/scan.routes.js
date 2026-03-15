@@ -14,6 +14,7 @@ import {
 	previewEditorImpact,
 	saveEditedFileContent,
 } from "../controllers/scan.controller.js";
+import localScanRouter from "./localScan.routes.js";
 
 const router = Router();
 
@@ -47,6 +48,7 @@ router.post("/analyze/dependencies", analyzeDependencies);
 // POST /api/analyze/dependencies-llm → analyze dependencies with LLM + Neo4j (advanced)
 router.post("/analyze/dependencies-llm", analyzeDependenciesWithIntelligence);
 
+router.use("/scan", localScanRouter);
 // GET /api/editor/file?repoId=...&filePath=... → load editable local file content
 router.get("/editor/file", getEditableFileContent);
 

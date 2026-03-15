@@ -3,6 +3,7 @@ import { useSelector } from 'react-redux';
 import { useNavigate, useParams } from 'react-router-dom';
 import SyntaxHighlighter from 'react-syntax-highlighter';
 import { atomOneDark, atomOneLight } from 'react-syntax-highlighter/dist/esm/styles/hljs';
+import { buildGitHubBlobUrl, buildGitHubRawUrl, normalizeRepoUrl } from '../lib/utils';
 import {
     useGetFileRelationsQuery,
     useGetEditableFileQuery,
@@ -68,22 +69,6 @@ const getLanguage = (filename = '') => {
     if (lower === 'makefile') return 'makefile';
     const ext = lower.split('.').pop();
     return EXT_LANG_MAP[ext] || 'plaintext';
-};
-
-const parseRepoInfo = (repoUrl = '') => {
-    try {
-        const url = new URL(repoUrl);
-        const [, owner, repo] = url.pathname.replace(/\.git$/, '').split('/');
-        return { owner, repo };
-    } catch {
-        return { owner: '', repo: '' };
-    }
-};
-
-const buildRawUrl = (repoUrl, branch, filePath) => {
-    const { owner, repo } = parseRepoInfo(repoUrl);
-    if (!owner || !repo) return null;
-    return `https://raw.githubusercontent.com/${owner}/${repo}/${branch}/${filePath}`;
 };
 
 const buildSelectionContext = (fullCode, selectedValue) => {
@@ -802,6 +787,7 @@ const FileViewerWithDependencies = () => {
     const currentRepoId = useSelector((s) => s.graph.currentRepoId);
     const currentScanId = useSelector((s) => s.graph.currentScanId);
     const isDark = useSelector((s) => s.theme?.isDark ?? true);
+    const normalizedRepoUrl = useMemo(() => normalizeRepoUrl(currentRepoUrl), [currentRepoUrl]);
 
     const [code, setCode] = useState('');
     const [draftCode, setDraftCode] = useState('');
@@ -821,6 +807,7 @@ const FileViewerWithDependencies = () => {
     const [editorError, setEditorError] = useState('');
     const [activityEvents, setActivityEvents] = useState([]);
     const codeEditorRef = useRef(null);
+    const API_URL = import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
 
     const {
         data: editableFileData,
@@ -839,14 +826,13 @@ const FileViewerWithDependencies = () => {
     const [saveEditedFile, { isLoading: saveEditedFileLoading }] = useSaveEditedFileMutation();
 
     const rawUrl = useMemo(
-        () => buildRawUrl(currentRepoUrl, currentRepoBranch, filePath),
-        [currentRepoUrl, currentRepoBranch, filePath],
+        () => buildGitHubRawUrl(normalizedRepoUrl, currentRepoBranch, filePath),
+        [normalizedRepoUrl, currentRepoBranch, filePath],
     );
 
     const githubFileUrl = useMemo(() => {
-        if (!currentRepoUrl || !filePath) return null;
-        return `${currentRepoUrl}/blob/${currentRepoBranch}/${filePath}`;
-    }, [currentRepoUrl, currentRepoBranch, filePath]);
+        return buildGitHubBlobUrl(normalizedRepoUrl, currentRepoBranch, filePath);
+    }, [normalizedRepoUrl, currentRepoBranch, filePath]);
 
     const {
         data: fileRelationsData,
@@ -874,6 +860,47 @@ const FileViewerWithDependencies = () => {
     // Fetch editable file from backend first, then fallback to GitHub raw if needed
     useEffect(() => {
         let cancelled = false;
+
+        async function loadFileContent() {
+            setLoading(true);
+            setError('');
+            setCode('');
+
+            try {
+                if (rawUrl) {
+                    const res = await fetch(rawUrl);
+                    if (!res.ok) throw new Error(`GitHub returned ${res.status} for this file.`);
+                    const text = await res.text();
+                    if (!cancelled) setCode(text);
+                    return;
+                }
+
+                if (!currentRepoId || !filePath) {
+                    throw new Error('Cannot resolve file source for this repository.');
+                }
+
+                const localFileUrl = `${API_URL}/scan/local/${encodeURIComponent(currentRepoId)}/file?filePath=${encodeURIComponent(filePath)}`;
+                const res = await fetch(localFileUrl);
+                const payload = await res.json().catch(() => ({}));
+                if (!res.ok) {
+                    throw new Error(payload?.message || `Failed to load local file (${res.status})`);
+                }
+
+                if (!cancelled) {
+                    setCode(String(payload?.data?.content || ''));
+                }
+            } catch (err) {
+                if (!cancelled) {
+                    setError(err.message || 'Failed to fetch file content.');
+                }
+            } finally {
+                if (!cancelled) setLoading(false);
+            }
+        }
+
+        loadFileContent();
+        return () => { cancelled = true; };
+    }, [rawUrl, currentRepoId, filePath, API_URL]);
 
         const loadFallbackFromGitHub = async () => {
             if (!rawUrl) {
@@ -1531,7 +1558,7 @@ const FileViewerWithDependencies = () => {
                     {loading && (
                         <div className="flex-1 flex items-center justify-center gap-2 text-sm" style={{ color: 'var(--text-muted)' }}>
                             <Loader2 size={16} className="animate-spin" />
-                            Loading file content…
+                            Loading file content...
                         </div>
                     )}
 
