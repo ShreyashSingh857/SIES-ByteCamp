@@ -1,10 +1,10 @@
 {
   "repositoryPath": "C:\\Users\\adity\\Desktop\\SIES-ByteCamp2\\Frontend",
   "summary": {
-    "scannedFiles": 46,
-    "parsedFiles": 46,
-    "nodes": 591,
-    "edges": 1085,
+    "scannedFiles": 47,
+    "parsedFiles": 47,
+    "nodes": 580,
+    "edges": 1058,
     "languages": [
       "javascript"
     ]
@@ -52,6 +52,144 @@
       "name": "globalIgnores"
     },
     {
+      "id": "file:replace.js",
+      "type": "FILE",
+      "name": "replace.js",
+      "language": "javascript"
+    },
+    {
+      "id": "module:fs",
+      "type": "MODULE",
+      "name": "fs"
+    },
+    {
+      "id": "symbol:readFileSync",
+      "type": "SYMBOL",
+      "name": "readFileSync"
+    },
+    {
+      "id": "file:replace_script.js",
+      "type": "FILE",
+      "name": "replace_script.js",
+      "language": "javascript"
+    },
+    {
+      "id": "symbol:max",
+      "type": "SYMBOL",
+      "name": "max"
+    },
+    {
+      "id": "symbol:min",
+      "type": "SYMBOL",
+      "name": "min"
+    },
+    {
+      "id": "symbol:round",
+      "type": "SYMBOL",
+      "name": "round"
+    },
+    {
+      "id": "symbol:rgba",
+      "type": "SYMBOL",
+      "name": "rgba"
+    },
+    {
+      "id": "symbol:gradient",
+      "type": "SYMBOL",
+      "name": "gradient"
+    },
+    {
+      "id": "symbol:replace",
+      "type": "SYMBOL",
+      "name": "replace"
+    },
+    {
+      "id": "symbol:'className=\"flex flex-col gap-3 relative\" style={{ height: \\\\'",
+      "type": "SYMBOL",
+      "name": "'className=\"flex flex-col gap-3 relative\" style={{ height: \\\\'"
+    },
+    {
+      "id": "symbol:map",
+      "type": "SYMBOL",
+      "name": "map"
+    },
+    {
+      "id": "symbol:setPerspective",
+      "type": "SYMBOL",
+      "name": "setPerspective"
+    },
+    {
+      "id": "symbol:setScope",
+      "type": "SYMBOL",
+      "name": "setScope"
+    },
+    {
+      "id": "symbol:setSearchText",
+      "type": "SYMBOL",
+      "name": "setSearchText"
+    },
+    {
+      "id": "symbol:handleSearchFocus",
+      "type": "SYMBOL",
+      "name": "handleSearchFocus"
+    },
+    {
+      "id": "symbol:setShowFilters",
+      "type": "SYMBOL",
+      "name": "setShowFilters"
+    },
+    {
+      "id": "symbol:includes",
+      "type": "SYMBOL",
+      "name": "includes"
+    },
+    {
+      "id": "symbol:filter",
+      "type": "SYMBOL",
+      "name": "filter"
+    },
+    {
+      "id": "symbol:dispatch",
+      "type": "SYMBOL",
+      "name": "dispatch"
+    },
+    {
+      "id": "symbol:setFilterTypes",
+      "type": "SYMBOL",
+      "name": "setFilterTypes"
+    },
+    {
+      "id": "symbol:setFilterLangs",
+      "type": "SYMBOL",
+      "name": "setFilterLangs"
+    },
+    {
+      "id": "symbol:setShowLegend",
+      "type": "SYMBOL",
+      "name": "setShowLegend"
+    },
+    {
+      "id": "symbol:keys",
+      "type": "SYMBOL",
+      "name": "keys"
+    },
+    {
+      "id": "symbol:log",
+      "type": "SYMBOL",
+      "name": "log"
+    },
+    {
+      "id": "symbol:writeFileSync",
+      "type": "SYMBOL",
+      "name": "writeFileSync"
+    },
+    {
+      "id": "file:replace_tool.js",
+      "type": "FILE",
+      "name": "replace_tool.js",
+      "language": "javascript"
+    },
+    {
       "id": "file:src/App.jsx",
       "type": "FILE",
       "name": "src/App.jsx",
@@ -83,14 +221,14 @@
       "type": "FUNCTION",
       "name": "AppRoutes",
       "file": "src/App.jsx",
-      "line": 37
+      "line": 36
     },
     {
       "id": "function:src/App.jsx#App",
       "type": "FUNCTION",
       "name": "App",
       "file": "src/App.jsx",
-      "line": 64
+      "line": 62
     },
     {
       "id": "module:react",
@@ -144,17 +282,12 @@
       "type": "FUNCTION",
       "name": "Header",
       "file": "src/components/layout/Header.jsx",
-      "line": 14
+      "line": 12
     },
     {
       "id": "module:lucide-react",
       "type": "MODULE",
       "name": "lucide-react"
-    },
-    {
-      "id": "module:../theme/ThemeToggle",
-      "type": "MODULE",
-      "name": "../theme/ThemeToggle"
     },
     {
       "id": "module:react-redux",
@@ -250,14 +383,14 @@
       "type": "FUNCTION",
       "name": "Sidebar",
       "file": "src/components/layout/Sidebar.jsx",
-      "line": 15
+      "line": 14
     },
     {
       "id": "function:src/components/layout/Sidebar.jsx#handleLogout",
       "type": "FUNCTION",
       "name": "handleLogout",
       "file": "src/components/layout/Sidebar.jsx",
-      "line": 19
+      "line": 18
     },
     {
       "id": "module:../Logo",
@@ -298,11 +431,6 @@
       "id": "symbol:join",
       "type": "SYMBOL",
       "name": "join"
-    },
-    {
-      "id": "symbol:map",
-      "type": "SYMBOL",
-      "name": "map"
     },
     {
       "id": "symbol:split",
@@ -374,44 +502,6 @@
       "id": "symbol:setItem",
       "type": "SYMBOL",
       "name": "setItem"
-    },
-    {
-      "id": "file:src/components/theme/ThemeToggle.jsx",
-      "type": "FILE",
-      "name": "src/components/theme/ThemeToggle.jsx",
-      "language": "javascript"
-    },
-    {
-      "id": "function:src/components/theme/ThemeToggle.jsx#ThemeToggle",
-      "type": "FUNCTION",
-      "name": "ThemeToggle",
-      "file": "src/components/theme/ThemeToggle.jsx",
-      "line": 7
-    },
-    {
-      "id": "module:@mui/material",
-      "type": "MODULE",
-      "name": "@mui/material"
-    },
-    {
-      "id": "module:../../store/slices/themeSlice",
-      "type": "MODULE",
-      "name": "../../store/slices/themeSlice"
-    },
-    {
-      "id": "symbol:useDispatch",
-      "type": "SYMBOL",
-      "name": "useDispatch"
-    },
-    {
-      "id": "symbol:dispatch",
-      "type": "SYMBOL",
-      "name": "dispatch"
-    },
-    {
-      "id": "symbol:toggleTheme",
-      "type": "SYMBOL",
-      "name": "toggleTheme"
     },
     {
       "id": "file:src/components/ui/DependencyImpactVisualizer.jsx",
@@ -663,14 +753,14 @@
       "type": "FUNCTION",
       "name": "signup",
       "file": "src/contexts/AuthContext.jsx",
-      "line": 44
+      "line": 59
     },
     {
       "id": "function:src/contexts/AuthContext.jsx#logout",
       "type": "FUNCTION",
       "name": "logout",
       "file": "src/contexts/AuthContext.jsx",
-      "line": 60
+      "line": 75
     },
     {
       "id": "module:../assets/mockdata",
@@ -706,6 +796,11 @@
       "id": "symbol:setLoading",
       "type": "SYMBOL",
       "name": "setLoading"
+    },
+    {
+      "id": "symbol:charAt",
+      "type": "SYMBOL",
+      "name": "charAt"
     },
     {
       "id": "symbol:stringify",
@@ -888,14 +983,14 @@
       "type": "FUNCTION",
       "name": "buildDirectoryCards",
       "file": "src/pages/Analyze.jsx",
-      "line": 34
+      "line": 36
     },
     {
       "id": "function:src/pages/Analyze.jsx#Analyze",
       "type": "FUNCTION",
       "name": "Analyze",
       "file": "src/pages/Analyze.jsx",
-      "line": 78
+      "line": 80
     },
     {
       "id": "module:../store/slices/apiSlice",
@@ -987,6 +1082,11 @@
       "name": "DirListView",
       "file": "src/pages/DirListView.jsx",
       "line": 149
+    },
+    {
+      "id": "module:../lib/utils",
+      "type": "MODULE",
+      "name": "../lib/utils"
     },
     {
       "id": "module:../lib/utils",
@@ -1285,16 +1385,6 @@
       "name": "indexOf"
     },
     {
-      "id": "symbol:max",
-      "type": "SYMBOL",
-      "name": "max"
-    },
-    {
-      "id": "symbol:min",
-      "type": "SYMBOL",
-      "name": "min"
-    },
-    {
       "id": "symbol:isArray",
       "type": "SYMBOL",
       "name": "isArray"
@@ -1500,6 +1590,11 @@
       "name": "./graphViewUtils"
     },
     {
+      "id": "symbol:useDispatch",
+      "type": "SYMBOL",
+      "name": "useDispatch"
+    },
+    {
       "id": "symbol:getDefaultVisibleTypes",
       "type": "SYMBOL",
       "name": "getDefaultVisibleTypes"
@@ -1523,26 +1618,6 @@
       "id": "symbol:buildDisplayGraph",
       "type": "SYMBOL",
       "name": "buildDisplayGraph"
-    },
-    {
-      "id": "symbol:setScope",
-      "type": "SYMBOL",
-      "name": "setScope"
-    },
-    {
-      "id": "symbol:round",
-      "type": "SYMBOL",
-      "name": "round"
-    },
-    {
-      "id": "symbol:setFilterTypes",
-      "type": "SYMBOL",
-      "name": "setFilterTypes"
-    },
-    {
-      "id": "symbol:setFilterLangs",
-      "type": "SYMBOL",
-      "name": "setFilterLangs"
     },
     {
       "id": "symbol:setGraphData",
@@ -1695,26 +1770,6 @@
       "name": "setExpandedFiles"
     },
     {
-      "id": "symbol:setSearchText",
-      "type": "SYMBOL",
-      "name": "setSearchText"
-    },
-    {
-      "id": "symbol:setPerspective",
-      "type": "SYMBOL",
-      "name": "setPerspective"
-    },
-    {
-      "id": "symbol:setShowFilters",
-      "type": "SYMBOL",
-      "name": "setShowFilters"
-    },
-    {
-      "id": "symbol:setShowLegend",
-      "type": "SYMBOL",
-      "name": "setShowLegend"
-    },
-    {
       "id": "symbol:delete",
       "type": "SYMBOL",
       "name": "delete"
@@ -1852,69 +1907,6 @@
       "name": "../contexts/AuthContext"
     },
     {
-      "id": "file:src/pages/ImpactPanel.jsx",
-      "type": "FILE",
-      "name": "src/pages/ImpactPanel.jsx",
-      "language": "javascript"
-    },
-    {
-      "id": "function:src/pages/ImpactPanel.jsx#ImpactBadge",
-      "type": "FUNCTION",
-      "name": "ImpactBadge",
-      "file": "src/pages/ImpactPanel.jsx",
-      "line": 18
-    },
-    {
-      "id": "function:src/pages/ImpactPanel.jsx#NodeRow",
-      "type": "FUNCTION",
-      "name": "NodeRow",
-      "file": "src/pages/ImpactPanel.jsx",
-      "line": 34
-    },
-    {
-      "id": "function:src/pages/ImpactPanel.jsx#ImpactPanel",
-      "type": "FUNCTION",
-      "name": "ImpactPanel",
-      "file": "src/pages/ImpactPanel.jsx",
-      "line": 67
-    },
-    {
-      "id": "function:src/pages/ImpactPanel.jsx#resolveNode",
-      "type": "FUNCTION",
-      "name": "resolveNode",
-      "file": "src/pages/ImpactPanel.jsx",
-      "line": 95
-    },
-    {
-      "id": "function:src/pages/ImpactPanel.jsx#filterNodes",
-      "type": "FUNCTION",
-      "name": "filterNodes",
-      "file": "src/pages/ImpactPanel.jsx",
-      "line": 102
-    },
-    {
-      "id": "function:src/pages/ImpactPanel.jsx#handleNodeClick",
-      "type": "FUNCTION",
-      "name": "handleNodeClick",
-      "file": "src/pages/ImpactPanel.jsx",
-      "line": 110
-    },
-    {
-      "id": "symbol:onSelect",
-      "type": "SYMBOL",
-      "name": "onSelect"
-    },
-    {
-      "id": "symbol:useGetImpactAnalysisQuery",
-      "type": "SYMBOL",
-      "name": "useGetImpactAnalysisQuery"
-    },
-    {
-      "id": "symbol:setSearch",
-      "type": "SYMBOL",
-      "name": "setSearch"
-    },
-    {
       "id": "file:src/pages/index.js",
       "type": "FILE",
       "name": "src/pages/index.js",
@@ -1954,11 +1946,6 @@
       "id": "module:./GraphView",
       "type": "MODULE",
       "name": "./GraphView"
-    },
-    {
-      "id": "module:./ImpactPanel",
-      "type": "MODULE",
-      "name": "./ImpactPanel"
     },
     {
       "id": "module:./DirListView",
@@ -2073,19 +2060,14 @@
       "type": "FUNCTION",
       "name": "Login",
       "file": "src/pages/Login.jsx",
-      "line": 8
+      "line": 7
     },
     {
       "id": "function:src/pages/Login.jsx#handleSubmit",
       "type": "FUNCTION",
       "name": "handleSubmit",
       "file": "src/pages/Login.jsx",
-      "line": 17
-    },
-    {
-      "id": "module:../components/theme/ThemeToggle",
-      "type": "MODULE",
-      "name": "../components/theme/ThemeToggle"
+      "line": 16
     },
     {
       "id": "symbol:login",
@@ -2113,21 +2095,21 @@
       "type": "FUNCTION",
       "name": "Signup",
       "file": "src/pages/Signup.jsx",
-      "line": 8
+      "line": 7
     },
     {
       "id": "function:src/pages/Signup.jsx#handleChange",
       "type": "FUNCTION",
       "name": "handleChange",
       "file": "src/pages/Signup.jsx",
-      "line": 16
+      "line": 15
     },
     {
       "id": "function:src/pages/Signup.jsx#handleSubmit",
       "type": "FUNCTION",
       "name": "handleSubmit",
       "file": "src/pages/Signup.jsx",
-      "line": 18
+      "line": 17
     },
     {
       "id": "symbol:setForm",
@@ -2773,6 +2755,11 @@
       "name": "toggleSidebar"
     },
     {
+      "id": "symbol:setSearch",
+      "type": "SYMBOL",
+      "name": "setSearch"
+    },
+    {
       "id": "symbol:setFilter",
       "type": "SYMBOL",
       "name": "setFilter"
@@ -2803,6 +2790,11 @@
       "name": "setProperty"
     },
     {
+      "id": "symbol:toggleTheme",
+      "type": "SYMBOL",
+      "name": "toggleTheme"
+    },
+    {
       "id": "symbol:selectAll",
       "type": "SYMBOL",
       "name": "selectAll"
@@ -2816,11 +2808,6 @@
       "id": "symbol:toggleSelection",
       "type": "SYMBOL",
       "name": "toggleSelection"
-    },
-    {
-      "id": "symbol:log",
-      "type": "SYMBOL",
-      "name": "log"
     },
     {
       "id": "symbol:openDrawer",
@@ -3441,6 +3428,136 @@
       "type": "CALLS"
     },
     {
+      "from": "file:replace.js",
+      "to": "module:fs",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "file:replace.js",
+      "to": "symbol:readFileSync",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:replace_script.js",
+      "to": "module:fs",
+      "type": "IMPORTS"
+    },
+    {
+      "from": "file:replace_script.js",
+      "to": "symbol:readFileSync",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:replace_script.js",
+      "to": "symbol:max",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:replace_script.js",
+      "to": "symbol:min",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:replace_script.js",
+      "to": "symbol:round",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:replace_script.js",
+      "to": "symbol:rgba",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:replace_script.js",
+      "to": "symbol:gradient",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:replace_script.js",
+      "to": "symbol:replace",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:replace_script.js",
+      "to": "symbol:'className=\"flex flex-col gap-3 relative\" style={{ height: \\\\'",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:replace_script.js",
+      "to": "symbol:map",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:replace_script.js",
+      "to": "symbol:setPerspective",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:replace_script.js",
+      "to": "symbol:setScope",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:replace_script.js",
+      "to": "symbol:setSearchText",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:replace_script.js",
+      "to": "symbol:handleSearchFocus",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:replace_script.js",
+      "to": "symbol:setShowFilters",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:replace_script.js",
+      "to": "symbol:includes",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:replace_script.js",
+      "to": "symbol:filter",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:replace_script.js",
+      "to": "symbol:dispatch",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:replace_script.js",
+      "to": "symbol:setFilterTypes",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:replace_script.js",
+      "to": "symbol:setFilterLangs",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:replace_script.js",
+      "to": "symbol:setShowLegend",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:replace_script.js",
+      "to": "symbol:keys",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:replace_script.js",
+      "to": "symbol:log",
+      "type": "CALLS"
+    },
+    {
+      "from": "file:replace_script.js",
+      "to": "symbol:writeFileSync",
+      "type": "CALLS"
+    },
+    {
       "from": "file:src/App.jsx",
       "to": "module:react",
       "type": "IMPORTS"
@@ -3493,11 +3610,6 @@
     {
       "from": "file:src/components/layout/Header.jsx",
       "to": "module:lucide-react",
-      "type": "IMPORTS"
-    },
-    {
-      "from": "file:src/components/layout/Header.jsx",
-      "to": "module:../theme/ThemeToggle",
       "type": "IMPORTS"
     },
     {
@@ -3718,46 +3830,6 @@
     {
       "from": "function:src/components/theme/ThemeProvider.jsx#ThemeProvider",
       "to": "symbol:setItem",
-      "type": "CALLS"
-    },
-    {
-      "from": "file:src/components/theme/ThemeToggle.jsx",
-      "to": "module:@mui/material",
-      "type": "IMPORTS"
-    },
-    {
-      "from": "file:src/components/theme/ThemeToggle.jsx",
-      "to": "module:lucide-react",
-      "type": "IMPORTS"
-    },
-    {
-      "from": "file:src/components/theme/ThemeToggle.jsx",
-      "to": "module:react-redux",
-      "type": "IMPORTS"
-    },
-    {
-      "from": "file:src/components/theme/ThemeToggle.jsx",
-      "to": "module:../../store/slices/themeSlice",
-      "type": "IMPORTS"
-    },
-    {
-      "from": "function:src/components/theme/ThemeToggle.jsx#ThemeToggle",
-      "to": "symbol:useDispatch",
-      "type": "CALLS"
-    },
-    {
-      "from": "function:src/components/theme/ThemeToggle.jsx#ThemeToggle",
-      "to": "symbol:useSelector",
-      "type": "CALLS"
-    },
-    {
-      "from": "function:src/components/theme/ThemeToggle.jsx#ThemeToggle",
-      "to": "symbol:dispatch",
-      "type": "CALLS"
-    },
-    {
-      "from": "function:src/components/theme/ThemeToggle.jsx#ThemeToggle",
-      "to": "symbol:toggleTheme",
       "type": "CALLS"
     },
     {
@@ -4082,17 +4154,32 @@
     },
     {
       "from": "function:src/contexts/AuthContext.jsx#login",
-      "to": "symbol:setItem",
+      "to": "symbol:getItem",
       "type": "CALLS"
     },
     {
       "from": "function:src/contexts/AuthContext.jsx#login",
-      "to": "symbol:stringify",
+      "to": "symbol:parse",
       "type": "CALLS"
     },
     {
       "from": "function:src/contexts/AuthContext.jsx#login",
-      "to": "symbol:setUser",
+      "to": "symbol:split",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/contexts/AuthContext.jsx#login",
+      "to": "symbol:toUpperCase",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/contexts/AuthContext.jsx#login",
+      "to": "symbol:charAt",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/contexts/AuthContext.jsx#login",
+      "to": "symbol:slice",
       "type": "CALLS"
     },
     {
@@ -4148,6 +4235,126 @@
     {
       "from": "function:src/lib/utils.js#cn",
       "to": "symbol:clsx",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/lib/utils.js#normalizeRepoUrl",
+      "to": "symbol:trim",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/lib/utils.js#normalizeRepoUrl",
+      "to": "symbol:String",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/lib/utils.js#normalizeRepoUrl",
+      "to": "symbol:test",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/lib/utils.js#normalizeRepoUrl",
+      "to": "symbol:replace",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/lib/utils.js#normalizeRepoUrl",
+      "to": "symbol:toString",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/lib/utils.js#parseGitHubRepoInfo",
+      "to": "function:src/lib/utils.js#normalizeRepoUrl",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/lib/utils.js#parseGitHubRepoInfo",
+      "to": "symbol:test",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/lib/utils.js#parseGitHubRepoInfo",
+      "to": "symbol:split",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/lib/utils.js#parseGitHubRepoInfo",
+      "to": "symbol:replace",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/lib/utils.js#encodeRepoPath",
+      "to": "symbol:join",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/lib/utils.js#encodeRepoPath",
+      "to": "symbol:map",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/lib/utils.js#encodeRepoPath",
+      "to": "symbol:filter",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/lib/utils.js#encodeRepoPath",
+      "to": "symbol:split",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/lib/utils.js#encodeRepoPath",
+      "to": "symbol:String",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/lib/utils.js#encodeRepoPath",
+      "to": "symbol:encodeURIComponent",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/lib/utils.js#buildGitHubBlobUrl",
+      "to": "function:src/lib/utils.js#parseGitHubRepoInfo",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/lib/utils.js#buildGitHubBlobUrl",
+      "to": "symbol:encodeURIComponent",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/lib/utils.js#buildGitHubBlobUrl",
+      "to": "function:src/lib/utils.js#encodeRepoPath",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/lib/utils.js#buildGitHubTreeUrl",
+      "to": "function:src/lib/utils.js#parseGitHubRepoInfo",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/lib/utils.js#buildGitHubTreeUrl",
+      "to": "symbol:encodeURIComponent",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/lib/utils.js#buildGitHubTreeUrl",
+      "to": "function:src/lib/utils.js#encodeRepoPath",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/lib/utils.js#buildGitHubRawUrl",
+      "to": "function:src/lib/utils.js#parseGitHubRepoInfo",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/lib/utils.js#buildGitHubRawUrl",
+      "to": "symbol:encodeURIComponent",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/lib/utils.js#buildGitHubRawUrl",
+      "to": "function:src/lib/utils.js#encodeRepoPath",
       "type": "CALLS"
     },
     {
@@ -4367,12 +4574,12 @@
     },
     {
       "from": "function:src/pages/Analyze.jsx#buildTreePreviewLines",
-      "to": "symbol:push",
+      "to": "symbol:keys",
       "type": "CALLS"
     },
     {
       "from": "function:src/pages/Analyze.jsx#buildTreePreviewLines",
-      "to": "symbol:keys",
+      "to": "symbol:push",
       "type": "CALLS"
     },
     {
@@ -4477,7 +4684,7 @@
     },
     {
       "from": "function:src/pages/Analyze.jsx#Analyze",
-      "to": "symbol:join",
+      "to": "symbol:replace",
       "type": "CALLS"
     },
     {
@@ -6471,151 +6678,6 @@
       "type": "CALLS"
     },
     {
-      "from": "file:src/pages/ImpactPanel.jsx",
-      "to": "module:react",
-      "type": "IMPORTS"
-    },
-    {
-      "from": "file:src/pages/ImpactPanel.jsx",
-      "to": "module:react-redux",
-      "type": "IMPORTS"
-    },
-    {
-      "from": "file:src/pages/ImpactPanel.jsx",
-      "to": "module:react-router-dom",
-      "type": "IMPORTS"
-    },
-    {
-      "from": "file:src/pages/ImpactPanel.jsx",
-      "to": "module:lucide-react",
-      "type": "IMPORTS"
-    },
-    {
-      "from": "file:src/pages/ImpactPanel.jsx",
-      "to": "module:../store/index",
-      "type": "IMPORTS"
-    },
-    {
-      "from": "file:src/pages/ImpactPanel.jsx",
-      "to": "module:../store/slices/apiSlice",
-      "type": "IMPORTS"
-    },
-    {
-      "from": "file:src/pages/ImpactPanel.jsx",
-      "to": "module:../assets/mockdata",
-      "type": "IMPORTS"
-    },
-    {
-      "from": "function:src/pages/ImpactPanel.jsx#NodeRow",
-      "to": "symbol:onSelect",
-      "type": "CALLS"
-    },
-    {
-      "from": "function:src/pages/ImpactPanel.jsx#ImpactPanel",
-      "to": "symbol:useDispatch",
-      "type": "CALLS"
-    },
-    {
-      "from": "function:src/pages/ImpactPanel.jsx#ImpactPanel",
-      "to": "symbol:useNavigate",
-      "type": "CALLS"
-    },
-    {
-      "from": "function:src/pages/ImpactPanel.jsx#ImpactPanel",
-      "to": "symbol:useSelector",
-      "type": "CALLS"
-    },
-    {
-      "from": "function:src/pages/ImpactPanel.jsx#ImpactPanel",
-      "to": "symbol:useGetGraphQuery",
-      "type": "CALLS"
-    },
-    {
-      "from": "function:src/pages/ImpactPanel.jsx#ImpactPanel",
-      "to": "symbol:useGetImpactAnalysisQuery",
-      "type": "CALLS"
-    },
-    {
-      "from": "function:src/pages/ImpactPanel.jsx#ImpactPanel",
-      "to": "symbol:map",
-      "type": "CALLS"
-    },
-    {
-      "from": "function:src/pages/ImpactPanel.jsx#ImpactPanel",
-      "to": "symbol:filter",
-      "type": "CALLS"
-    },
-    {
-      "from": "function:src/pages/ImpactPanel.jsx#ImpactPanel",
-      "to": "symbol:useState",
-      "type": "CALLS"
-    },
-    {
-      "from": "function:src/pages/ImpactPanel.jsx#resolveNode",
-      "to": "symbol:find",
-      "type": "CALLS"
-    },
-    {
-      "from": "function:src/pages/ImpactPanel.jsx#ImpactPanel",
-      "to": "function:src/pages/ImpactPanel.jsx#resolveNode",
-      "type": "CALLS"
-    },
-    {
-      "from": "function:src/pages/ImpactPanel.jsx#filterNodes",
-      "to": "symbol:filter",
-      "type": "CALLS"
-    },
-    {
-      "from": "function:src/pages/ImpactPanel.jsx#filterNodes",
-      "to": "symbol:includes",
-      "type": "CALLS"
-    },
-    {
-      "from": "function:src/pages/ImpactPanel.jsx#filterNodes",
-      "to": "symbol:toLowerCase",
-      "type": "CALLS"
-    },
-    {
-      "from": "function:src/pages/ImpactPanel.jsx#handleNodeClick",
-      "to": "symbol:dispatch",
-      "type": "CALLS"
-    },
-    {
-      "from": "function:src/pages/ImpactPanel.jsx#handleNodeClick",
-      "to": "symbol:clearSelection",
-      "type": "CALLS"
-    },
-    {
-      "from": "function:src/pages/ImpactPanel.jsx#handleNodeClick",
-      "to": "symbol:setSelectedNode",
-      "type": "CALLS"
-    },
-    {
-      "from": "function:src/pages/ImpactPanel.jsx#ImpactPanel",
-      "to": "function:src/pages/ImpactPanel.jsx#filterNodes",
-      "type": "CALLS"
-    },
-    {
-      "from": "function:src/pages/ImpactPanel.jsx#ImpactPanel",
-      "to": "symbol:navigate",
-      "type": "CALLS"
-    },
-    {
-      "from": "function:src/pages/ImpactPanel.jsx#ImpactPanel",
-      "to": "symbol:setSearch",
-      "type": "CALLS"
-    },
-    {
-      "from": "function:src/pages/ImpactPanel.jsx#ImpactPanel",
-      "to": "symbol:dispatch",
-      "type": "CALLS"
-    },
-    {
-      "from": "function:src/pages/ImpactPanel.jsx#ImpactPanel",
-      "to": "symbol:clearSelection",
-      "type": "CALLS"
-    },
-    {
       "from": "file:src/pages/index.js",
       "to": "module:./Landing",
       "type": "IMPORTS"
@@ -6648,11 +6710,6 @@
     {
       "from": "file:src/pages/index.js",
       "to": "module:./GraphView",
-      "type": "IMPORTS"
-    },
-    {
-      "from": "file:src/pages/index.js",
-      "to": "module:./ImpactPanel",
       "type": "IMPORTS"
     },
     {
@@ -6796,11 +6853,6 @@
       "type": "IMPORTS"
     },
     {
-      "from": "file:src/pages/Login.jsx",
-      "to": "module:../components/theme/ThemeToggle",
-      "type": "IMPORTS"
-    },
-    {
       "from": "function:src/pages/Login.jsx#Login",
       "to": "symbol:useNavigate",
       "type": "CALLS"
@@ -6873,11 +6925,6 @@
     {
       "from": "file:src/pages/Signup.jsx",
       "to": "module:../components/Logo",
-      "type": "IMPORTS"
-    },
-    {
-      "from": "file:src/pages/Signup.jsx",
-      "to": "module:../components/theme/ThemeToggle",
       "type": "IMPORTS"
     },
     {
@@ -7393,6 +7440,11 @@
     {
       "from": "function:src/store/slices/graphSlice.js#applyGraphPatch",
       "to": "function:src/store/slices/graphSlice.js#computeImpact",
+      "type": "CALLS"
+    },
+    {
+      "from": "function:src/store/slices/graphSlice.js#setCurrentRepoInfo",
+      "to": "symbol:normalizeRepoUrl",
       "type": "CALLS"
     },
     {

@@ -1,0 +1,20 @@
+{
+  "status": "ok",
+  "generatedAt": "2026-03-14T22:08:39.043Z",
+  "repositoryPath": "D:\\GitHub\\SIES-ByteCamp\\Backend",
+  "base": "HEAD",
+  "includeUntracked": false,
+  "changedFiles": [],
+  "analyzedSourceFiles": [],
+  "summary": {
+    "changedFilesAnalyzed": 0,
+    "missingDependencies": 0,
+    "removableCandidates": 0
+  },
+  "recommendations": [],
+  "llmRecommendations": {
+    "status": "skipped",
+    "reason": "OPENAI_API_KEY is not configured",
+    "generatedAt": "2026-03-14T22:08:39.046Z"
+  }
+}

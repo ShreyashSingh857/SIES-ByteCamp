@@ -10,6 +10,9 @@ import {
 	seedGraphToDb,
 	analyzeDependencies,
 	analyzeDependenciesWithIntelligence,
+	getEditableFileContent,
+	previewEditorImpact,
+	saveEditedFileContent,
 } from "../controllers/scan.controller.js";
 import localScanRouter from "./localScan.routes.js";
 
@@ -46,5 +49,13 @@ router.post("/analyze/dependencies", analyzeDependencies);
 router.post("/analyze/dependencies-llm", analyzeDependenciesWithIntelligence);
 
 router.use("/scan", localScanRouter);
+// GET /api/editor/file?repoId=...&filePath=... → load editable local file content
+router.get("/editor/file", getEditableFileContent);
+
+// POST /api/editor/impact-preview → preview change impact + dependency recommendations
+router.post("/editor/impact-preview", previewEditorImpact);
+
+// POST /api/editor/file/save → save edited file after impact acknowledgement
+router.post("/editor/file/save", saveEditedFileContent);
 
 export default router;

@@ -577,6 +577,13 @@ export async function getNodeDependencies(nodeId, scanId) {
 export async function traceSymbolDependencies(symbolName, scanId, maxDepth = 5) {
   const session = getSession();
   try {
+    // Neo4j does not allow parameters in variable-length relationship patterns
+    // like `-[*1..$maxDepth]-`, so we must safely inline an integer literal.
+    const parsedDepth = Number.parseInt(maxDepth, 10);
+    const safeDepth = Number.isFinite(parsedDepth)
+      ? Math.min(Math.max(parsedDepth, 1), 10)
+      : 5;
+
     // Find all occurrences of the symbol
     const symbolResult = await session.run(
       `MATCH (n)
@@ -595,11 +602,16 @@ export async function traceSymbolDependencies(symbolName, scanId, maxDepth = 5) 
 
     // Get complete dependency chain for all found nodes
     const chainResult = await session.run(
-      `MATCH (n)-[r*1..$maxDepth]-(m)
+      `MATCH p=(n)-[*1..${safeDepth}]-(m)
        WHERE n.id IN $nodeIds AND n.scanId = $scanId AND m.scanId = $scanId
-       WITH DISTINCT m, r
-       RETURN COLLECT(DISTINCT m) AS relatedNodes, COLLECT(DISTINCT r) AS relationships`,
-      { nodeIds, maxDepth, scanId }
+       WITH (COLLECT(DISTINCT n) + COLLECT(DISTINCT m)) AS allNodes,
+            COLLECT(relationships(p)) AS relLists
+       UNWIND allNodes AS node
+       WITH COLLECT(DISTINCT node) AS relatedNodes, relLists
+       UNWIND relLists AS relList
+       UNWIND relList AS rel
+       RETURN relatedNodes, COLLECT(DISTINCT rel) AS relationships`,
+      { nodeIds, scanId }
     );
 
     if (chainResult.records.length === 0) {

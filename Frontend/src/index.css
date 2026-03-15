@@ -25,7 +25,7 @@
   /* Fonts */
   --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
     --font-display: 'Plus Jakarta Sans', 'Inter', system-ui, sans-serif;
-    --font-mono: 'JetBrains Mono', 'Courier New', monospace;
+    --font-mono: 'Fira Code', 'JetBrains Mono', 'Courier New', monospace;
 
   /* Radius */
   --radius-sm: 0.375rem;
@@ -48,7 +48,7 @@
   --secondary-600: #475569;
   --secondary-900: #0f172a;
 
-  --bg: #f8fafc;
+  --bg: #fcfcfc;
   --bg-muted: #f1f5f9;
   --border: #e2e8f0;
   --text: #0f172a;

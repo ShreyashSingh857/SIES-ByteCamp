@@ -243,22 +243,21 @@ const GraphView = () => {
 
   const gridStyle = useMemo(() => {
     const z = Math.max(0.2, Math.min(3, viewportZoom));
-    const major = Math.max(36, Math.round(80 * z));
+    const major = Math.max(40, Math.round(80 * z));
     const minor = Math.max(10, Math.round(20 * z));
-    const isDark = themeMode === 'dark';
-    const majorAlpha = isDark ? Math.min(0.14, 0.05 + z * 0.02) : Math.min(0.22, 0.08 + z * 0.03);
-    const minorAlpha = isDark ? Math.min(0.08, 0.02 + z * 0.015) : Math.min(0.12, 0.04 + z * 0.02);
-    const gridRgb = isDark ? '59,130,246' : '148,163,184';
+    const majorAlpha = Math.min(0.8, 0.8 + z * 0.03);
+    const minorAlpha = Math.min(0.6, 0.6 + z * 0.02);
+    const gridRgb = '226,232,240'; // slate-200
 
     return {
-      backgroundColor: isDark ? '#020817' : '#f8fafc',
+      backgroundColor: '#f8fafc',
       backgroundImage:
         `linear-gradient(rgba(${gridRgb},${majorAlpha}) 1px, transparent 1px), ` +
         `linear-gradient(90deg, rgba(${gridRgb},${majorAlpha}) 1px, transparent 1px), ` +
         `linear-gradient(rgba(${gridRgb},${minorAlpha}) 1px, transparent 1px), ` +
         `linear-gradient(90deg, rgba(${gridRgb},${minorAlpha}) 1px, transparent 1px)`,
       backgroundSize: `${major}px ${major}px, ${major}px ${major}px, ${minor}px ${minor}px, ${minor}px ${minor}px`,
-      border: isDark ? '1px solid #1e293b' : '1px solid #cbd5e1',
+      border: '1px solid #e2e8f0', // slate-200
       minHeight: 0,
     };
   }, [viewportZoom, themeMode]);
@@ -481,7 +480,7 @@ const GraphView = () => {
   };
 
   return (
-    <div className="flex flex-col gap-3" style={{ height: 'calc(100vh - 7rem)' }}>
+    <div className="flex flex-col gap-3 relative" style={{ height: 'calc(100vh - 7rem)' }}>
       {isLoading && (
         <div className="absolute top-4 right-4 z-50 px-4 py-2 rounded-lg" style={{ background: '#3b82f6', color: '#fff' }}>
           Loading graph data...
@@ -696,15 +695,6 @@ const GraphView = () => {
               style={{ background: '#475569', color: '#fff' }}
             >
               {scope === 'local' ? 'Back to overview' : 'Open local graph'}
-            </button>
-          )}
-          {!selectedData?.isSynthetic && (
-            <button
-              onClick={() => navigate('/impact')}
-              className="text-xs font-medium px-3 py-1 rounded-lg transition-all shrink-0"
-              style={{ background: '#ef4444', color: '#fff' }}
-            >
-              View Impact →
             </button>
           )}
         </div>
