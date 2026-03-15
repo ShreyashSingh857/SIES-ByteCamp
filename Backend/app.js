@@ -66,10 +66,10 @@ app.use("/api/help", helpRouter);
 app.use("/api/auth", authRouter);
 app.use("/api/users", userRouter);
 app.use("/api/chat", chatRouter);
-app.use("/api", scanRouter);
 app.use("/api/import", importRouter);
 app.use("/api/webhook", webhookRouter);
 app.use("/api/events", sseRouter);
+app.use("/api", scanRouter);
 
 startWebhookWorker();
 
