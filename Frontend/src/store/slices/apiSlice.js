@@ -127,6 +127,12 @@ export const apiSlice = createApi({
       transformResponse: (response) => response.data,
     }),
 
+    // GET /api/users/me/repos — authenticated GitHub owner repos
+    getMyRepos: builder.query({
+      query: () => '/users/me/repos',
+      transformResponse: (response) => response.data ?? response,
+    }),
+
     // POST /api/scan/local — Scan a local directory and start live file watching
     // Returns same shape as scanRepo: { repoId, scanId, graphApi, parserSummary, isLocal, watching }
     scanLocalRepo: builder.mutation({
@@ -166,4 +172,5 @@ export const {
   useGetHelpTopicsQuery,
   useSearchHelpQuery,
   useGetHelpTopicByIdQuery,
+  useGetMyReposQuery,
 } = apiSlice;
