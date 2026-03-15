@@ -115,13 +115,13 @@ async function runTests() {
   logSection('STEP 2: Dependency Verification');
 
   logStep('Checking Backend dependencies');
-  const backendPackageJson = require('./Backend/package.json');
+  const backendPackageJson = require('../Backend/package.json');
   console.log(`Total dependencies: ${Object.keys(backendPackageJson.dependencies).length}`);
   console.log(`DevDependencies: ${Object.keys(backendPackageJson.devDependencies).length}`);
   logSuccess('Jest installed: ' + ('jest' in backendPackageJson.devDependencies ? 'YES' : 'NO'));
 
   logStep('Checking Frontend dependencies');
-  const frontendPackageJson = require('./Frontend/package.json');
+  const frontendPackageJson = require('../Frontend/package.json');
   console.log(`Total dependencies: ${Object.keys(frontendPackageJson.dependencies).length}`);
   console.log(`DevDependencies: ${Object.keys(frontendPackageJson.devDependencies).length}`);
   logSuccess('Jest installed: ' + ('jest' in frontendPackageJson.devDependencies ? 'YES' : 'NO'));
