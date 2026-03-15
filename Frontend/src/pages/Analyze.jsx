@@ -1,4 +1,4 @@
-﻿import React, { useMemo } from 'react';
+import React, { useMemo } from 'react';
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, FolderTree, Loader2 } from 'lucide-react';
@@ -19,15 +19,15 @@ const buildTreePreviewLines = (node, depth = 0, prefix = '', lines = []) => {
   entries.forEach(([name, child], index) => {
     if (lines.length >= MAX_TREE_LINES) return;
     const isLast = index === entries.length - 1;
-    const connector = isLast ? 'â””â”€â”€ ' : 'â”œâ”€â”€ ';
+    const connector = isLast ? '\u2514\u2500\u2500 ' : '\u251C\u2500\u2500 ';
     const isDir = Object.keys(child.children || {}).length > 0;
     
     lines.push({ prefix: `${prefix}${connector}`, name, isDir });
-    buildTreePreviewLines(child, depth + 1, `${prefix}${isLast ? '    ' : 'â”‚   '}`, lines);
+    buildTreePreviewLines(child, depth + 1, `${prefix}${isLast ? '    ' : '\u2502   '}`, lines);
   });
 
   if (depth === 0 && entries.length === 0) {
-    lines.push({ prefix: 'â””â”€â”€ ', name: '(empty)', isDir: false });
+    lines.push({ prefix: '\u2514\u2500\u2500 ', name: '(empty)', isDir: false });
   }
 
   return lines;
@@ -72,7 +72,7 @@ const buildDirectoryCards = (nodes = []) => {
       return {
         root: entry.root,
         fileCount: entry.fileCount,
-        treePreview: clipped ? [...lines.slice(0, MAX_TREE_LINES - 1), { prefix: 'â””â”€â”€ ', name: 'â€¦', isDir: false }] : lines,
+        treePreview: clipped ? [...lines.slice(0, MAX_TREE_LINES - 1), { prefix: '\u2514\u2500\u2500 ', name: '\u2026', isDir: false }] : lines,
       };
     });
 };
@@ -146,7 +146,7 @@ export default function Analyze() {
               <button
                 key={card.root}
                 onClick={() => navigate(`/analyze/dir/${encodeURIComponent(card.root)}`)}
-                className="bg-[color:var(--card)] border border-[color:var(--border)] rounded-xl p-6 flex flex-col text-left relative transition-all duration-300 ease-out hover:scale-[1.03] hover:z-10 hover:border-indigo-600 hover:shadow-md will-change-transform outline-none"
+                className="bg-[color:var(--card)] border border-[color:var(--border)] rounded-xl p-6 flex flex-col text-left relative transition-all duration-300 ease-out hover:scale-[1.03] hover:z-20 hover:border-indigo-600 hover:shadow-md will-change-transform outline-none"
               >
                 {/* Status Badge */}
                 <div className="absolute top-6 right-6">
@@ -163,7 +163,7 @@ export default function Analyze() {
                     </h3>
                   </div>
                   <p className="text-sm text-[color:var(--text-muted)] font-medium">
-                    {card.fileCount} file{card.fileCount !== 1 ? 's' : ''} â€¢ click to explore
+                    {card.fileCount} file{card.fileCount !== 1 ? 's' : ''} {'\u2022'} click to explore
                   </p>
                 </div>
 
