@@ -53,7 +53,7 @@ const Header = ({ toggleSidebar }) => {
 
   return (
     <header
-      className="sticky top-0 z-10 h-14 flex items-center px-4 sm:px-6 gap-4"
+      className="sticky top-0 z-30 h-14 flex items-center px-4 sm:px-6 gap-4"
       style={{ background: 'var(--card)', borderBottom: '1px solid var(--border)' }}
     >
       {/* Mobile menu toggle */}
