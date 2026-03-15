@@ -1062,6 +1062,7 @@ export const seedSchema = async (_req, res, next) => {
  */
 export const seedGraphToDb = async (req, res, next) => {
   try {
+    const authenticatedUserId = req.user?.id || null;
     const { repoId } = req.params;
     const graphFilePath = getGraphFilePath(repoId);
     if (!fs.existsSync(graphFilePath)) {
@@ -1071,6 +1072,7 @@ export const seedGraphToDb = async (req, res, next) => {
     const parserResult = JSON.parse(fs.readFileSync(graphFilePath, "utf8"));
     const scanId = req.body?.scanId || createScanId();
     const payload = buildSeedPayloadFromParser(repoId, parserResult, scanId);
+    payload.scanNode.userId = authenticatedUserId || payload.scanNode.userId || "system";
     payload.scanNode.repoUrls = [req.body?.repoUrl || ""];
     payload.serviceNode.repoUrl = req.body?.repoUrl || "";
 

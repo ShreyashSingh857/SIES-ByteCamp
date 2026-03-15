@@ -25,6 +25,7 @@ const execFileAsync = promisify(execFile);
  * Response shape mirrors postScan exactly so the frontend can reuse the same Redux logic.
  */
 export const postLocalScan = async (req, res, next) => {
+  const authenticatedUserId = req.user?.id || null;
   const { localPath } = req.body;
 
   // -- Validation -------------------------------------------------------------
@@ -86,6 +87,7 @@ export const postLocalScan = async (req, res, next) => {
     try {
       await setupDatabaseSchema();
       const payload = buildSeedPayloadFromParser(repoId, parserResult, scanId);
+      payload.scanNode.userId = authenticatedUserId || payload.scanNode.userId || 'system';
       payload.scanNode.repoUrls = [localPath];
       payload.serviceNode.repoUrl = localPath;
       await seedParsedGraph(payload);

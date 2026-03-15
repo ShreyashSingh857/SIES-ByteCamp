@@ -1,5 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import { MOCK_USER } from '../assets/mockdata';
+import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 
 const AuthContext = createContext(null);
 
@@ -9,84 +8,154 @@ export const useAuth = () => {
   return context;
 };
 
-const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+const API_BASE = import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
+
+function decodeJwtPayload(token) {
+  try {
+    const payload = token.split('.')[1] || '';
+    const base64 = payload.replace(/-/g, '+').replace(/_/g, '/');
+    const json = atob(base64);
+    return JSON.parse(json);
+  } catch {
+    return null;
+  }
+}
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const storedUser = localStorage.getItem('pdm_user');
-    const token = localStorage.getItem('pdm_token');
-    if (token && storedUser) {
-      try {
-        setUser(JSON.parse(storedUser));
-      } catch {
-        localStorage.removeItem('pdm_user');
-        localStorage.removeItem('pdm_token');
-      }
+  const storeToken = (token) => localStorage.setItem('accessToken', token);
+  const clearToken = () => localStorage.removeItem('accessToken');
+
+  const fetchCurrentUser = useCallback(async (token) => {
+    const response = await fetch(`${API_BASE}/users/me`, {
+      method: 'GET',
+      headers: { Authorization: `Bearer ${token}` },
+      credentials: 'include',
+    });
+
+    if (!response.ok) {
+      const error = new Error(`Failed to fetch current user (${response.status})`);
+      error.status = response.status;
+      throw error;
     }
-    setLoading(false);
+
+    const payload = await response.json().catch(() => ({}));
+    return payload?.data || payload;
   }, []);
 
-  const login = async (email, password) => {
-    await delay(800);
-    if (!email || !password) {
-      return { success: false, error: 'Email and password are required.' };
-    }
-    
-    // Check if there's an existing registered user we can match against
-    let existingUser = null;
-    try {
-      const stored = localStorage.getItem('pdm_user');
-      if (stored) {
-         const parsed = JSON.parse(stored);
-         if (parsed.email === email) {
-            existingUser = parsed;
-         }
+  const attemptRefresh = useCallback(async () => {
+    const response = await fetch(`${API_BASE}/auth/refresh-token`, {
+      method: 'POST',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+    });
+
+    if (!response.ok) return null;
+    const payload = await response.json().catch(() => ({}));
+    return payload?.data?.accessToken || null;
+  }, []);
+
+  useEffect(() => {
+    let mounted = true;
+
+    const hydrate = async () => {
+      const token = localStorage.getItem('accessToken');
+      if (!token) {
+        if (mounted) {
+          setUser(null);
+          setLoading(false);
+        }
+        return;
       }
-    } catch(e) {}
 
-    // Fallback: generate a name from email prefix
-    const namePrefix = email.split('@')[0];
-    const generatedName = existingUser?.name || (namePrefix.charAt(0).toUpperCase() + namePrefix.slice(1));
-    
-    const userData = { ...MOCK_USER, email, name: generatedName };
-    
-    return { success: true, user: userData };
-  };
+      try {
+        const me = await fetchCurrentUser(token);
+        if (mounted) {
+          setUser(me || { id: decodeJwtPayload(token)?.sub || null });
+          setLoading(false);
+        }
+        return;
+      } catch (error) {
+        if (error?.status !== 401 && error?.status !== 403 && error?.status !== 404) {
+          if (mounted) {
+            setUser(null);
+            setLoading(false);
+          }
+          return;
+        }
+      }
 
-  const signup = async (data) => {
-    await delay(900);
-    if (!data.email || !data.password) {
-      return { success: false, error: 'All fields are required.' };
-    }
-    const userData = {
-      ...MOCK_USER,
-      email: data.email,
-      name: data.fullName || data.name || MOCK_USER.name,
+      const refreshedToken = await attemptRefresh();
+      if (!refreshedToken) {
+        clearToken();
+        if (mounted) {
+          setUser(null);
+          setLoading(false);
+        }
+        return;
+      }
+
+      storeToken(refreshedToken);
+      try {
+        const me = await fetchCurrentUser(refreshedToken);
+        if (mounted) {
+          setUser(me || { id: decodeJwtPayload(refreshedToken)?.sub || null });
+        }
+      } catch (error) {
+        if (mounted) {
+          if (error?.status === 404) {
+            setUser({ id: decodeJwtPayload(refreshedToken)?.sub || null });
+          } else {
+            clearToken();
+            setUser(null);
+          }
+        }
+      } finally {
+        if (mounted) setLoading(false);
+      }
     };
-    localStorage.setItem('pdm_token', 'mock-jwt-token-phase1');
-    localStorage.setItem('pdm_user', JSON.stringify(userData));
-    setUser(userData);
-    return { success: true, user: userData };
-  };
 
-  const logout = async () => {
-    await delay(300);
-    localStorage.removeItem('pdm_token');
-    localStorage.removeItem('pdm_user');
+    hydrate();
+    return () => {
+      mounted = false;
+    };
+  }, [attemptRefresh, fetchCurrentUser]);
+
+  const login = useCallback(async () => {
+    window.location.assign(`${API_BASE}/auth/github`);
+    return { success: true };
+  }, []);
+
+  // Keep a compatibility method because Signup page still calls signup in current app routes.
+  const signup = useCallback(async () => {
+    return { success: false, error: 'Signup is disabled. Use GitHub login.' };
+  }, []);
+
+  const logout = useCallback(async () => {
+    try {
+      await fetch(`${API_BASE}/auth/logout`, {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+      });
+    } catch {
+      // no-op; local cleanup still applies
+    }
+
+    clearToken();
     setUser(null);
-  };
+  }, []);
 
-  const value = {
+  const value = useMemo(() => ({
     user,
     login,
     signup,
     logout,
     loading,
     isAuthenticated: !!user,
-  };
+  }), [user, login, signup, logout, loading]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
