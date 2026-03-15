@@ -1015,10 +1015,10 @@ const GraphView = () => {
       {/* Toolbar */}
       <div className="flex items-center gap-2 flex-wrap">
         <div className="flex items-center gap-1 rounded-lg p-1" style={{ background: 'var(--card)', border: '1px solid var(--border)' }}>
-          <button onClick={handleZoomIn}  className="p-1.5 rounded-md transition-colors" title="Zoom in"><ZoomIn  size={15} /></button>
-          <button onClick={handleZoomOut} className="p-1.5 rounded-md transition-colors" title="Zoom out"><ZoomOut size={15} /></button>
-          <button onClick={handleFit}     className="p-1.5 rounded-md transition-colors" title="Fit"><Maximize2 size={15} /></button>
-          <button onClick={handleReset}   className="p-1.5 rounded-md transition-colors" title="Reset"><RefreshCw size={15} /></button>
+          <button onClick={handleZoomIn} className="p-1.5 rounded-md transition-colors" title="Zoom in" style={{ color: 'var(--text-muted)' }} onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--bg-muted)'; e.currentTarget.style.color = 'var(--text)'; }} onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--text-muted)'; }}><ZoomIn size={15} /></button>
+          <button onClick={handleZoomOut} className="p-1.5 rounded-md transition-colors" title="Zoom out" style={{ color: 'var(--text-muted)' }} onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--bg-muted)'; e.currentTarget.style.color = 'var(--text)'; }} onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--text-muted)'; }}><ZoomOut size={15} /></button>
+          <button onClick={handleFit} className="p-1.5 rounded-md transition-colors" title="Fit" style={{ color: 'var(--text-muted)' }} onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--bg-muted)'; e.currentTarget.style.color = 'var(--text)'; }} onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--text-muted)'; }}><Maximize2 size={15} /></button>
+          <button onClick={handleReset} className="p-1.5 rounded-md transition-colors" title="Reset" style={{ color: 'var(--text-muted)' }} onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--bg-muted)'; e.currentTarget.style.color = 'var(--text)'; }} onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--text-muted)'; }}><RefreshCw size={15} /></button>
         </div>
 
         <div className="flex items-center gap-1 rounded-lg p-1" style={{ background: 'var(--card)', border: '1px solid var(--border)' }}>
