@@ -1,0 +1,179 @@
+# Tree-sitter Language Configuration
+# Each entry maps a language name to its file extensions and WASM grammar.
+# To add a new language:
+#   1. Add an entry below with name, extensions, and wasm_grammar
+#   2. Ensure the WASM file exists in node_modules/tree-sitter-wasms/out/
+#   3. Add AST extraction logic in extractDependencies.js for the new language
+
+languages:
+  # ── JavaScript ──────────────────────────────────────────────────────
+  - name: javascript
+    extensions:
+      - .js
+      - .mjs
+      - .cjs
+      - .jsx
+    wasm_grammar: tree-sitter-javascript
+
+  # ── TypeScript ──────────────────────────────────────────────────────
+  - name: typescript
+    extensions:
+      - .ts
+    wasm_grammar: tree-sitter-typescript
+
+  - name: tsx
+    extensions:
+      - .tsx
+    wasm_grammar: tree-sitter-tsx
+
+  # ── Python ──────────────────────────────────────────────────────────
+  - name: python
+    extensions:
+      - .py
+      - .pyw
+    wasm_grammar: tree-sitter-python
+
+  # ── Java ────────────────────────────────────────────────────────────
+  - name: java
+    extensions:
+      - .java
+    wasm_grammar: tree-sitter-java
+
+  # ── C / C++ ─────────────────────────────────────────────────────────
+  - name: c
+    extensions:
+      - .c
+      - .h
+    wasm_grammar: tree-sitter-c
+
+  - name: cpp
+    extensions:
+      - .cpp
+      - .cxx
+      - .cc
+      - .hpp
+      - .hxx
+      - .hh
+    wasm_grammar: tree-sitter-cpp
+
+  # ── Go ──────────────────────────────────────────────────────────────
+  - name: go
+    extensions:
+      - .go
+    wasm_grammar: tree-sitter-go
+
+  # ── Rust ────────────────────────────────────────────────────────────
+  - name: rust
+    extensions:
+      - .rs
+    wasm_grammar: tree-sitter-rust
+
+  # ── PHP ─────────────────────────────────────────────────────────────
+  - name: php
+    extensions:
+      - .php
+    wasm_grammar: tree-sitter-php
+
+  # ── Ruby ────────────────────────────────────────────────────────────
+  - name: ruby
+    extensions:
+      - .rb
+      - .rake
+      - .gemspec
+    wasm_grammar: tree-sitter-ruby
+
+  # ── C# ──────────────────────────────────────────────────────────────
+  - name: c_sharp
+    extensions:
+      - .cs
+    wasm_grammar: tree-sitter-c_sharp
+
+  # ── Kotlin ──────────────────────────────────────────────────────────
+  - name: kotlin
+    extensions:
+      - .kt
+      - .kts
+    wasm_grammar: tree-sitter-kotlin
+
+  # ── Swift ───────────────────────────────────────────────────────────
+  - name: swift
+    extensions:
+      - .swift
+    wasm_grammar: tree-sitter-swift
+
+  # ── HTML ────────────────────────────────────────────────────────────
+  - name: html
+    extensions:
+      - .html
+      - .htm
+      - .vue
+    wasm_grammar: tree-sitter-html
+
+  # ── CSS ─────────────────────────────────────────────────────────────
+  - name: css
+    extensions:
+      - .css
+      - .scss
+      - .less
+    wasm_grammar: tree-sitter-css
+
+  # ── JSON ────────────────────────────────────────────────────────────
+  - name: json
+    extensions:
+      - .json
+    wasm_grammar: tree-sitter-json
+
+  # ── YAML (regex-based, WASM not compatible with current web-tree-sitter) ──
+  - name: yaml
+    extensions:
+      - .yaml
+      - .yml
+    wasm_grammar: null
+
+  # ── Bash / Shell ────────────────────────────────────────────────────
+  - name: bash
+    extensions:
+      - .sh
+      - .bash
+      - .zsh
+    wasm_grammar: tree-sitter-bash
+
+  # ── Lua ─────────────────────────────────────────────────────────────
+  - name: lua
+    extensions:
+      - .lua
+    wasm_grammar: tree-sitter-lua
+
+  # ── Elixir ──────────────────────────────────────────────────────────
+  - name: elixir
+    extensions:
+      - .ex
+      - .exs
+    wasm_grammar: tree-sitter-elixir
+
+  # ── Scala ───────────────────────────────────────────────────────────
+  - name: scala
+    extensions:
+      - .scala
+      - .sc
+    wasm_grammar: tree-sitter-scala
+
+  # ── Dart (regex-based, WASM too large for web-tree-sitter runtime) ──
+  - name: dart
+    extensions:
+      - .dart
+    wasm_grammar: null
+
+  # ── SQL (regex-based, no WASM parser) ───────────────────────────────
+  - name: sql
+    extensions:
+      - .sql
+      - .ddl
+      - .dml
+    wasm_grammar: null
+
+  - name: postgresql
+    extensions:
+      - .psql
+      - .pgsql
+    wasm_grammar: null

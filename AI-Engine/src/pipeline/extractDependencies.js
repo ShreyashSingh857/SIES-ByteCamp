@@ -5,6 +5,21 @@ const { toProjectRelativePath } = require('../utils/paths');
 const ENDPOINT_METHODS = new Set(['get', 'post', 'put', 'patch', 'delete', 'options', 'head', 'all']);
 const JS_LIKE_LANGUAGES = new Set(['javascript', 'typescript', 'tsx']);
 const SQL_LIKE_LANGUAGES = new Set(['sql', 'postgresql']);
+const C_LIKE_LANGUAGES = new Set(['c', 'cpp', 'rust']);
+const GO_LIKE_LANGUAGES = new Set(['go']);
+const PHP_LIKE_LANGUAGES = new Set(['php']);
+const RUBY_LIKE_LANGUAGES = new Set(['ruby']);
+const CSHARP_LANGUAGES = new Set(['c_sharp']);
+const KOTLIN_LANGUAGES = new Set(['kotlin']);
+const SWIFT_LANGUAGES = new Set(['swift']);
+const BASH_LIKE_LANGUAGES = new Set(['bash']);
+const HTML_LIKE_LANGUAGES = new Set(['html']);
+const CSS_LIKE_LANGUAGES = new Set(['css']);
+const DATA_LANGUAGES = new Set(['json', 'yaml']);
+const LUA_LIKE_LANGUAGES = new Set(['lua']);
+const ELIXIR_LIKE_LANGUAGES = new Set(['elixir']);
+const SCALA_LIKE_LANGUAGES = new Set(['scala']);
+const DART_LIKE_LANGUAGES = new Set(['dart']);
 
 function fileNodeId(relativePath) {
   return `file:${relativePath}`;
@@ -113,6 +128,157 @@ function parsePythonImports(text) {
   return imports;
 }
 
+function parseCIncludes(text) {
+  const matches = [];
+  const allMatches = text.matchAll(/#include\s*[<"]([^>"]+)[>"]/g);
+  for (const m of allMatches) {
+    const header = m[1];
+    if (header.endsWith('.h') || header.endsWith('.hpp')) {
+      continue;
+    }
+    matches.push(header);
+  }
+  return matches;
+}
+
+function parseRustUseStatements(text) {
+  const imports = [];
+  const normalized = text.replace(/\s+/g, ' ').trim();
+  const simpleMatch = normalized.match(/^use\s+([\w:]+)/);
+  if (simpleMatch) {
+    const p = simpleMatch[1];
+    const segments = p.split('::');
+    const modulePath = segments.length > 1 ? segments.slice(0, -1).join('::') : segments[0];
+    imports.push(modulePath);
+  }
+  const groupMatch = normalized.match(/^use\s+([\w:]+)\s*\{([^}]+)\}/);
+  if (groupMatch) {
+    imports.push(groupMatch[1]);
+  }
+  return imports;
+}
+
+function parseGoImports(text) {
+  const imports = [];
+  const allMatches = text.matchAll(/import\s+(?:\(\s*)?["']([^"']+)["']/g);
+  for (const m of allMatches) {
+    imports.push(m[1]);
+  }
+  return imports;
+}
+
+function parsePhpImports(text) {
+  const imports = [];
+  const match = text.match(/(?:use|require|include|require_once|include_once)\s*(?:\(\s*)?['"]([^'"]+)['"]/);
+  if (match) {
+    imports.push(match[1]);
+  }
+  return imports;
+}
+
+function parseRubyRequires(text) {
+  const imports = [];
+  const match = text.match(/(?:require|load|require_relative)\s+['"]([^'"]+)['"]/);
+  if (match) {
+    imports.push(match[1]);
+  }
+  return imports;
+}
+
+function parseCSharpUsings(text) {
+  const imports = [];
+  const match = text.match(/using\s+(?:static\s+)?([\w.]+)\s*;/);
+  if (match) {
+    imports.push(match[1]);
+  }
+  return imports;
+}
+
+function parseKotlinImports(text) {
+  const imports = [];
+  const match = text.match(/import\s+([\w.]+)/);
+  if (match) {
+    imports.push(match[1]);
+  }
+  return imports;
+}
+
+function parseSwiftImports(text) {
+  const imports = [];
+  const match = text.match(/import\s+([\w]+)/);
+  if (match) {
+    imports.push(match[1]);
+  }
+  return imports;
+}
+
+function parseBashSource(text) {
+  const imports = [];
+  const match = text.match(/(?:source|\.)\s+['"]?([^'";\s]+)['"]?/);
+  if (match) {
+    imports.push(match[1]);
+  }
+  return imports;
+}
+
+function parseScalaImports(text) {
+  const imports = [];
+  const match = text.match(/import\s+([\w.]+)/);
+  if (match) {
+    imports.push(match[1]);
+  }
+  return imports;
+}
+
+function parseElixirRequires(text) {
+  const imports = [];
+  const match = text.match(/(?:require|import|use|alias)\s+([\w.]+)/);
+  if (match) {
+    imports.push(match[1]);
+  }
+  return imports;
+}
+
+function parseDartImports(text) {
+  const imports = [];
+  const match = text.match(/import\s+['"]([^'"]+)['"]/);
+  if (match) {
+    imports.push(match[1]);
+  }
+  return imports;
+}
+
+function parseLuaRequires(text) {
+  const imports = [];
+  const match = text.match(/require\s*\(\s*['"]([^'"]+)['"]\s*\)/);
+  if (match) {
+    imports.push(match[1]);
+  }
+  return imports;
+}
+
+function extractHtmlResourceRefs(source) {
+  const refs = [];
+  const scriptMatches = source.matchAll(/<script[^>]+src\s*=\s*["']([^"']+)["']/gi);
+  for (const m of scriptMatches) {
+    if (m[1]) refs.push(m[1]);
+  }
+  const linkMatches = source.matchAll(/<link[^>]+href\s*=\s*["']([^"']+)["']/gi);
+  for (const m of linkMatches) {
+    if (m[1]) refs.push(m[1]);
+  }
+  return refs;
+}
+
+function extractCssImports(source) {
+  const refs = [];
+  const importMatches = source.matchAll(/@import\s+(?:url\()?['"]?([^'")\s;]+)['"]?\)?/gi);
+  for (const m of importMatches) {
+    if (m[1]) refs.push(m[1]);
+  }
+  return refs;
+}
+
 function normalizeCallableName(calleeText) {
   const cleaned = calleeText.replace(/\?/g, '').trim();
   const parts = cleaned.split('.').map((part) => part.trim()).filter(Boolean);
@@ -136,6 +302,49 @@ function getCalleeText(node, source, language) {
     return nameNode ? getNodeText(nameNode, source).trim() : getNodeText(node, source).trim();
   }
 
+  if (C_LIKE_LANGUAGES.has(language) || GO_LIKE_LANGUAGES.has(language)) {
+    const functionNode = node.childForFieldName('function');
+    if (functionNode) {
+      return getNodeText(functionNode, source).trim();
+    }
+    const nameNode = node.childForFieldName('name');
+    return nameNode ? getNodeText(nameNode, source).trim() : getNodeText(node, source).trim();
+  }
+
+  if (PHP_LIKE_LANGUAGES.has(language)) {
+    const nameNode = node.childForFieldName('name');
+    return nameNode ? getNodeText(nameNode, source).trim() : getNodeText(node, source).trim();
+  }
+
+  if (RUBY_LIKE_LANGUAGES.has(language)) {
+    const nameNode = node.childForFieldName('name');
+    return nameNode ? getNodeText(nameNode, source).trim() : getNodeText(node, source).trim();
+  }
+
+  if (CSHARP_LANGUAGES.has(language) || KOTLIN_LANGUAGES.has(language) || SWIFT_LANGUAGES.has(language)) {
+    const nameNode = node.childForFieldName('name');
+    return nameNode ? getNodeText(nameNode, source).trim() : getNodeText(node, source).trim();
+  }
+
+  if (BASH_LIKE_LANGUAGES.has(language)) {
+    const text = getNodeText(node, source).trim();
+    return text.split(/\s/)[0] || null;
+  }
+
+  if (LUA_LIKE_LANGUAGES.has(language)) {
+    const functionNode = node.childForFieldName('function');
+    if (functionNode) {
+      return getNodeText(functionNode, source).trim();
+    }
+    const nameNode = node.childForFieldName('name');
+    return nameNode ? getNodeText(nameNode, source).trim() : null;
+  }
+
+  if (ELIXIR_LIKE_LANGUAGES.has(language) || SCALA_LIKE_LANGUAGES.has(language) || DART_LIKE_LANGUAGES.has(language)) {
+    const nameNode = node.childForFieldName('name');
+    return nameNode ? getNodeText(nameNode, source).trim() : getNodeText(node, source).trim();
+  }
+
   return null;
 }
 
@@ -154,6 +363,14 @@ function findDbTechnology(calleeText) {
     ['db.', 'Database'],
     ['database', 'Database'],
     ['model.', 'Database'],
+    ['gorm', 'SQL'],
+    ['sqlx', 'SQL'],
+    ['diesel', 'SQL'],
+    ['hibernate', 'SQL'],
+    ['jpa', 'SQL'],
+    ['activerecord', 'SQL'],
+    ['sequel', 'SQL'],
+    ['datamapper', 'SQL'],
   ];
 
   for (const [token, name] of mapping) {
@@ -190,6 +407,50 @@ function detectExternalService(calleeText, argumentTexts) {
   }
 
   if (lower.startsWith('axios') || lower === 'fetch' || lower.startsWith('got') || lower.startsWith('http.') || lower.startsWith('https.')) {
+    return calleeText.split('.')[0];
+  }
+
+  if (lower.startsWith('requests') || lower.startsWith('httpx') || lower.startsWith('aiohttp') || lower.startsWith('urllib')) {
+    return calleeText.split('.')[0];
+  }
+
+  if (lower.startsWith('net/http') || lower.startsWith('http.')) {
+    return 'http';
+  }
+
+  if (lower.startsWith('reqwest') || lower.startsWith('hyper')) {
+    return calleeText.split('.')[0];
+  }
+
+  if (lower.startsWith('curl') || lower.startsWith('wget')) {
+    return calleeText.split('.')[0];
+  }
+
+  if (lower.startsWith('httpclient') || lower.startsWith('httparty') || lower.startsWith('faraday')) {
+    return calleeText.split('.')[0];
+  }
+
+  if (lower.startsWith('guzzle') || lower.startsWith('curl')) {
+    return calleeText.split('.')[0];
+  }
+
+  if (lower.startsWith('restclient') || lower.startsWith('open-uri')) {
+    return calleeText.split('.')[0];
+  }
+
+  if (lower.startsWith(' dio') || lower.startsWith('http')) {
+    return calleeText.split('.')[0];
+  }
+
+  if (lower.startsWith('nsurlsession') || lower.startsWith('alamofire')) {
+    return calleeText.split('.')[0];
+  }
+
+  if (lower.startsWith('okhttp') || lower.startsWith('retrofit') || lower.startsWith('ktor')) {
+    return calleeText.split('.')[0];
+  }
+
+  if (lower.startsWith('web') && lower.includes('request')) {
     return calleeText.split('.')[0];
   }
 
@@ -255,6 +516,92 @@ function collectDeclaredFunctions(rootNode, source, language, relativePath, grap
         declareFunction(getNodeText(nameNode, source), node);
       }
     }
+
+    if (C_LIKE_LANGUAGES.has(language)) {
+      if (node.type === 'function_definition' || node.type === 'function_item') {
+        const declaratorNode = node.childForFieldName('declarator') || node.childForFieldName('name');
+        if (declaratorNode) {
+          declareFunction(getNodeText(declaratorNode, source).replace(/\(.*/, ''), node);
+        }
+      }
+    }
+
+    if (language === 'go' && node.type === 'function_declaration') {
+      const nameNode = node.childForFieldName('name');
+      if (nameNode) {
+        declareFunction(getNodeText(nameNode, source), node);
+      }
+    }
+
+    if (PHP_LIKE_LANGUAGES.has(language) && node.type === 'function_definition') {
+      const nameNode = node.childForFieldName('name');
+      if (nameNode) {
+        declareFunction(getNodeText(nameNode, source), node);
+      }
+    }
+
+    if (RUBY_LIKE_LANGUAGES.has(language) && node.type === 'method') {
+      const nameNode = node.childForFieldName('name');
+      if (nameNode) {
+        declareFunction(getNodeText(nameNode, source), node);
+      }
+    }
+
+    if (CSHARP_LANGUAGES.has(language) && node.type === 'method_declaration') {
+      const nameNode = node.childForFieldName('name');
+      if (nameNode) {
+        declareFunction(getNodeText(nameNode, source), node);
+      }
+    }
+
+    if (KOTLIN_LANGUAGES.has(language) && node.type === 'function_declaration') {
+      const nameNode = node.childForFieldName('name');
+      if (nameNode) {
+        declareFunction(getNodeText(nameNode, source), node);
+      }
+    }
+
+    if (SWIFT_LANGUAGES.has(language) && node.type === 'function_declaration') {
+      const nameNode = node.childForFieldName('name');
+      if (nameNode) {
+        declareFunction(getNodeText(nameNode, source), node);
+      }
+    }
+
+    if (BASH_LIKE_LANGUAGES.has(language) && node.type === 'function_definition') {
+      const nameNode = node.childForFieldName('name');
+      if (nameNode) {
+        declareFunction(getNodeText(nameNode, source), node);
+      }
+    }
+
+    if (LUA_LIKE_LANGUAGES.has(language) && node.type === 'function_declaration') {
+      const nameNode = node.childForFieldName('name');
+      if (nameNode) {
+        declareFunction(getNodeText(nameNode, source), node);
+      }
+    }
+
+    if (ELIXIR_LIKE_LANGUAGES.has(language) && node.type === 'function_declaration') {
+      const nameNode = node.childForFieldName('name');
+      if (nameNode) {
+        declareFunction(getNodeText(nameNode, source), node);
+      }
+    }
+
+    if (SCALA_LIKE_LANGUAGES.has(language) && (node.type === 'function_definition' || node.type === 'val_definition')) {
+      const nameNode = node.childForFieldName('name');
+      if (nameNode) {
+        declareFunction(getNodeText(nameNode, source), node);
+      }
+    }
+
+    if (DART_LIKE_LANGUAGES.has(language) && (node.type === 'function_signature' || node.type === 'constructor_declaration')) {
+      const nameNode = node.childForFieldName('name');
+      if (nameNode) {
+        declareFunction(getNodeText(nameNode, source), node);
+      }
+    }
   });
 
   return declarationMap;
@@ -300,6 +647,74 @@ function getCurrentFunctionContext(node, source, language, relativePath, declara
     }
   }
 
+  if (C_LIKE_LANGUAGES.has(language)) {
+    if (node.type === 'function_definition' || node.type === 'function_item') {
+      const declaratorNode = node.childForFieldName('declarator') || node.childForFieldName('name');
+      if (declaratorNode) {
+        const name = getNodeText(declaratorNode, source).replace(/\(.*/, '');
+        if (name) {
+          return declarationMap.get(name) ?? functionNodeId(relativePath, name);
+        }
+      }
+    }
+  }
+
+  if (language === 'go' && node.type === 'function_declaration') {
+    const nameNode = node.childForFieldName('name');
+    const name = nameNode ? getNodeText(nameNode, source) : null;
+    if (name) {
+      return declarationMap.get(name) ?? functionNodeId(relativePath, name);
+    }
+  }
+
+  if (PHP_LIKE_LANGUAGES.has(language) && node.type === 'function_definition') {
+    const nameNode = node.childForFieldName('name');
+    const name = nameNode ? getNodeText(nameNode, source) : null;
+    if (name) {
+      return declarationMap.get(name) ?? functionNodeId(relativePath, name);
+    }
+  }
+
+  if (RUBY_LIKE_LANGUAGES.has(language) && node.type === 'method') {
+    const nameNode = node.childForFieldName('name');
+    const name = nameNode ? getNodeText(nameNode, source) : null;
+    if (name) {
+      return declarationMap.get(name) ?? functionNodeId(relativePath, name);
+    }
+  }
+
+  if (CSHARP_LANGUAGES.has(language) && node.type === 'method_declaration') {
+    const nameNode = node.childForFieldName('name');
+    const name = nameNode ? getNodeText(nameNode, source) : null;
+    if (name) {
+      return declarationMap.get(name) ?? functionNodeId(relativePath, name);
+    }
+  }
+
+  if (KOTLIN_LANGUAGES.has(language) && node.type === 'function_declaration') {
+    const nameNode = node.childForFieldName('name');
+    const name = nameNode ? getNodeText(nameNode, source) : null;
+    if (name) {
+      return declarationMap.get(name) ?? functionNodeId(relativePath, name);
+    }
+  }
+
+  if (SWIFT_LANGUAGES.has(language) && node.type === 'function_declaration') {
+    const nameNode = node.childForFieldName('name');
+    const name = nameNode ? getNodeText(nameNode, source) : null;
+    if (name) {
+      return declarationMap.get(name) ?? functionNodeId(relativePath, name);
+    }
+  }
+
+  if (BASH_LIKE_LANGUAGES.has(language) && node.type === 'function_definition') {
+    const nameNode = node.childForFieldName('name');
+    const name = nameNode ? getNodeText(nameNode, source) : null;
+    if (name) {
+      return declarationMap.get(name) ?? functionNodeId(relativePath, name);
+    }
+  }
+
   return existingContext;
 }
 
@@ -332,6 +747,97 @@ function extractImports(node, language, source) {
     if (importText) {
       imports.push(importText);
     }
+  }
+
+  if (C_LIKE_LANGUAGES.has(language) && node.type === 'preproc_include') {
+    const pathNode = node.childForFieldName('path');
+    if (pathNode) {
+      imports.push(...parseCIncludes(getNodeText(pathNode, source)));
+    } else {
+      imports.push(...parseCIncludes(getNodeText(node, source)));
+    }
+  }
+
+  if (language === 'rust' && node.type === 'use_declaration') {
+    imports.push(...parseRustUseStatements(getNodeText(node, source)));
+  }
+
+  if (language === 'go' && (node.type === 'import_declaration' || node.type === 'import_spec')) {
+    imports.push(...parseGoImports(getNodeText(node, source)));
+  }
+
+  if (PHP_LIKE_LANGUAGES.has(language)) {
+    if (node.type === 'namespace_use_declaration' || node.type === 'require_expression' ||
+        node.type === 'include_expression' || node.type === 'require_once_expression' ||
+        node.type === 'include_once_expression') {
+      imports.push(...parsePhpImports(getNodeText(node, source)));
+    }
+  }
+
+  if (RUBY_LIKE_LANGUAGES.has(language)) {
+    if (node.type === 'call' || node.type === 'method_call') {
+      const text = getNodeText(node, source);
+      if (/\b(require|load|require_relative)\b/.test(text)) {
+        imports.push(...parseRubyRequires(text));
+      }
+    }
+  }
+
+  if (CSHARP_LANGUAGES.has(language) && node.type === 'using_directive') {
+    imports.push(...parseCSharpUsings(getNodeText(node, source)));
+  }
+
+  if (KOTLIN_LANGUAGES.has(language) && node.type === 'import_header') {
+    imports.push(...parseKotlinImports(getNodeText(node, source)));
+  }
+
+  if (SWIFT_LANGUAGES.has(language) && node.type === 'import_declaration') {
+    imports.push(...parseSwiftImports(getNodeText(node, source)));
+  }
+
+  if (BASH_LIKE_LANGUAGES.has(language)) {
+    if (node.type === 'command' || node.type === 'command_substitution') {
+      const text = getNodeText(node, source);
+      if (/\b(source|\.)\b/.test(text)) {
+        imports.push(...parseBashSource(text));
+      }
+    }
+  }
+
+  if (LUA_LIKE_LANGUAGES.has(language) && node.type === 'function_call') {
+    const text = getNodeText(node, source);
+    if (/\brequire\b/.test(text)) {
+      imports.push(...parseLuaRequires(text));
+    }
+  }
+
+  if (ELIXIR_LIKE_LANGUAGES.has(language)) {
+    if (node.type === 'call' || node.type === 'unqualified_call') {
+      const text = getNodeText(node, source);
+      if (/\b(require|import|use|alias)\b/.test(text)) {
+        imports.push(...parseElixirRequires(text));
+      }
+    }
+  }
+
+  if (SCALA_LIKE_LANGUAGES.has(language) && node.type === 'import_declaration') {
+    imports.push(...parseScalaImports(getNodeText(node, source)));
+  }
+
+  if (DART_LIKE_LANGUAGES.has(language) && node.type === 'import_or_export') {
+    imports.push(...parseDartImports(getNodeText(node, source)));
+  }
+
+  if (HTML_LIKE_LANGUAGES.has(language) && node.type === 'script_element') {
+    const srcAttr = node.children.find((c) => c.type === 'attribute' && getNodeText(c, source).includes('src'));
+    if (srcAttr) {
+      const match = getNodeText(srcAttr, source).match(/src\s*=\s*["']([^"']+)["']/);
+      if (match) imports.push(match[1]);
+    }
+  }
+
+  if (CSS_LIKE_LANGUAGES.has(language) && node.type === 'import_statement') {
+    imports.push(...extractCssImports(getNodeText(node, source)));
   }
 
   return imports;
@@ -411,6 +917,24 @@ function extractDependenciesFromAst(parsedFile, repositoryPath, graph) {
     return;
   }
 
+  if (HTML_LIKE_LANGUAGES.has(language)) {
+    const resourceRefs = extractHtmlResourceRefs(source);
+    for (const ref of resourceRefs) {
+      const refId = moduleNodeId(ref);
+      graph.upsertNode({ id: refId, type: 'MODULE', name: ref });
+      graph.upsertEdge({ from: fileId, to: refId, type: 'IMPORTS' });
+    }
+  }
+
+  if (CSS_LIKE_LANGUAGES.has(language)) {
+    const cssRefs = extractCssImports(source);
+    for (const ref of cssRefs) {
+      const refId = moduleNodeId(ref);
+      graph.upsertNode({ id: refId, type: 'MODULE', name: ref });
+      graph.upsertEdge({ from: fileId, to: refId, type: 'IMPORTS' });
+    }
+  }
+
   const declarationMap = collectDeclaredFunctions(tree.rootNode, source, language, relativePath, graph);
 
   walkTree(
@@ -433,7 +957,19 @@ function extractDependenciesFromAst(parsedFile, repositoryPath, graph) {
       const isCallExpression =
         (JS_LIKE_LANGUAGES.has(language) && node.type === 'call_expression') ||
         (language === 'python' && node.type === 'call') ||
-        (language === 'java' && node.type === 'method_invocation');
+        (language === 'java' && node.type === 'method_invocation') ||
+        (C_LIKE_LANGUAGES.has(language) && (node.type === 'call_expression' || node.type === 'function_call')) ||
+        (GO_LIKE_LANGUAGES.has(language) && node.type === 'call_expression') ||
+        (PHP_LIKE_LANGUAGES.has(language) && node.type === 'function_call_expression') ||
+        (RUBY_LIKE_LANGUAGES.has(language) && (node.type === 'call' || node.type === 'method_call')) ||
+        (CSHARP_LANGUAGES.has(language) && node.type === 'invocation_expression') ||
+        (KOTLIN_LANGUAGES.has(language) && node.type === 'call_expression') ||
+        (SWIFT_LANGUAGES.has(language) && node.type === 'call_expression') ||
+        (BASH_LIKE_LANGUAGES.has(language) && node.type === 'command') ||
+        (LUA_LIKE_LANGUAGES.has(language) && node.type === 'function_call') ||
+        (ELIXIR_LIKE_LANGUAGES.has(language) && (node.type === 'call' || node.type === 'function_call')) ||
+        (SCALA_LIKE_LANGUAGES.has(language) && node.type === 'function_call') ||
+        (DART_LIKE_LANGUAGES.has(language) && node.type === 'function_call');
 
       if (isCallExpression) {
         const calleeText = getCalleeText(node, source, language);

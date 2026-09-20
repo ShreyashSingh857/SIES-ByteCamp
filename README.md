@@ -58,7 +58,7 @@ GitHub URL / Local ZIP
 ## Key Features
 
 ### 🔍 Polyglot AST Analysis
-Tree-sitter WASM parsers extract deep structure from JavaScript, TypeScript, Python, Java, Go, Rust, Ruby, C#, Kotlin, and PHP — all in a single pipeline. SQL files are parsed for table and column references.
+Tree-sitter WASM parsers extract deep structure from JavaScript, TypeScript, Python, Java, C, C++, Go, Rust, PHP, Ruby, C#, Kotlin, Swift, HTML, CSS, JSON, Bash, Lua, Elixir, Scala, Dart, and YAML — all in a single pipeline. SQL files are parsed for table and column references.
 
 ### 🕸️ Unified Dependency Graph
 All extracted entities are merged into a single Neo4j knowledge graph with typed relationships:
@@ -173,7 +173,8 @@ SIES-ByteCamp/
 │   │   ├── llm/
 │   │   │   └── graphIntelligence.js    # LLM graph enrichment
 │   │   └── config/
-│   │       └── languages.js       # Language → WASM mapping
+│   │       ├── languages.js       # Language → WASM mapping (loads from YAML)
+│   │       └── languages.yaml     # Language configuration (source of truth)
 │
 └── workspace/
     ├── repositories/              # Cloned repos (gitignored)
@@ -302,7 +303,52 @@ curl -X POST http://localhost:5000/api/db/seed/schema
 | TypeScript / TSX | Tree-sitter WASM | ✅ | ✅ | ✅ | ✅ |
 | Python | Tree-sitter WASM | ✅ | ✅ | ✅ (Flask/FastAPI) | ✅ |
 | Java | Tree-sitter WASM | ✅ | ✅ | ✅ (Spring) | ✅ |
+| C | Tree-sitter WASM | ✅ | ✅ | — | ✅ |
+| C++ | Tree-sitter WASM | ✅ | ✅ | — | ✅ |
+| Go | Tree-sitter WASM | ✅ | ✅ | ✅ (net/http) | ✅ (GORM/sqlx) |
+| Rust | Tree-sitter WASM | ✅ | ✅ | ✅ (Actix/Axum) | ✅ (Diesel) |
+| PHP | Tree-sitter WASM | ✅ | ✅ | ✅ (Laravel/Symfony) | ✅ |
+| Ruby | Tree-sitter WASM | ✅ | ✅ | ✅ (Rails/Sinatra) | ✅ (ActiveRecord) |
+| C# | Tree-sitter WASM | ✅ | ✅ | ✅ (ASP.NET) | ✅ (EF Core) |
+| Kotlin | Tree-sitter WASM | ✅ | ✅ | ✅ (Spring/Ktor) | ✅ |
+| Swift | Tree-sitter WASM | ✅ | ✅ | ✅ (Vapor) | ✅ |
+| HTML | Tree-sitter WASM | ✅ (script/link) | — | — | — |
+| CSS | Tree-sitter WASM | ✅ (@import) | — | — | — |
+| JSON | Tree-sitter WASM | — | — | — | — |
+| Bash / Shell | Tree-sitter WASM | ✅ (source) | ✅ | — | — |
+| Lua | Tree-sitter WASM | ✅ (require) | ✅ | — | — |
+| Elixir | Tree-sitter WASM | ✅ (use/import/alias) | ✅ | — | — |
+| Scala | Tree-sitter WASM | ✅ | ✅ | — | ✅ (Slick) |
 | SQL / PSQL | Regex extraction | — | — | — | ✅ (table/column) |
+| YAML | Regex-based | — | — | — | — |
+| Dart | Regex-based | — | — | — | — |
+
+### Language Configuration (YAML)
+
+Language support is driven by `AI-Engine/src/config/languages.yaml`. To add a new language:
+
+1. Ensure a WASM grammar exists in `node_modules/tree-sitter-wasms/out/`
+2. Add an entry to `languages.yaml`:
+   ```yaml
+   - name: mylang
+     extensions:
+       - .ml
+       - .mli
+     wasm_grammar: tree-sitter-mylang
+   ```
+3. Add AST extraction logic in `extractDependencies.js` (import parsing, function detection, call graph)
+4. Set `wasm_grammar: null` for languages without WASM support (regex-based extraction only)
+
+**YAML Structure:**
+
+```yaml
+languages:
+  - name: <language-key>          # Used in graph nodes (e.g., "javascript")
+    extensions:                   # File extensions to match
+      - .ext1
+      - .ext2
+    wasm_grammar: <grammar-name> # WASM file name without extension, or null
+```
 
 ---
 
